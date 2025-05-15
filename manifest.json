@@ -1,0 +1,17 @@
+{
+    "manifest_version": 3,
+    "name": "Exam Timer",
+    "version": "1.0",
+    "description": "A Chrome extension with Clock, Timer, and Stopwatch tools for timed reading.",
+    "action": {
+        "default_popup": "popup.html"
+    },
+    "permissions": ["scripting", "activeTab"],
+    "host_permissions": ["<all_urls>"],
+    "web_accessible_resources": [
+        {
+            "resources": ["scripts/*.js", "styles/*.css"],
+            "matches": ["<all_urls>"]
+        }
+    ]
+}
