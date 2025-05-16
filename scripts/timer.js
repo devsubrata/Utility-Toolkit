@@ -6,14 +6,18 @@ if (!document.getElementById("timerWindow")) {
 
     const timerDiv = document.createElement("div");
     timerDiv.id = "timerWindow";
+    timerDiv.classList.add("floating-window");
     timerDiv.innerHTML = `
-        <div>
+        <div class="title-bar">
             <span class="title">⏳ Timer</span>
-            <span class="close-btn" title="Close">❌</span>
+            <span class="minimize-btn ctrl" title="minimize">—</span>
+            <span class="close-btn ctrl" title="Close">❌</span>
         </div>
-        <input type="number" id="minutesInput" placeholder="Minutes" />
-        <button id="startTimerBtn">Start</button>
-        <div id="timerDisplay">00:00</div>
+        <div class="content">
+            <input type="number" id="minutesInput" placeholder="Minutes" />
+            <button id="startTimerBtn">Start</button>
+            <div id="timerDisplay">00:00</div>
+        </div>
     `;
     document.body.appendChild(timerDiv);
     makeDraggable(timerDiv);
@@ -47,8 +51,6 @@ if (!document.getElementById("timerWindow")) {
         }, 1000);
     });
 
-    timerDiv.querySelector(".close-btn").addEventListener("click", () => {
-        timerDiv.remove();
-        if (countdown) clearInterval(countdown);
-    });
+    minimizeWindow(timerDiv.querySelector(".minimize-btn"), timerDiv);
+    closeWindow(timerDiv.querySelector(".close-btn"), timerDiv, countdown);
 }

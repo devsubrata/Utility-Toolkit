@@ -3,7 +3,7 @@ const injectScript = (file) => {
         const tabId = tabs[0].id;
         chrome.scripting.executeScript({
             target: { tabId: tabId },
-            files: ["scripts/drag.js", `scripts/${file}`],
+            files: ["scripts/utilityFunctions.js", `scripts/${file}`],
         });
     });
 };

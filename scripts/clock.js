@@ -6,13 +6,17 @@ if (!document.getElementById("clockWindow")) {
 
     const clockDiv = document.createElement("div");
     clockDiv.id = "clockWindow";
+    clockDiv.classList.add("floating-window");
     clockDiv.innerHTML = `
-        <div>
+        <div class="title-bar">
             <span class="title">🕒 Clock</span>
-            <span class="close-btn" title="Close">❌</span>
+            <span class="minimize-btn ctrl" title="minimize">—</span>
+            <span class="close-btn ctrl" title="Close">❌</span>
         </div>
-        <div id="clockDisplay">--:--:--</div>
-        <div id="clockDate">Loading date...</div>
+        <div class="content">
+            <div id="clockDisplay">--:--:--</div>
+            <div id="clockDate">Loading date...</div>
+        </div>
     `;
     document.body.appendChild(clockDiv);
     makeDraggable(clockDiv);
@@ -36,8 +40,6 @@ if (!document.getElementById("clockWindow")) {
 
     clockInterval = setInterval(updateClock, 1000);
 
-    clockDiv.querySelector(".close-btn").addEventListener("click", () => {
-        clockDiv.remove();
-        if (clockInterval) clearInterval(clockInterval);
-    });
+    minimizeWindow(clockDiv.querySelector(".minimize-btn"), clockDiv);
+    closeWindow(clockDiv.querySelector(".close-btn"), clockDiv, clockInterval);
 }

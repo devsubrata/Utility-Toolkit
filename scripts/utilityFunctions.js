@@ -25,3 +25,16 @@ function makeDraggable(el) {
         titleBar.style.cursor = "grab";
     });
 }
+
+function closeWindow(elm, ui, interval) {
+    elm.addEventListener("click", () => {
+        ui.remove();
+        if (interval) clearInterval(interval);
+    });
+}
+
+function minimizeWindow(elm, ui) {
+    elm.addEventListener("click", () => {
+        ui.classList.toggle("minimized");
+    });
+}

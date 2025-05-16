@@ -6,17 +6,21 @@ if (!document.getElementById("stopwatchWindow")) {
 
     const stopwatchDiv = document.createElement("div");
     stopwatchDiv.id = "stopwatchWindow";
+    stopwatchDiv.classList.add("floating-window");
     stopwatchDiv.innerHTML = `
-        <div>
+        <div class="title-bar">
             <span class="title">⏱️ Stop Watch</span>
-            <span class="close-btn" title="Close">❌</span>
+            <span class="minimize-btn ctrl" title="minimize">—</span>
+            <span class="close-btn ctrl" title="Close">❌</span>
         </div>
-        <div class="btns">
-            <button id="startSW">Start</button>
-            <button id="stopSW">Stop</button>
-            <button id="resetSW">Reset</button>
+        <div class="content">
+            <div class="btns">
+                <button id="startSW">Start</button>
+                <button id="stopSW">Stop</button>
+                <button id="resetSW">Reset</button>
+            </div>
+            <div id="swDisplay">00:00:00</div>
         </div>
-        <div id="swDisplay">00:00:00</div>
     `;
     document.body.appendChild(stopwatchDiv);
     makeDraggable(stopwatchDiv);
@@ -55,8 +59,6 @@ if (!document.getElementById("stopwatchWindow")) {
         updateSW();
     };
 
-    stopwatchDiv.querySelector(".close-btn").addEventListener("click", () => {
-        stopwatchDiv.remove();
-        if (swInterval) clearInterval(swInterval);
-    });
+    minimizeWindow(stopwatchDiv.querySelector(".minimize-btn"), stopwatchDiv);
+    closeWindow(stopwatchDiv.querySelector(".close-btn"), stopwatchDiv, swInterval);
 }

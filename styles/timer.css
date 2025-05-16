@@ -13,7 +13,7 @@
     padding: 10px;
     z-index: 9999;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    width: 200px;
+    min-width: 250px;
     font-family: sans-serif;
     border-radius: 8px;
     overflow: hidden;
@@ -43,9 +43,22 @@
     font-weight: bold;
     margin-bottom: 5px;
 }
-.close-btn {
-    position: absolute;
-    top: 10px;
-    right: 10px;
+
+.title-bar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.title-bar .ctrl {
     cursor: pointer;
+}
+
+.minimize-btn {
+    margin-left: auto;
+}
+
+.floating-window.minimized .content {
+    display: none;
 }

@@ -4,7 +4,12 @@
     "version": "1.0",
     "description": "A Chrome extension with Clock, Timer, and Stopwatch tools for timed reading.",
     "action": {
-        "default_popup": "popup.html"
+        "default_popup": "popup.html",
+        "default_icon": {
+            "16": "clock.png",
+            "48": "clock.png",
+            "128": "clock.png"
+        }
     },
     "permissions": ["scripting", "activeTab"],
     "host_permissions": ["<all_urls>"],
