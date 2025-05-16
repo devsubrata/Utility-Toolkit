@@ -11,7 +11,7 @@
     background: #fff;
     border: 1px solid #ccc;
     padding: 10px;
-    z-index: 9999;
+    z-index: 25000;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     min-width: 250px;
     font-family: sans-serif;

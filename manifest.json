@@ -15,7 +15,7 @@
     "host_permissions": ["<all_urls>"],
     "web_accessible_resources": [
         {
-            "resources": ["scripts/*.js", "styles/*.css"],
+            "resources": ["scripts/*.js", "styles/*.css", "audio/*.mp3"],
             "matches": ["<all_urls>"]
         }
     ]

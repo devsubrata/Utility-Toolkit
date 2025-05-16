@@ -1,4 +1,6 @@
 if (!document.getElementById("timerWindow")) {
+    const alarmAudio = new Audio(chrome.runtime.getURL("audio/timer_alarm.mp3"));
+
     const link = document.createElement("link");
     link.rel = "stylesheet";
     link.href = chrome.runtime.getURL("styles/timer.css");
@@ -42,6 +44,7 @@ if (!document.getElementById("timerWindow")) {
             if (totalSeconds <= 0) {
                 clearInterval(countdown);
                 display.textContent = "⏰ Done!";
+                alarmAudio.play();
                 return;
             }
             totalSeconds--;
