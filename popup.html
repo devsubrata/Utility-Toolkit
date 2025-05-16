@@ -1,36 +1,22 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <style>
-            body {
-                font-family: sans-serif;
-                padding: 10px;
-                padding-top: 0;
-                text-align: center;
-                background-color: #b5e9e9;
-                border-radius: 10px;
-            }
-            button {
-                margin: 10px;
-                padding: 0.8rem;
-                font-size: 1rem;
-                color: #fff;
-                background: linear-gradient(to top, #00154c, #12376e, #23487f);
-                border: none;
-                outline: none;
-                box-shadow: 0.2rem 0.2rem 1rem #777;
-                cursor: pointer;
-                display: block;
-                width: 150px;
-                border-radius: 10px;
-            }
-        </style>
+        <meta charset="UTF-8" />
+        <title>Utility Tools</title>
+        <link rel="stylesheet" href="popup.css" />
+        <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho&display=swap" rel="stylesheet" />
     </head>
     <body>
-        <h1>Exam Timer</h1>
-        <button id="clockBtn">Clock</button>
-        <button id="timerBtn">Timer</button>
-        <button id="stopwatchBtn">Stop Watch</button>
+        <h2 class="title">🧰 Utility Toolkit</h2>
+        <div class="widget-grid">
+            <button id="openClock">🕒 Clock</button>
+            <button id="openTimer">⏲ Timer</button>
+            <button id="openStopwatch">⏱ Stopwatch</button>
+            <button id="openCalculator">🧮 Calculator</button>
+            <button id="openWeather">🌤 Weather</button>
+            <!-- Add more widgets here -->
+        </div>
+
         <script src="popup.js"></script>
     </body>
 </html>

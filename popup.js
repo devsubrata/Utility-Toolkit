@@ -8,8 +8,6 @@ const injectScript = (file) => {
     });
 };
 
-document.getElementById("clockBtn").addEventListener("click", () => injectScript("clock.js"));
-document.getElementById("timerBtn").addEventListener("click", () => injectScript("timer.js"));
-document
-    .getElementById("stopwatchBtn")
-    .addEventListener("click", () => injectScript("stopwatch.js"));
+document.getElementById("openClock").addEventListener("click", () => injectScript("clock.js"));
+document.getElementById("openTimer").addEventListener("click", () => injectScript("timer.js"));
+document.getElementById("openStopwatch").addEventListener("click", () => injectScript("stopwatch.js"));

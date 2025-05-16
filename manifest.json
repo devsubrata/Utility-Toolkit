@@ -1,21 +1,21 @@
 {
     "manifest_version": 3,
-    "name": "Exam Timer",
+    "name": "Utility Toolkit",
     "version": "1.0",
-    "description": "A Chrome extension with Clock, Timer, and Stopwatch tools for timed reading.",
+    "description": "A Chrome extension containing Utility widgets.",
     "action": {
         "default_popup": "popup.html",
         "default_icon": {
-            "16": "clock.png",
-            "48": "clock.png",
-            "128": "clock.png"
+            "16": "icon.png",
+            "48": "icon.png",
+            "128": "icon.png"
         }
     },
     "permissions": ["scripting", "activeTab"],
     "host_permissions": ["<all_urls>"],
     "web_accessible_resources": [
         {
-            "resources": ["scripts/*.js", "styles/*.css", "audio/*.mp3"],
+            "resources": ["scripts/*.js", "styles/*.css"],
             "matches": ["<all_urls>"]
         }
     ]
