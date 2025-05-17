@@ -1,0 +1,86 @@
+@import url("https://fonts.googleapis.com/css2?family=Shippori+Mincho&display=swap");
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+#weatherWidget {
+    position: fixed;
+    top: 150px;
+    left: 100px;
+    width: 250px;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 12px;
+    box-shadow: 2px 4px 8px rgba(0, 0, 0, 0.1);
+    user-select: none;
+    z-index: 25000;
+    padding: 0;
+    font-family: "Shippori Mincho", serif;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+#weatherWidget .title-bar {
+    background: #f0f0f0;
+    padding: 8px 10px;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.title-bar .ctrl {
+    cursor: pointer;
+}
+
+.minimize-btn {
+    margin-left: auto;
+}
+
+.content {
+    padding: 10px;
+}
+
+#weatherOutput {
+    width: 100%;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+#cityInput {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    margin-bottom: 6px;
+    border-radius: 5px;
+    outline: 2px solid lightskyblue;
+    border: none;
+}
+
+#cityInput:focus {
+    outline: 2px solid rgb(77, 178, 241);
+    transition: outline 0.4s;
+}
+
+#getWeatherBtn {
+    cursor: pointer;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    width: 100%;
+    padding: 10px;
+}
+#getWeatherBtn:hover {
+    background-color: #0056b3;
+    transition: all 0.4s;
+}
+
+.floating-window.minimized .content {
+    display: none;
+}
