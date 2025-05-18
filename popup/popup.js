@@ -13,3 +13,4 @@ document.getElementById("openTimer").addEventListener("click", () => injectScrip
 document.getElementById("openStopwatch").addEventListener("click", () => injectScript("stopwatch.js"));
 document.getElementById("openWeather").addEventListener("click", () => injectScript("weather.js"));
 document.getElementById("openSearchToolbar").addEventListener("click", () => injectScript("search.js"));
+document.getElementById("openAnnotationToolbar").addEventListener("click", () => injectScript("annotate.js"));

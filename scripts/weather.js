@@ -82,3 +82,15 @@ if (!document.getElementById("openWeather")) {
     minimizeWindow(weatherDiv.querySelector(".minimize-btn"), weatherDiv);
     closeWindow(weatherDiv.querySelector(".close-btn"), weatherDiv, null);
 }
+
+// fetch("https://get.geojs.io/v1/ip/geo.json")
+//     .then((res) => res.json())
+//     .then((data) => consoleLog(data));
+
+// if (navigator.geolocation) {
+//     navigator.geolocation.getCurrentPosition((pos) => {
+//         const { latitude, longitude } = pos.coords;
+//         consoleLog(`${latitude}, ${longitude}`);
+//         consoleLog({ latitude, longitude });
+//     });
+// }

@@ -3,6 +3,9 @@
     "name": "Utility Toolkit",
     "version": "1.0",
     "description": "A Chrome extension containing Utility widgets.",
+    "background": {
+        "service_worker": "background.js"
+    },
     "action": {
         "default_popup": "popup/popup.html",
         "default_icon": {
