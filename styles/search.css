@@ -1,0 +1,113 @@
+.search-modal {
+    display: none;
+    position: fixed;
+    top: 80%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    align-items: center;
+    gap: 8px;
+    background: #b2ebf2;
+    border: 2px solid #123eed;
+    border-radius: 5px;
+    padding: 6px 8px;
+    box-shadow: 0 4px 12px rgba(0, 150, 180, 0.15);
+}
+
+/* Search Input */
+#searchInput {
+    flex: 1;
+    min-width: 380px;
+    padding: 10px 15px;
+    border: 2px solid #80deea;
+    border-radius: 20px;
+    background-color: rgba(255, 255, 255, 0.8);
+    font-size: 20px;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+@media screen and (max-width: 850px) {
+    .search-modal {
+        flex-wrap: wrap;
+    }
+}
+
+#searchInput:focus {
+    border-color: #00acc1;
+    box-shadow: 0 0 0 2px rgba(0, 172, 193, 0.2);
+}
+
+/* Dropdown Select */
+#search_options {
+    padding: 10px 15px;
+    border: 1px solid #80deea;
+    border-radius: 20px;
+    background-color: rgba(255, 255, 255, 0.8);
+    color: #007c91;
+    font-size: 20px;
+    cursor: pointer;
+    outline: none;
+    appearance: none;
+    background-image: url('data:image/svg+xml;utf8,<svg fill="%23007c91" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    padding-right: 30px;
+}
+
+/* Search Button */
+#searchButton {
+    outline: none;
+    border: 1px solid gray;
+    width: 45px;
+    height: 45px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    font-size: 20px;
+    background: transparent;
+    transition: all 0.3s ease;
+}
+
+#searchButton:hover {
+    border-color: #00acc1;
+    box-shadow: 0 0 0 2px rgba(0, 172, 193, 0.2);
+}
+
+#clearSearchInput {
+    padding: 10px 20px;
+    background: linear-gradient(to right, #00acc1, #00838f);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+#clearSearchInput:hover {
+    background: linear-gradient(to right, #00838f, #006064);
+}
+
+/* Close Button */
+#closeSearchModal {
+    background: transparent;
+    border: none;
+    color: #007c91;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+#closeSearchModal:hover {
+    background: rgba(0, 150, 180, 0.1);
+}
