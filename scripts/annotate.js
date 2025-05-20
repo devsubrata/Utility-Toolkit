@@ -196,15 +196,6 @@ function injectCanvas() {
         }
     }
 
-    // Convert touch event to mouse-like coordinates
-    function getTouchPos(evt) {
-        let rect = canvas.getBoundingClientRect();
-        return {
-            x: evt.touches[0].clientX - rect.left,
-            y: evt.touches[0].clientY - rect.top,
-        };
-    }
-
     // Start drawing
     function startPainting(e) {
         e.preventDefault();
@@ -217,7 +208,7 @@ function injectCanvas() {
 
         painting = true;
 
-        let pos = e.type.includes("touch") ? getTouchPos(e) : { x: e.offsetX, y: e.offsetY };
+        let pos = { x: e.offsetX, y: e.offsetY };
         startX = pos.x;
         startY = pos.y;
 
@@ -242,7 +233,7 @@ function injectCanvas() {
         if (!painting) return;
         e.preventDefault();
 
-        let pos = e.type.includes("touch") ? getTouchPos(e) : { x: e.offsetX, y: e.offsetY };
+        let pos = { x: e.offsetX, y: e.offsetY };
 
         ctx.lineWidth = brushSize;
         ctx.lineCap = "square";
