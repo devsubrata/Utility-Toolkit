@@ -1,20 +1,12 @@
 function makeDraggable(el) {
-    let titleBar;
-    let isWhole = false;
-
-    titleBar = el.querySelector(".title");
-    if (!titleBar) {
-        titleBar = el;
-        isWhole = true;
-    }
-
     let isDragging = false;
     let offsetX, offsetY;
 
+    let titleBar = el.querySelector(".title") || el;
     titleBar.style.cursor = "grab";
 
     titleBar.addEventListener("mousedown", (e) => {
-        if (isWhole && e.target !== titleBar) return;
+        if (e.target !== titleBar) return;
 
         isDragging = true;
         offsetX = e.clientX - el.offsetLeft;
@@ -94,7 +86,7 @@ function colorList() {
         <div class="color-swatch" data-color="#365314" style="background-color: #365314"></div>
         <div class="color-swatch" data-color="#134e4a" style="background-color: #134e4a"></div>
         <div class="color-swatch" data-color="#050372" style="background-color: #050372"></div>
-        <div class="color-swatch" data-color="#0000ff" style="background-color: #040405"></div>
+        <div class="color-swatch" data-color="#0000ff" style="background-color: #0000ff"></div>
         <div class="color-swatch" data-color="#0047ab" style="background-color: #0047ab"></div>
         <div class="color-swatch" data-color="#2B0057" style="background-color: #2B0057"></div>
         <div class="color-swatch" data-color="#51158C" style="background-color: #51158C"></div>
