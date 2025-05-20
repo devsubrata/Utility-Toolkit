@@ -1,20 +1,12 @@
 function makeDraggable(el) {
-    let titleBar;
-    let isWhole = false;
-
-    titleBar = el.querySelector(".title");
-    if (!titleBar) {
-        titleBar = el;
-        isWhole = true;
-    }
-
     let isDragging = false;
     let offsetX, offsetY;
 
+    let titleBar = el.querySelector(".title") || el;
     titleBar.style.cursor = "grab";
 
     titleBar.addEventListener("mousedown", (e) => {
-        if (isWhole && e.target !== titleBar) return;
+        if (e.target !== titleBar) return;
 
         isDragging = true;
         offsetX = e.clientX - el.offsetLeft;
