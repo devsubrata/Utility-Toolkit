@@ -57,14 +57,20 @@ if (!document.getElementById("annotationToolbar")) {
                 <input type="number" title="Font Size" id="font_size" min="10" max="100" step="2" value="16"/>
                 <select id="bullet">
                     <option value="     ">5 Space</option>
-                    <option value="✅">✅</option>
+                    <option value="✅ ">✅</option>
+                    <option value="🔶">🔶</option>
+                    <option value="🔹">🔹</option>
                     <option value="➡️" selected>➡️</option>
                     <option value=" ⇒ ">⇒</option>
                     <option value=" ➜ ">➜</option>
                     <option value=" ★ ">★</option>
+                    <option value=" — ">em dash</option>
+                    <option value="     — ">tab—</option>
                     <option value="     ⇒ ">tab⟹</option>
                     <option value="     ➜ ">tab➜</option>
                     <option value="     ★ ">tab★</option>
+                    <option value="     🔶">tab🔶</option>
+                    <option value="     🔹">tab🔹</option>
                     <option value="🔯">🔯</option>
                     <option value="⚝ ">⚝</option>
                     <option value="🔢">🔢</option>

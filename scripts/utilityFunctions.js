@@ -28,9 +28,15 @@ function makeDraggable(el) {
     });
 }
 
-function closeWindow(elm, ui, interval) {
+function closeWindow(elm, ui, interval, options = {}) {
+    const { hideInstead = false } = options;
+
     elm.addEventListener("click", () => {
-        ui.remove();
+        if (hideInstead) {
+            ui.style.display = "none"; // Just hide it
+        } else {
+            ui.remove(); // Remove it from DOM
+        }
         if (interval) clearInterval(interval);
     });
 }
@@ -101,4 +107,79 @@ function colorList() {
 
 function consoleLog(log) {
     chrome.runtime.sendMessage({ action: "logMessage", msg: log });
+}
+
+function uploadSongList() {
+    const EnglishSongs = [
+        {
+            song_name: "Die With A Smile",
+            artists: "Bruno Mars, Lady Gaga",
+            video_id: "kPa7bsKwL-c, zgaCZOQCpp8",
+        },
+        {
+            song_name: "Roar",
+            artists: "Katy Perry",
+            video_id: "CevxZvSJLk8",
+        },
+        {
+            song_name: "Never Gonna Give You Up",
+            artists: "Rick Astley",
+            video_id: "dQw4w9WgXcQ",
+        },
+        {
+            song_name: "Blank Space",
+            artists: "Taylor Swift",
+            video_id: "e-ORhEE9VVg, nAQ_1lTDvPQ",
+        },
+        {
+            song_name: "Just The Way You Are",
+            artists: "Bruno Mars",
+            video_id: "LjhCEhWiKXk, u7XjPmN-tHw",
+        },
+        {
+            song_name: "APT",
+            artists: "ROSÉ & Bruno Mars",
+            video_id: "ekr2nIex040",
+        },
+        {
+            song_name: "Shape of You",
+            artists: "Ed Sheeran",
+            video_id: "JGwWNGJdvx8, liTfD88dbCo",
+        },
+        {
+            song_name: "It's My Life",
+            artists: "Bon Jovi",
+            video_id: "vx2u5uUu3DE",
+        },
+        {
+            song_name: "Faded",
+            artists: "Alan Walker",
+            video_id: "60ItHLz5WEA",
+        },
+        {
+            song_name: "Hotel California",
+            artists: "Eagles",
+            video_id: "09839DpTctU",
+        },
+        {
+            song_name: "(Everything I Do) I Do It For You",
+            artists: "Bryan Adams",
+            video_id: "Y0pdQU87dc8",
+        },
+        {
+            song_name: "Summer Of '69",
+            artists: "Bryan Adams",
+            video_id: "eFjjO_lhf9c",
+        },
+        {
+            song_name: "My Heart Will Go On",
+            artists: "Céline Dion",
+            video_id: "9bFHsd3o1w0",
+        },
+    ];
+
+    // Save to localStorage as JSON string
+    localStorage.setItem("EnglishSongs", JSON.stringify(EnglishSongs));
+
+    consoleLog("EnglishSongs saved to localStorage!");
 }
