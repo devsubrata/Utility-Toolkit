@@ -3,13 +3,14 @@
     top: 0;
     width: 100%;
     -webkit-text-size-adjust: none;
-    gap: 5px;
     padding: 10px;
     background-color: #c1dde3;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+
     display: flex;
     justify-content: center;
     align-items: center;
+    gap: 5px;
     flex-wrap: wrap;
     z-index: 10000;
 }

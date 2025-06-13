@@ -1,0 +1,190 @@
+@import url("https://fonts.googleapis.com/css2?family=Shippori+Mincho&display=swap");
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+#openPlayer {
+    position: fixed;
+    width: 400px;
+    top: 50px;
+    left: 50px;
+    background: #e9e0f5;
+    border: 1px solid #ccc;
+    padding: 0;
+    z-index: 25000;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    user-select: none;
+    font-family: "Shippori Mincho", serif;
+    font-weight: 600;
+    border-radius: 12px;
+}
+
+#openPlayer .content {
+    padding: 20px;
+}
+
+.load-div {
+    width: 100%;
+    text-align: center;
+}
+
+#loadBtn,
+#loadScript {
+    display: inline-block;
+    text-align: center;
+    margin-bottom: 10px;
+    outline: none;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 15px;
+    font-size: 20px;
+    background-color: rgb(1, 103, 103);
+    color: #fff;
+    cursor: pointer;
+}
+
+#openPlayer .title-bar {
+    background: #9650f1;
+    color: #fff;
+    padding: 8px 10px;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+#openPlayer .title-bar .ctrl {
+    cursor: pointer;
+}
+
+#openPlayer .minimize-btn {
+    margin-left: auto;
+}
+
+.floating-window.minimized .content {
+    display: none;
+}
+
+#playlist li {
+    margin: 8px 0;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    border: 1px solid #6d04f6;
+    margin: 4px;
+    border-radius: 3px;
+    padding: 5px;
+}
+
+.list-item {
+    display: flex;
+    align-items: flex-start;
+}
+
+.list-item span:first-child {
+    color: blue;
+    font-weight: bold;
+}
+
+#audioPlayer {
+    border: 3px solid #05acf4;
+    background-color: #88d5f6;
+    border-radius: 28px;
+}
+.remove-btn {
+    margin-left: 10px;
+    color: red;
+    cursor: pointer;
+}
+#loadBtn {
+    margin-top: -50px;
+}
+
+/* load script */
+.image-window {
+    position: absolute;
+    top: 100px;
+    left: 100px;
+    width: 1000px;
+    height: 800px;
+    background: #000;
+    color: white;
+    border: 2px solid #444;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    resize: both;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 25000;
+}
+
+.image-window .title-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.window-header {
+    padding: 8px 12px;
+    background: #222;
+    cursor: move;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.img-title-bar {
+    display: flex;
+    gap: 15px;
+    margin-right: 15px;
+}
+
+.image-content {
+    flex: 1;
+    overflow-y: auto;
+}
+
+.image-content img {
+    width: 100%;
+    height: auto;
+    display: block;
+    pointer-events: none;
+}
+
+.ctrl {
+    cursor: pointer;
+}
+
+.image-window.minimized .image-content {
+    display: none;
+}
+
+.image-window.minimized {
+    height: auto;
+    width: fit-content;
+}
+
+.image-window.maximized {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    z-index: 9999;
+    resize: none;
+}
+
+.image-window.maximized .image-content {
+    height: calc(100vh - 30px); /* Adjust for title bar height */
+    overflow: auto;
+}
+
+.image-window.maximized img {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+}
