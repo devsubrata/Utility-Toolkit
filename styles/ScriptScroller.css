@@ -1,0 +1,140 @@
+#loaderWindow {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    min-width: 380px;
+    background: linear-gradient(to bottom, #ffffff, #f7f9fc);
+    border: 1px solid #ccc;
+    z-index: 1000;
+    resize: both;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+#viewerWindow {
+    display: none;
+    display: fixed;
+    top: 100px;
+    left: 30vw;
+    width: 600px;
+    height: 500px;
+    resize: both;
+    overflow: auto;
+    flex-direction: column;
+    z-index: 1000;
+    background: linear-gradient(to bottom, #ffffff, #f0f4f8);
+}
+
+#fileList {
+    overflow-y: auto;
+    margin-top: 10px;
+    padding-left: 0;
+    list-style: none;
+}
+
+#fileList li {
+    cursor: pointer;
+    padding: 6px 10px;
+    border-bottom: 1px solid #e0e0e0;
+    transition: background 0.2s ease;
+}
+
+#fileList li:hover {
+    background: #dde9f7;
+}
+
+.title-bar,
+.footer-bar {
+    background: linear-gradient(to right, #6a11cb, #2575fc);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+}
+
+.title-bar {
+    cursor: move;
+    padding: 8px 12px;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+}
+
+.footer-bar {
+    padding: 8px 12px;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+}
+
+.footer-bar button {
+    background: #ffffff;
+    color: #2575fc;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 6px;
+    margin: 0 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s;
+}
+
+.footer-bar button:hover {
+    background: #e0eaff;
+}
+
+.title-bar .controls button {
+    margin-left: 6px;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.title-bar .controls button:hover {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+#imageContainer {
+    flex: 1;
+    overflow: auto;
+    background: #fff;
+}
+
+#mainImage {
+    display: block;
+    width: 100%;
+    height: auto;
+    transform-origin: top left;
+}
+
+.minimized #imageContainer,
+.minimized .footer-bar {
+    display: none !important;
+}
+
+.minimized {
+    height: auto !important;
+    background: none;
+    border: none;
+    box-shadow: none;
+}
+
+/* --- NEW: Stylize file input as a button --- */
+.file-button-wrapper {
+    margin-top: 8px;
+    display: flex;
+    justify-content: center;
+}
+
+.file-button {
+    border: 2px solid #2575fc;
+    color: #2575fc;
+    background-color: white;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+}

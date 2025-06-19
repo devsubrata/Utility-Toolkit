@@ -16,3 +16,4 @@ document.getElementById("openSearchToolbar").addEventListener("click", () => inj
 document.getElementById("openAnnotationToolbar").addEventListener("click", () => injectScript("annotate.js"));
 document.getElementById("openPlayer").addEventListener("click", () => injectScript("MusicPlayer.js"));
 document.getElementById("openYoutubePlayer").addEventListener("click", () => injectScript("YoutubePlayer.js"));
+document.getElementById("openScriptScroller").addEventListener("click", () => injectScript("ScriptScroller.js"));
