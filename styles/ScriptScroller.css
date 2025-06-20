@@ -3,27 +3,19 @@
     top: 20px;
     left: 20px;
     min-width: 380px;
-    background: linear-gradient(to bottom, #ffffff, #f7f9fc);
     border: 1px solid #ccc;
     z-index: 1000;
+    border-radius: 12px;
+    background-color: white;
     resize: both;
     overflow: hidden;
-    display: flex;
-    flex-direction: column;
 }
 
-#viewerWindow {
-    display: none;
-    display: fixed;
-    top: 100px;
-    left: 30vw;
-    width: 600px;
-    height: 500px;
-    resize: both;
-    overflow: auto;
-    flex-direction: column;
-    z-index: 1000;
-    background: linear-gradient(to bottom, #ffffff, #f0f4f8);
+#loaderWindow .content .file-button-div {
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 #fileList {
@@ -44,9 +36,23 @@
     background: #dde9f7;
 }
 
+#viewerWindow {
+    display: none;
+    position: fixed;
+    top: 100px;
+    left: 30vw;
+    width: 800px;
+    height: 500px;
+    resize: both;
+    overflow: auto;
+    flex-direction: column;
+    z-index: 1000;
+    border-radius: 12px;
+}
+
 .title-bar,
 .footer-bar {
-    background: linear-gradient(to right, #6a11cb, #2575fc);
+    background: #2575fc;
     color: white;
     display: flex;
     align-items: center;
@@ -55,10 +61,18 @@
 }
 
 .title-bar {
-    cursor: move;
     padding: 8px 12px;
     border-top-left-radius: 12px;
     border-top-right-radius: 12px;
+}
+
+#loaderWindow .title-bar button {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: white;
+    margin-left: 10px;
+    cursor: pointer;
 }
 
 .footer-bar {

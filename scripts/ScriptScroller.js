@@ -11,12 +11,16 @@ if (!document.getElementById("openScriptScroller")) {
         <div id="loaderWindow">
             <div class="title-bar">
                 <span class="title">🖼️ ScriptScroller</span>
-                <span class="minimize-btn ctrl" title="minimize">—</span>
-                <span class="close-btn ctrl" title="Close">❌</span>
+                <div>
+                    <button class="minimize-btn ctrl" title="minimize">—</button>
+                    <button class="close-btn ctrl" title="Close">❌</button>
+                </div>
             </div>
             <div class="content">
                 <input type="file" id="imageInput" accept="image/*" multiple style="display: none" />
-                <button  class="file-button" id="load-images">Load Script</button>
+                <div class="file-button-div">
+                    <button class="file-button" id="load-images">Load Script</button>
+                </div>
                 <ul id="fileList"></ul>
             </div>
         </div>
