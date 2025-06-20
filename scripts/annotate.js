@@ -774,18 +774,5 @@ function createNavigation() {
     `;
     document.body.appendChild(navDiv);
 
-    const vh = window.innerHeight * 1.5;
-
-    document.getElementById("scrollToBottom").addEventListener("click", () => {
-        window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
-    });
-    document.getElementById("scrollToTop").addEventListener("click", () => {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-    });
-    document.getElementById("scrollDown").addEventListener("click", () => {
-        window.scrollBy({ top: vh, behavior: "smooth" });
-    });
-    document.getElementById("scrollUp").addEventListener("click", () => {
-        window.scrollBy({ top: -vh, behavior: "smooth" });
-    });
+    handleNavigation(window);
 }

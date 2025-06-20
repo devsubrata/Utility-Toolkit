@@ -47,6 +47,27 @@ function minimizeWindow(elm, ui) {
     });
 }
 
+// Scrolling navigation
+function handleNavigation(ui) {
+    let vh;
+    if (ui === window) vh = window.innerHeight * 1.5;
+    else vh = ui.clientHeight * 2;
+
+    document.getElementById("scrollToBottom").onclick = () => {
+        const top = ui === window ? document.body.scrollHeight : ui.scrollHeight;
+        ui.scrollTo({ top, behavior: "smooth" });
+    };
+    document.getElementById("scrollToTop").onclick = () => {
+        ui.scrollTo({ top: 0, behavior: "smooth" });
+    };
+    document.getElementById("scrollDown").onclick = () => {
+        ui.scrollBy({ top: vh, behavior: "smooth" });
+    };
+    document.getElementById("scrollUp").onclick = () => {
+        ui.scrollBy({ top: -vh, behavior: "smooth" });
+    };
+}
+
 function lookUpLinks() {
     return {
         "Google search": "https://www.google.com/search?q={search_term}",

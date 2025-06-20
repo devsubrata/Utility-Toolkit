@@ -38,10 +38,18 @@ if (!document.getElementById("openScriptScroller")) {
                 <img id="mainImage" src="" alt="Selected" />
             </div>
             <div class="footer-bar" id="viewerFooter">
-                <button id="prevBtn">⬅️</button>
-                <button id="nextBtn">➡️</button>
-                <button id="zoomIn">➕</button>
-                <button id="zoomOut">➖</button>
+                <div>
+                    <button id="prevBtn">⬅️</button>
+                    <button id="nextBtn">➡️</button>
+                    <button id="zoomIn">➕</button>
+                    <button id="zoomOut">➖</button>
+                </div>
+                <div>
+                    <button id="scrollToTop">⏫</button>      
+                    <button id="scrollUp">🔼</button>        
+                    <button id="scrollDown">🔽</button>       
+                    <button id="scrollToBottom">⏬</button>   
+                </div>
             </div>
         </div>
     `;
@@ -57,6 +65,7 @@ if (!document.getElementById("openScriptScroller")) {
     const mainImage = document.getElementById("mainImage");
     const imageName = document.getElementById("imageName");
     const viewerWindow = document.getElementById("viewerWindow");
+    const dropZone = document.querySelector("#loaderWindow .content"); // upload scripts by drag and drop
 
     let images = [];
     let currentIndex = 0;
@@ -65,10 +74,7 @@ if (!document.getElementById("openScriptScroller")) {
     let isMinimized = false;
     let prevViewerStyles = {};
 
-    loadImageBtn.onclick = () => imageInput.click();
-
-    imageInput.addEventListener("change", (e) => {
-        images = Array.from(e.target.files);
+    function handleFiles(images) {
         fileList.innerHTML = "";
 
         const fileCount = document.getElementById("file-count");
@@ -80,9 +86,41 @@ if (!document.getElementById("openScriptScroller")) {
             li.addEventListener("click", () => {
                 if (isMinimized) toggleMinimize();
                 viewerWindow.style.display = "flex";
+                handleNavigation(document.getElementById("imageContainer"));
                 showImage(index);
             });
             fileList.appendChild(li);
+        });
+    }
+
+    loadImageBtn.onclick = () => imageInput.click();
+
+    imageInput.addEventListener("change", (e) => {
+        images = Array.from(e.target.files);
+        handleFiles(images);
+    });
+
+    // Handle files dropped onto the drop zone
+    dropZone.addEventListener("drop", (e) => {
+        images = Array.from(e.dataTransfer.files); // Get the dropped files
+        handleFiles(images); // Handle them
+    });
+
+    // Highlight the drop zone when dragging files over it
+    ["dragenter", "dragover"].forEach((eventName) => {
+        dropZone.addEventListener(eventName, (e) => {
+            e.preventDefault(); // Prevent default browser behavior (e.g., open file)
+            e.stopPropagation(); // Stop event bubbling
+            dropZone.classList.add("highlight"); // Add highlight effect
+        });
+    });
+
+    // Remove highlight when dragging leaves the drop zone or when dropping
+    ["dragleave", "drop"].forEach((eventName) => {
+        dropZone.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            dropZone.classList.remove("highlight"); // Remove highlight effect
         });
     });
 

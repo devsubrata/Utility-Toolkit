@@ -25,6 +25,10 @@
     overflow: auto;
 }
 
+#loaderWindow .content.highlight {
+    border: 3px dashed #888;
+}
+
 #fileList {
     flex: 1;
     overflow-y: auto;
@@ -96,6 +100,10 @@
 
 .footer-bar {
     justify-content: center;
+    gap: 30px;
+    padding: 5px;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
 }
 
 .title-bar {
@@ -113,18 +121,12 @@
     cursor: pointer;
 }
 
-.footer-bar {
-    padding: 5px;
-    border-bottom-left-radius: 12px;
-    border-bottom-right-radius: 12px;
-}
-
 .footer-bar button {
     width: 30px;
     height: 25px;
     padding: 10px;
 
-    display: flex;
+    display: inline-flex;
     justify-content: center;
     align-items: center;
 
@@ -133,7 +135,6 @@
     border: none;
     padding: 6px 10px;
     border-radius: 5px;
-    margin: 0 3px;
     cursor: pointer;
     font-weight: bold;
     transition: background 0.3s;
