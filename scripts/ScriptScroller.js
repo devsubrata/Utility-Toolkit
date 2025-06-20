@@ -6,14 +6,13 @@ if (!document.getElementById("openScriptScroller")) {
 
     const scriptScroller = document.createElement("div");
     scriptScroller.id = "openScriptScroller";
-    scriptScroller.classList.add("floating-window");
     scriptScroller.innerHTML = `
         <div id="loaderWindow">
             <div class="title-bar">
                 <span class="title">🖼️ ScriptScroller</span>
                 <div>
-                    <button class="minimize-btn ctrl" title="minimize">—</button>
-                    <button class="close-btn ctrl" title="Close">❌</button>
+                    <button class="minimize-btn" title="minimize">—</button>
+                    <button class="close-btn" title="Close">❌</button>
                 </div>
             </div>
             <div class="content">
@@ -21,12 +20,13 @@ if (!document.getElementById("openScriptScroller")) {
                 <div class="file-button-div">
                     <button class="file-button" id="load-images">Load Script</button>
                 </div>
+                <h4 id="file-count"></h4>
                 <ul id="fileList"></ul>
             </div>
         </div>
         <div id="viewerWindow">
             <div class="title-bar" id="viewerTitle">
-                <span  class="title">🖼 Image Viewer</span>
+                <span class="title">🖼 Image Viewer</span>
                 <span id="imageName">No Image</span>
                 <div class="controls">
                     <button id="minimize">_</button>
@@ -38,20 +38,18 @@ if (!document.getElementById("openScriptScroller")) {
                 <img id="mainImage" src="" alt="Selected" />
             </div>
             <div class="footer-bar" id="viewerFooter">
-                <div>
-                    <button id="prevBtn">⬅ Prev</button>
-                    <button id="nextBtn">Next ➡</button>
-                </div>
-                <div>
-                    <button id="zoomIn">Zoom In ➕</button>
-                    <button id="zoomOut">Zoom Out ➖</button>
-                </div>
+                <button id="prevBtn">⬅️</button>
+                <button id="nextBtn">➡️</button>
+                <button id="zoomIn">➕</button>
+                <button id="zoomOut">➖</button>
             </div>
         </div>
     `;
     document.body.appendChild(scriptScroller);
     makeDraggable(document.getElementById("loaderWindow"));
     makeDraggable(document.getElementById("viewerWindow"));
+    closeWindow(scriptScroller.querySelector(".close-btn"), scriptScroller, null);
+    minimizeWindow(scriptScroller.querySelector(".minimize-btn"), document.getElementById("loaderWindow"));
 
     const imageInput = document.getElementById("imageInput");
     const loadImageBtn = document.getElementById("load-images");
@@ -72,6 +70,10 @@ if (!document.getElementById("openScriptScroller")) {
     imageInput.addEventListener("change", (e) => {
         images = Array.from(e.target.files);
         fileList.innerHTML = "";
+
+        const fileCount = document.getElementById("file-count");
+        fileCount.textContent = `Total: ${images.length} scripts uploaded`;
+
         images.forEach((file, index) => {
             const li = document.createElement("li");
             li.innerHTML = `<span style="color: blue;"><strong>${index + 1}</strong></span>. ${file.name}`;
