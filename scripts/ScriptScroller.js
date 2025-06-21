@@ -26,11 +26,11 @@ if (!document.getElementById("openScriptScroller")) {
         </div>
         <div id="viewerWindow">
             <div class="title-bar" id="viewerTitle">
-                <span class="title">🖼 Image Viewer</span>
+                <span class="title">🖼 ScriptScroller</span>
                 <span id="imageName">No Image</span>
                 <div class="controls">
-                    <button id="minimize">_</button>
-                    <button id="maximize">⬜</button>
+                    <button id="minimize">—</button>
+                    <button id="maximize">▭</button>
                     <button id="close">❌</button>
                 </div>
             </div>
@@ -180,12 +180,14 @@ if (!document.getElementById("openScriptScroller")) {
             viewerWindow.style.left = "0";
             viewerWindow.style.width = "100vw";
             viewerWindow.style.height = "100vh";
+            maximizeBtn.textContent = "🗗";
             isMaximized = true;
         } else {
             viewerWindow.style.top = prevViewerStyles.top;
             viewerWindow.style.left = prevViewerStyles.left;
             viewerWindow.style.width = prevViewerStyles.width;
             viewerWindow.style.height = prevViewerStyles.height;
+            maximizeBtn.textContent = "▭";
             isMaximized = false;
         }
     };

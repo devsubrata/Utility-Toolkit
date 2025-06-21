@@ -127,6 +127,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    background: #000;
+    padding: 0;
 }
 
 .window-header {

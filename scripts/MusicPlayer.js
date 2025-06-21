@@ -17,8 +17,8 @@ if (!document.getElementById("openPlayer")) {
             <input type="file" id="fileInput" accept="audio/mpeg" multiple style="display: none" />
             <input type="file" id="imageFileInput" accept="image/*" style="display: none" />
             <div class="load-div">
-                <button id="loadBtn">Load Song</button>
-                <button id="loadScript">Load Script</button>
+                <button id="loadBtn">Load Musics</button>
+                <button id="loadScript">Load Lyric</button>
             </div>
             <audio id="audioPlayer" controls style="width: 100%"></audio>
             <ul id="playlist" class="list-group"></ul>
@@ -175,7 +175,7 @@ if (!document.getElementById("openPlayer")) {
             imageWindow.className = "image-window";
             imageWindow.innerHTML = `
                 <div class="title-bar">
-                    <span class="window-header title">Image Viewer</span>
+                    <span class="window-header title">Lyric Viewer</span>
                     <div class="img-title-bar">
                         <span class="img-minimize-btn ctrl" title="minimize">—</span>
                         <span class="img-maximize-btn ctrl" title="maximize">🗗</span>
@@ -195,7 +195,7 @@ if (!document.getElementById("openPlayer")) {
 
             const maximizeBtn = imageWindow.querySelector(".img-maximize-btn");
             let isMaximized = false;
-            maximizeBtn.addEventListener("click", () => {
+            maximizeBtn.onclick = () => {
                 if (!isMaximized) {
                     imageWindow.classList.add("maximized");
                     maximizeBtn.textContent = "🗗"; // Optional: Change icon to "restore" look
@@ -204,7 +204,7 @@ if (!document.getElementById("openPlayer")) {
                     maximizeBtn.textContent = "▭"; // Optional: Change icon back to "maximize"
                 }
                 isMaximized = !isMaximized;
-            });
+            };
         };
 
         reader.readAsDataURL(file);

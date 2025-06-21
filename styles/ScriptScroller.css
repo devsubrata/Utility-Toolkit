@@ -1,5 +1,5 @@
 :root {
-    --blue: #2d41f7;
+    --bg: #43454f;
 }
 
 #loaderWindow {
@@ -7,7 +7,7 @@
     top: 20px;
     left: 20px;
     min-width: 380px;
-    border: 1px solid #2d41f7;
+    border: 2px solid var(--bg);
     z-index: 2000;
     border-radius: 12px;
     background-color: #fff;
@@ -90,7 +90,7 @@
 
 .title-bar,
 .footer-bar {
-    background: var(--blue);
+    background: var(--bg);
     color: white;
     display: flex;
     align-items: center;
@@ -131,7 +131,7 @@
     align-items: center;
 
     background: #ffffff;
-    color: var(--blue);
+    color: var(--bg);
     border: none;
     padding: 6px 10px;
     border-radius: 5px;
@@ -162,7 +162,9 @@
     flex: 1;
     overflow: auto;
     background: #ccd0f5;
-    border: 3px solid var(--blue);
+    border: 3px solid var(--bg);
+    border-bottom: none;
+    border-top: none;
 }
 
 #mainImage {
