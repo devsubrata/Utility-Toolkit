@@ -3,7 +3,7 @@
     top: 0;
     left: 50%;
     transform: translateX(-50%);
-    width: 95%;
+    width: 80%;
     margin: 0 auto;
     padding: 5px;
 
@@ -16,9 +16,9 @@
 }
 
 .glassy {
-    background-color: rgb(32, 236, 151);
+    background-color: rgb(155, 241, 207);
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.2);
     border-bottom-left-radius: 20px;
     border-bottom-right-radius: 20px;
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
@@ -55,7 +55,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    border: 2px solid #09fa65;
+    border: 2px solid #64c1d6;
     border-radius: 3px;
     gap: 1px;
 }
@@ -75,7 +75,6 @@
     width: 60px;
     min-height: 37px;
     outline: none;
-    border-radius: 5px;
 }
 
 #line-select {
@@ -177,10 +176,10 @@
 /* for text input */
 #modal {
     display: none;
-    position: fixed;
-    top: 50%;
+    position: absolute;
+    top: 200%;
     left: 50%;
-    transform: translate(-50%, -50%);
+    transform: translateX(-50%);
     border: 10px solid orange;
     background: gold;
     font-size: 25px;

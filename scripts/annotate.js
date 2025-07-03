@@ -577,7 +577,6 @@ function injectCanvas() {
         const modal = document.getElementById("modal");
         modal.style.display = "block";
         disableScroll();
-        const modalHeader = document.getElementById("modal-header");
 
         const bullet = document.getElementById("bullet");
         const addBulletBtn = document.getElementById("addBullet");
@@ -637,9 +636,6 @@ function injectCanvas() {
                 addText(e.offsetX, e.offsetY, textInput.value);
                 navigator.clipboard.writeText(textInput.value);
             }
-            modal.style.top = "50%";
-            modal.style.left = "50%";
-            modal.style.transform = "translate(-50%, -50%)";
             modal.style.display = "none";
             enableScroll();
             textInput.value = "";
@@ -663,9 +659,6 @@ function injectCanvas() {
         closeBtn.onclick = () => {
             modal.style.display = "none";
             enableScroll();
-            modal.style.top = "50%";
-            modal.style.left = "50%";
-            modal.style.transform = "translate(-50%, -50%)";
             textInput.value = "";
             autoNumber = 0;
             autoLetterIndex = 0;
