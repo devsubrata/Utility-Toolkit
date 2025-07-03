@@ -6,6 +6,7 @@ if (!document.getElementById("annotationToolbar")) {
 
     const annotationDiv = document.createElement("div");
     annotationDiv.id = "annotationToolbar";
+    annotationDiv.classList.add("glassy");
     annotationDiv.innerHTML = `
         <div id="activeColor" title="Active Color"></div>
         <div class="color-picker"></div>
@@ -15,8 +16,6 @@ if (!document.getElementById("annotationToolbar")) {
             <input type="number" id="highlighterSize" min="10" max="50" value="20" step="5"/>
         </div>
         <button id="filledRectangle" title="Filled rectangle">🟫</button>
-        <button id="typeText" title="Add text">T</button>
-        <button id="insertImage" title="Insert Image">🖼️</button>
         <div class="line_div">
             <button id="lines" title="draw line">―</button>
             <select id="line-select" title="select line patterns">
@@ -26,25 +25,27 @@ if (!document.getElementById("annotationToolbar")) {
             </select>
         </div>
         <button id="rectangle" title="Rectangle">▭</button>
-        <button id="circle" title="Circle">🔘</button>
+        <button id="circle" title="Circle">◯</button>
         <button id="brush" title="Brush">🖌️</button>
         <div class="range_div">
             <select id="line-type" class="line-type" title="Select line type"></select>
             <input type="number" id="brushSize" title="Adjust line, rect, brush, circle, stroke-width" min="1" max="50" value="2" />
         </div>
-        <button id="clear" title="Erase everything">🆑</button>
+        <button id="typeText" title="Add text">T</button>
+        <button id="insertImage" title="Insert Image">🖼️</button>
         <div class="undo_redo">
             <button id="undo" title="undo">↪️</button>
             <button id="redo" title="redo">↩️</button>
         </div>
         <div class="opacity_control">
             <label for="opacity">🌓</label>
-            <input type="number" title="Adjust opacity" id="opacity" min="0.00" max="1.00" step="0.01" value="1" />
+            <input type="number" title="Adjust opacity" id="opacity" min="0.00" max="1.00" step="0.05" value="1" />
         </div>
         <button id="color_detector" title="Pick color from canvas">🔥</button>
         <button id="filledCircle" title="Filled circle">⚫</button>
         <button id="eraser" title="Erase" class="active">E</button>
         <button id="save" title="Take Snapshot">📸</button>
+        <button id="clear" title="Erase everything">🆑</button>
         <button id="exit">❌</button>
         <div id="modal" class="modal">
             <div id="modal-header" class="title">
@@ -64,7 +65,9 @@ if (!document.getElementById("annotationToolbar")) {
                 <input type="number" title="Font Size" id="font_size" min="10" max="100" step="2" value="30"/>
                 <select id="bullet">
                     <option value="     ">5 Space</option>
-                    <option value="✅ ">✅</option>
+                    <option value="✅">✅</option>
+                    <option value="☑️">☑️</option>
+                    <option value="✔️">✔️</option>
                     <option value="🔶">🔶</option>
                     <option value="🔹">🔹</option>
                     <option value="➡️" selected>➡️</option>
@@ -78,7 +81,7 @@ if (!document.getElementById("annotationToolbar")) {
                     <option value="     ★ ">tab★</option>
                     <option value="     🔶">tab🔶</option>
                     <option value="     🔹">tab🔹</option>
-                    <option value="🔯">🔯</option>
+                    <option value="⭐">⭐</option>
                     <option value="⚝ ">⚝</option>
                     <option value="🔢">🔢</option>
                     <option value="❌">❌</option>
@@ -574,7 +577,6 @@ function injectCanvas() {
         const modal = document.getElementById("modal");
         modal.style.display = "block";
         disableScroll();
-        const modalHeader = document.getElementById("modal-header");
 
         const bullet = document.getElementById("bullet");
         const addBulletBtn = document.getElementById("addBullet");
@@ -634,9 +636,6 @@ function injectCanvas() {
                 addText(e.offsetX, e.offsetY, textInput.value);
                 navigator.clipboard.writeText(textInput.value);
             }
-            modal.style.top = "50%";
-            modal.style.left = "50%";
-            modal.style.transform = "translate(-50%, -50%)";
             modal.style.display = "none";
             enableScroll();
             textInput.value = "";
@@ -660,9 +659,6 @@ function injectCanvas() {
         closeBtn.onclick = () => {
             modal.style.display = "none";
             enableScroll();
-            modal.style.top = "50%";
-            modal.style.left = "50%";
-            modal.style.transform = "translate(-50%, -50%)";
             textInput.value = "";
             autoNumber = 0;
             autoLetterIndex = 0;
