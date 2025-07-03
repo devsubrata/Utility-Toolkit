@@ -14,10 +14,17 @@ if (!document.getElementById("annotationToolbar")) {
             <button id="highlight" title="Highlight Text">🎨</button>
             <input type="number" id="highlighterSize" min="10" max="50" value="20" step="5"/>
         </div>
-        <button id="filledRectangle" title="Filled rectangle">▆</button>
+        <button id="filledRectangle" title="Filled rectangle">🟫</button>
         <button id="typeText" title="Add text">T</button>
         <button id="insertImage" title="Insert Image">🖼️</button>
-        <button id="horizontalLine" title="straight line">__</button>
+        <div class="line_div">
+            <button id="lines" title="draw line">―</button>
+            <select id="line-select" title="select line patterns">
+                <option value="H-line">―</option>
+                <option value="V-line">┃</option>
+                <option value="I-line">⸝⸝</option>
+            </select>
+        </div>
         <button id="rectangle" title="Rectangle">▭</button>
         <button id="circle" title="Circle">🔘</button>
         <button id="brush" title="Brush">🖌️</button>
@@ -139,7 +146,7 @@ function injectCanvas() {
     const tools = {
         brush: document.getElementById("brush"),
         highlighter: document.getElementById("highlight"),
-        horizontalLine: document.getElementById("horizontalLine"),
+        lines: document.getElementById("lines"),
         rectangle: document.getElementById("rectangle"),
         filledRectangle: document.getElementById("filledRectangle"),
         typeText: document.getElementById("typeText"),
@@ -172,7 +179,7 @@ function injectCanvas() {
     // pupulate line type
     function populateLineType() {
         const lineDict = {
-            _____: "[]",
+            "────": "[]",
             "5,5": "[5, 5]",
             "10,5": "[10, 5]",
             "10,8": "[10, 8]",
@@ -196,13 +203,15 @@ function injectCanvas() {
         if (tool !== "pasteImage") isPasting = false;
 
         currentTool = tool;
+
         Object.values(tools).forEach((btn) => btn.classList.remove("active"));
-        tools[tool].classList.add("active");
-        if (tool === "highlighter" || tool === "filledRectangle") {
-            document.getElementById("activeColor").style.backgroundColor = color2;
-        } else {
-            document.getElementById("activeColor").style.backgroundColor = color1;
-        }
+        const isLine = ["horizontalLine", "verticalLine", "inclinedLine"].includes(currentTool);
+        if (isLine) tools["lines"].classList.add("active");
+        else tools[tool].classList.add("active");
+
+        const activeColor = document.getElementById("activeColor");
+        if (tool === "highlighter" || tool === "filledRectangle") activeColor.style.backgroundColor = color2;
+        else activeColor.style.backgroundColor = color1;
     }
 
     // Start drawing
@@ -224,6 +233,9 @@ function injectCanvas() {
         ctx.beginPath();
 
         switch (currentTool) {
+            case "horizontalLine":
+            case "verticalLine":
+            case "inclinedLine":
             case "rectangle":
             case "filledRectangle":
             case "circle":
@@ -254,8 +266,22 @@ function injectCanvas() {
 
         switch (currentTool) {
             case "horizontalLine":
-                ctx.lineTo(pos.x, startY);
-                ctx.stroke();
+            case "verticalLine":
+            case "inclinedLine":
+                ctx.putImageData(snapshot, 0, 0);
+                ctx.beginPath();
+                ctx.moveTo(startX, startY);
+
+                if (currentTool === "horizontalLine") {
+                    ctx.lineTo(pos.x, startY);
+                    ctx.stroke();
+                } else if (currentTool === "verticalLine") {
+                    ctx.lineTo(startX, pos.y);
+                    ctx.stroke();
+                } else {
+                    ctx.lineTo(pos.x, pos.y);
+                    ctx.stroke();
+                }
                 break;
             case "rectangle":
             case "filledRectangle":
@@ -347,10 +373,31 @@ function injectCanvas() {
     // Disable scrolling while drawing
     document.body.style.touchAction = "none";
 
+    function lineToolsHandler() {
+        const lineType = document.getElementById("line-select").value;
+        const lineBtn = document.getElementById("lines");
+
+        if (lineType === "H-line") {
+            setActiveTool("horizontalLine");
+            lineBtn.textContent = "―";
+        } else if (lineType === "V-line") {
+            setActiveTool("verticalLine");
+            lineBtn.textContent = "┃";
+        } else {
+            setActiveTool("inclinedLine");
+            lineBtn.textContent = "⸝⸝";
+        }
+    }
+    document.getElementById("line-select").addEventListener("change", () => {
+        const isLine = ["horizontalLine", "verticalLine", "inclinedLine"].includes(currentTool);
+        if (!isLine) return;
+        lineToolsHandler();
+    });
+
     // Tool Handlers
     tools.brush.addEventListener("click", () => setActiveTool("brush"));
     tools.highlighter.addEventListener("click", () => setActiveTool("highlighter"));
-    tools.horizontalLine.addEventListener("click", () => setActiveTool("horizontalLine"));
+    tools.lines.addEventListener("click", lineToolsHandler);
     tools.rectangle.addEventListener("click", () => setActiveTool("rectangle"));
     tools.filledRectangle.addEventListener("click", () => setActiveTool("filledRectangle"));
     tools.eraser.addEventListener("click", () => setActiveTool("eraser"));
