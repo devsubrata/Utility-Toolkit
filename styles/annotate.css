@@ -1,27 +1,37 @@
 #annotationToolbar {
     position: fixed;
     top: 0;
-    width: 100%;
-    -webkit-text-size-adjust: none;
-    padding: 10px;
-    background-color: #c1dde3;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 95%;
+    margin: 0 auto;
+    padding: 5px;
 
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 5px;
+    gap: 3px;
     flex-wrap: wrap;
     z-index: 10000;
 }
 
-button,
-input {
+.glassy {
+    background-color: rgb(32, 236, 151);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+}
+
+#annotationToolbar div > input {
     height: 38px;
+    box-sizing: border-box;
 }
 
 #annotationToolbar > button {
     width: 40px;
+    height: 38px;
 }
 
 #annotationToolbar button {
@@ -81,6 +91,7 @@ input {
     width: 55px;
     padding-left: 5px;
     outline: none;
+    border: none;
     border-radius: 3px;
 }
 .opacity_control {
