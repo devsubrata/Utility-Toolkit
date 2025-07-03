@@ -24,6 +24,11 @@
 #openPlayer .content {
     padding: 20px;
 }
+#playlist {
+    max-height: 600px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
 
 .load-div {
     width: 100%;

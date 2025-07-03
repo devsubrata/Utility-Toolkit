@@ -153,6 +153,7 @@ iframe {
 }
 
 .song-display {
+    max-height: 800px;
     padding: 20px;
     overflow-x: hidden;
     overflow-y: auto;

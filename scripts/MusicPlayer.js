@@ -13,7 +13,7 @@ if (!document.getElementById("openPlayer")) {
             <span class="minimize-btn ctrl" title="minimize">—</span>
             <span class="close-btn ctrl" title="Close">❌</span>
         </div>
-        <div class="content">
+        <div class="content drop-area">
             <input type="file" id="fileInput" accept="audio/mpeg" multiple style="display: none" />
             <input type="file" id="imageFileInput" accept="image/*" style="display: none" />
             <div class="load-div">
@@ -34,6 +34,8 @@ if (!document.getElementById("openPlayer")) {
     const audioPlayer = document.getElementById("audioPlayer");
     const playlistEl = document.getElementById("playlist");
     const loadSongs = document.getElementById("loadBtn");
+    const dropZone = document.querySelector(".content");
+    let files;
     let db;
 
     // Open IndexedDB
@@ -135,7 +137,23 @@ if (!document.getElementById("openPlayer")) {
     };
 
     fileInput.onchange = async (e) => {
-        const files = Array.from(e.target.files);
+        files = Array.from(e.target.files);
+        handleFiles(files);
+    };
+
+    // Handle files dropped onto the drop zone
+    dropZone.addEventListener("dragover", async (e) => {
+        e.preventDefault(); // ✅ Necessary! Otherwise "drop" won't fire
+        dropZone.style.border = "5px dashed #00f";
+    });
+    dropZone.addEventListener("drop", async (e) => {
+        e.preventDefault();
+        files = Array.from(e.dataTransfer.files); // Get the dropped files
+        handleFiles(files); // Handle them
+        dropZone.style.border = "none";
+    });
+
+    async function handleFiles(files) {
         const metadata = JSON.parse(localStorage.getItem("playlist") || "[]");
 
         for (const file of files) {
@@ -145,7 +163,7 @@ if (!document.getElementById("openPlayer")) {
 
         localStorage.setItem("playlist", JSON.stringify(metadata));
         renderPlaylist();
-    };
+    }
 
     openDB().then((database) => {
         db = database;

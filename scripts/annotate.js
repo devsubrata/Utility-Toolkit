@@ -12,12 +12,12 @@ if (!document.getElementById("annotationToolbar")) {
         <div class="color-picker"></div>
         <div class="highlight_div">
             <button id="highlight" title="Highlight Text">🎨</button>
-            <input type="number" id="highlighterSize" min="10" max="50" value="23" step="5"/>
+            <input type="number" id="highlighterSize" min="10" max="50" value="20" step="5"/>
         </div>
         <button id="filledRectangle" title="Filled rectangle">▆</button>
         <button id="typeText" title="Add text">T</button>
         <button id="insertImage" title="Insert Image">🖼️</button>
-        <button id="horizontalLine" title="straight line" class="active">__</button>
+        <button id="horizontalLine" title="straight line">__</button>
         <button id="rectangle" title="Rectangle">▭</button>
         <button id="circle" title="Circle">🔘</button>
         <button id="brush" title="Brush">🖌️</button>
@@ -36,25 +36,25 @@ if (!document.getElementById("annotationToolbar")) {
         </div>
         <button id="color_detector" title="Pick color from canvas">🔥</button>
         <button id="filledCircle" title="Filled circle">⚫</button>
-        <button id="eraser" title="Erase">E</button>
+        <button id="eraser" title="Erase" class="active">E</button>
         <button id="save" title="Take Snapshot">📸</button>
         <button id="exit">❌</button>
         <div id="modal" class="modal">
             <div id="modal-header" class="title">
                 <select id="font-select">
-                    <option value="Arial" selected>Arial</option>
+                    <option value="Arial">Arial</option>
                     <option value="sans-serif">Sans Serif</option>
                     <option value="serif">Serif</option>
                     <option value="monospace">Monospace</option>
                     <option value="Roboto Slab">Roboto slab</option>
                     <option value="Garamond">Garamond</option>
                     <option value="Georgia">Georgia</option>
-                    <option value="Tahoma">Tahoma</option>
+                    <option value="Tahoma" selected>Tahoma</option>
                     <option value="Open Sans">Open sans</option>
                     <option value="Verdana">Verdana</option>
                 </select>
                 <div class="text-color-picker"></div>
-                <input type="number" title="Font Size" id="font_size" min="10" max="100" step="2" value="16"/>
+                <input type="number" title="Font Size" id="font_size" min="10" max="100" step="2" value="30"/>
                 <select id="bullet">
                     <option value="     ">5 Space</option>
                     <option value="✅ ">✅</option>
@@ -154,12 +154,12 @@ function injectCanvas() {
     let isTyping = false;
     let isPasting = false;
     let brushSize = 2;
-    let highlighterSize = 23;
+    let highlighterSize = 20;
     let opacity = 1.0;
-    let color1 = `rgba(0,0,255,${opacity})`;
+    let color1 = `rgba(255,255,255,${opacity})`;
     let color2 = `rgba(255, 165, 0, 0.4)`;
     let textColor = `#0000ff`;
-    let currentTool = "horizontalLine";
+    let currentTool = "eraser";
     let startX, startY;
     let snapshot; // Store canvas state before drawing a rectangle
     const undoStack = [];

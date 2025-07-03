@@ -134,8 +134,18 @@ function uploadSongList() {
     const EnglishSongs = [
         {
             song_name: "Die With A Smile",
-            artists: "Bruno Mars, Lady Gaga",
+            artists: "Bruno Mars & Lady Gaga",
             video_id: "kPa7bsKwL-c, zgaCZOQCpp8",
+        },
+        {
+            song_name: "Just The Way You Are",
+            artists: "Bruno Mars",
+            video_id: "LjhCEhWiKXk, u7XjPmN-tHw",
+        },
+        {
+            song_name: "APT",
+            artists: "Bruno Mars & ROSÉ",
+            video_id: "ekr2nIex040",
         },
         {
             song_name: "Roar",
@@ -153,16 +163,6 @@ function uploadSongList() {
             video_id: "e-ORhEE9VVg, nAQ_1lTDvPQ",
         },
         {
-            song_name: "Just The Way You Are",
-            artists: "Bruno Mars",
-            video_id: "LjhCEhWiKXk, u7XjPmN-tHw",
-        },
-        {
-            song_name: "APT",
-            artists: "ROSÉ & Bruno Mars",
-            video_id: "ekr2nIex040",
-        },
-        {
             song_name: "Shape of You",
             artists: "Ed Sheeran",
             video_id: "JGwWNGJdvx8, liTfD88dbCo",
@@ -175,7 +175,7 @@ function uploadSongList() {
         {
             song_name: "Faded",
             artists: "Alan Walker",
-            video_id: "60ItHLz5WEA",
+            video_id: "60ItHLz5WEA, qdpXxGPqW-Y",
         },
         {
             song_name: "Hotel California",
@@ -196,6 +196,46 @@ function uploadSongList() {
             song_name: "My Heart Will Go On",
             artists: "Céline Dion",
             video_id: "9bFHsd3o1w0",
+        },
+        {
+            song_name: "I'm Alive",
+            artists: "Céline Dion",
+            video_id: "NJsa6-y4sDs, DnaS8IDF_8g",
+        },
+        {
+            song_name: "We Belong To The Sea",
+            artists: "Aqua",
+            video_id: "XIVCb459bkQ",
+        },
+        {
+            song_name: "Cheri Cheri Lady",
+            artists: "Modern Talking",
+            video_id: "eNvUS-6PTbs, lrIKt5uDWZo",
+        },
+        {
+            song_name: "Brother Louie",
+            artists: "Modern Talking",
+            video_id: "Lp2qcCrdBLA, KWluXeUUUNA",
+        },
+        {
+            song_name: "You're My Heart, You're My Soul",
+            artists: "Modern Talking",
+            video_id: "4kHl4FoK1Ys, pV84QBzCrF0",
+        },
+        {
+            song_name: "Careless Whisper",
+            artists: "George Michael",
+            video_id: "izGwDsrQ1eQ, JqIHlDVqUTw",
+        },
+        {
+            song_name: "La Isla Bonita",
+            artists: "Madonna",
+            video_id: "zpzdgmqIHOQ, KyM7sw4lVSk, XynJ_mvrl3Q",
+        },
+        {
+            song_name: "Escape",
+            artists: "Enrique Iglesias",
+            video_id: "9mQJaXwGPlg, X5lRRZtjpFU",
         },
     ];
 
