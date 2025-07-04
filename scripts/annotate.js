@@ -46,61 +46,67 @@ if (!document.getElementById("annotationToolbar")) {
         <button id="save" title="Take Snapshot">📸</button>
         <button id="clear" title="Erase everything">🆑</button>
         <button id="exit">❌</button>
-        <div id="modal" class="modal">
-            <div id="modal-header" class="title">
-                <select id="font-select">
-                    <option value="Arial">Arial</option>
-                    <option value="sans-serif">Sans Serif</option>
-                    <option value="serif">Serif</option>
-                    <option value="monospace">Monospace</option>
-                    <option value="Roboto Slab">Roboto slab</option>
-                    <option value="Garamond">Garamond</option>
-                    <option value="Georgia">Georgia</option>
-                    <option value="Tahoma" selected>Tahoma</option>
-                    <option value="Open Sans">Open sans</option>
-                    <option value="Verdana">Verdana</option>
-                </select>
-                <div class="text-color-picker"></div>
-                <input type="number" title="Font Size" id="font_size" min="10" max="100" step="2" value="30"/>
-                <select id="bullet">
-                    <option value="     ">5 Space</option>
-                    <option value="✅">✅</option>
-                    <option value="☑️">☑️</option>
-                    <option value="✔️">✔️</option>
-                    <option value="🔶">🔶</option>
-                    <option value="🔹">🔹</option>
-                    <option value="➡️" selected>➡️</option>
-                    <option value=" ⇒ ">⇒</option>
-                    <option value=" ➜ ">➜</option>
-                    <option value=" ★ ">★</option>
-                    <option value=" — ">em dash</option>
-                    <option value="     — ">tab—</option>
-                    <option value="     ⇒ ">tab⟹</option>
-                    <option value="     ➜ ">tab➜</option>
-                    <option value="     ★ ">tab★</option>
-                    <option value="     🔶">tab🔶</option>
-                    <option value="     🔹">tab🔹</option>
-                    <option value="⭐">⭐</option>
-                    <option value="⚝ ">⚝</option>
-                    <option value="🔢">🔢</option>
-                    <option value="❌">❌</option>
-                    <option value="          ">10 Space</option>
-                    <option value="ABC">ABC</option>
-                    <option value="abc">abc</option>
-                </select>
-                <button id="addBullet">Add Marker</button>
-                <button id="closeModal">X</button>
-            </div>
-            <textarea id="textInput" placeholder="Add note..." autofocus></textarea>
-            <div id="submit_block">
-                <button id="clearText">Clear</button>
-                <button id="submitText">Add Text</button>
-            </div>
-        </div>
     `;
 
     document.body.appendChild(annotationDiv);
     makeDraggable(annotationDiv);
+
+    const textModal = document.createElement("div");
+    textModal.id = "modal";
+    textModal.classList.add("modal");
+    textModal.innerHTML = `
+        <div id="modal-header" class="title">
+            <select id="font-select">
+                <option value="Arial">Arial</option>
+                <option value="sans-serif">Sans Serif</option>
+                <option value="serif">Serif</option>
+                <option value="monospace">Monospace</option>
+                <option value="Roboto Slab">Roboto slab</option>
+                <option value="Garamond">Garamond</option>
+                <option value="Georgia">Georgia</option>
+                <option value="Tahoma" selected>Tahoma</option>
+                <option value="Open Sans">Open sans</option>
+                <option value="Verdana">Verdana</option>
+            </select>
+            <div class="text-color-picker"></div>
+            <input type="number" title="Font Size" id="font_size" min="10" max="100" step="2" value="30"/>
+            <select id="bullet">
+                <option value="     ">5 Space</option>
+                <option value="✅">✅</option>
+                <option value="☑️">☑️</option>
+                <option value="✔️">✔️</option>
+                <option value="🔶">🔶</option>
+                <option value="🔹">🔹</option>
+                <option value="➡️" selected>➡️</option>
+                <option value=" ⇒ ">⇒</option>
+                <option value=" ➜ ">➜</option>
+                <option value=" ★ ">★</option>
+                <option value=" — ">em dash</option>
+                <option value="     — ">tab—</option>
+                <option value="     ⇒ ">tab⟹</option>
+                <option value="     ➜ ">tab➜</option>
+                <option value="     ★ ">tab★</option>
+                <option value="     🔶">tab🔶</option>
+                <option value="     🔹">tab🔹</option>
+                <option value="⭐">⭐</option>
+                <option value="⚝ ">⚝</option>
+                <option value="🔢">🔢</option>
+                <option value="❌">❌</option>
+                <option value="          ">10 Space</option>
+                <option value="ABC">ABC</option>
+                <option value="abc">abc</option>
+            </select>
+            <button id="addBullet">Add Marker</button>
+            <button id="closeModal">X</button>
+        </div>
+        <textarea id="textInput" placeholder="Add note..." autofocus></textarea>
+        <div id="submit_block">
+            <button id="clearText">Clear</button>
+            <button id="submitText">Add Text</button>
+        </div>
+    `;
+    document.body.appendChild(textModal);
+    makeDraggable(textModal);
 
     const colors = `
             <div class="color-picker-button" title="Color Picker"></div>
@@ -577,7 +583,6 @@ function injectCanvas() {
         const modal = document.getElementById("modal");
         modal.style.display = "block";
 
-        let scrollLockHandler = null;
         disableScroll();
 
         const bullet = document.getElementById("bullet");
@@ -665,9 +670,6 @@ function injectCanvas() {
             autoNumber = 0;
             autoLetterIndex = 0;
         };
-
-        makeDraggable(modal);
-
         //Stop scrolling document when mouse on modal
         function disableScroll() {
             const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
@@ -679,35 +681,6 @@ function injectCanvas() {
             document.body.style.overflow = "";
             document.body.style.paddingRight = ""; // Reset padding
         }
-
-        // function disableScroll() {
-        //     scrollLockHandler = function (e) {
-        //         const delta = e.deltaY;
-        //         const atTop = modal.scrollTop === 0;
-        //         const atBottom = Math.abs(modal.scrollHeight - modal.clientHeight - modal.scrollTop) < 1;
-
-        //         const scrollingUp = delta < 0;
-        //         const scrollingDown = delta > 0;
-
-        //         const isScrollable = modal.scrollHeight > modal.clientHeight;
-
-        //         // Only block scroll when the modal is at a scroll limit
-        //         if (isScrollable && ((scrollingUp && atTop) || (scrollingDown && atBottom))) {
-        //             e.preventDefault();
-        //         }
-        //         // Otherwise let modal scroll normally
-        //         // (no need to do anything here, browser allows it by default)
-        //     };
-
-        //     modal.addEventListener("wheel", scrollLockHandler, { passive: false });
-        // }
-
-        // function enableScroll() {
-        //     if (scrollLockHandler) {
-        //         modal.removeEventListener("wheel", scrollLockHandler);
-        //         scrollLockHandler = null;
-        //     }
-        // }
     }
 
     //TODO: Handing inserting image from clipboard
