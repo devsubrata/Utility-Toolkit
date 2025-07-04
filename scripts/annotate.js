@@ -8,6 +8,7 @@ if (!document.getElementById("annotationToolbar")) {
     annotationDiv.id = "annotationToolbar";
     annotationDiv.classList.add("glassy");
     annotationDiv.innerHTML = `
+        <div class="title" style="font-size: 25px;">👋</div>
         <div id="activeColor" title="Active Color"></div>
         <div class="color-picker"></div>
         <div class="color-picker"></div>
@@ -27,10 +28,8 @@ if (!document.getElementById("annotationToolbar")) {
         <button id="rectangle" title="Rectangle">▭</button>
         <button id="circle" title="Circle">◯</button>
         <button id="brush" title="Brush">🖌️</button>
-        <div class="range_div">
-            <select id="line-type" class="line-type" title="Select line type"></select>
-            <input type="number" id="brushSize" title="Adjust line, rect, brush, circle, stroke-width" min="1" max="50" value="2" />
-        </div>
+        <select id="line-type" class="line-type" title="Select line type"></select>
+        <input type="number" id="brushSize" title="Adjust line, rect, brush, circle, stroke-width" min="1" max="50" value="2" />
         <button id="typeText" title="Add text">T</button>
         <button id="insertImage" title="Insert Image">🖼️</button>
         <div class="undo_redo">
@@ -101,6 +100,7 @@ if (!document.getElementById("annotationToolbar")) {
     `;
 
     document.body.appendChild(annotationDiv);
+    makeDraggable(annotationDiv);
 
     const colors = `
             <div class="color-picker-button" title="Color Picker"></div>
@@ -576,6 +576,8 @@ function injectCanvas() {
 
         const modal = document.getElementById("modal");
         modal.style.display = "block";
+
+        let scrollLockHandler = null;
         disableScroll();
 
         const bullet = document.getElementById("bullet");
@@ -666,7 +668,7 @@ function injectCanvas() {
 
         makeDraggable(modal);
 
-        // Stop scrolling document when mouse on modal
+        //Stop scrolling document when mouse on modal
         function disableScroll() {
             const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
             document.body.style.overflow = "hidden";
@@ -677,6 +679,35 @@ function injectCanvas() {
             document.body.style.overflow = "";
             document.body.style.paddingRight = ""; // Reset padding
         }
+
+        // function disableScroll() {
+        //     scrollLockHandler = function (e) {
+        //         const delta = e.deltaY;
+        //         const atTop = modal.scrollTop === 0;
+        //         const atBottom = Math.abs(modal.scrollHeight - modal.clientHeight - modal.scrollTop) < 1;
+
+        //         const scrollingUp = delta < 0;
+        //         const scrollingDown = delta > 0;
+
+        //         const isScrollable = modal.scrollHeight > modal.clientHeight;
+
+        //         // Only block scroll when the modal is at a scroll limit
+        //         if (isScrollable && ((scrollingUp && atTop) || (scrollingDown && atBottom))) {
+        //             e.preventDefault();
+        //         }
+        //         // Otherwise let modal scroll normally
+        //         // (no need to do anything here, browser allows it by default)
+        //     };
+
+        //     modal.addEventListener("wheel", scrollLockHandler, { passive: false });
+        // }
+
+        // function enableScroll() {
+        //     if (scrollLockHandler) {
+        //         modal.removeEventListener("wheel", scrollLockHandler);
+        //         scrollLockHandler = null;
+        //     }
+        // }
     }
 
     //TODO: Handing inserting image from clipboard

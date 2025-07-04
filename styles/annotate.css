@@ -3,28 +3,41 @@
     top: 0;
     left: 50%;
     transform: translateX(-50%);
-    width: 80%;
-    margin: 0 auto;
-    padding: 5px;
+
+    z-index: 10000;
+    padding: 7px;
 
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 3px;
     flex-wrap: wrap;
-    z-index: 10000;
+    gap: 3px;
+
+    max-width: calc(100vw - 20px);
+    max-height: calc(100vh - 20px);
+
+    width: max-content;
+    box-sizing: border-box;
+
+    resize: both;
+    overflow: hidden;
 }
 
 .glassy {
     background-color: rgb(155, 241, 207);
     backdrop-filter: blur(10px);
-    border: 2px solid rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(0, 0, 0, 0.3);
+    /* border-top: none; */
+    border-radius: 10px;
+    /* border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
     border-bottom-left-radius: 20px;
-    border-bottom-right-radius: 20px;
+    border-bottom-right-radius: 20px; */
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
 }
 
-#annotationToolbar div > input {
+#annotationToolbar div > input,
+#brushSize {
     height: 38px;
     box-sizing: border-box;
 }
@@ -50,8 +63,7 @@
 }
 
 .highlight_div,
-.line_div,
-.range_div {
+.line_div {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -176,10 +188,10 @@
 /* for text input */
 #modal {
     display: none;
-    position: absolute;
-    top: 200%;
+    position: fixed;
+    top: 50%;
     left: 50%;
-    transform: translateX(-50%);
+    transform: translate(-50%, -50%);
     border: 10px solid orange;
     background: gold;
     font-size: 25px;

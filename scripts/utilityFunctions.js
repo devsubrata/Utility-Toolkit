@@ -163,6 +163,16 @@ function uploadSongList() {
             video_id: "e-ORhEE9VVg, nAQ_1lTDvPQ",
         },
         {
+            song_name: "Love Story",
+            artists: "Taylor Swift",
+            video_id: "e-8xg3vE8Ie_E",
+        },
+        {
+            song_name: "You Belong With Me",
+            artists: "Taylor Swift",
+            video_id: "VuNIsY6JdUw, Xgf9XDT846M",
+        },
+        {
             song_name: "Shape of You",
             artists: "Ed Sheeran",
             video_id: "JGwWNGJdvx8, liTfD88dbCo",
