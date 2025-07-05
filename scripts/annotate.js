@@ -8,6 +8,11 @@ if (!document.getElementById("annotationToolbar")) {
     annotationDiv.id = "annotationToolbar";
     annotationDiv.classList.add("glassy");
     annotationDiv.innerHTML = `
+        <div class="bar-size" title="toggle tool bar size">
+            <input type="radio" id="size1" name="size" value="1" checked />
+            <input type="radio" id="size2" name="size" value="2" />
+            <input type="radio" id="size3" name="size" value="3" />
+        </div>
         <div id="activeColor" title="Active Color"></div>
         <div class="color-picker"></div>
         <div class="color-picker"></div>
@@ -27,10 +32,8 @@ if (!document.getElementById("annotationToolbar")) {
         <button id="rectangle" title="Rectangle">▭</button>
         <button id="circle" title="Circle">◯</button>
         <button id="brush" title="Brush">🖌️</button>
-        <div class="range_div">
-            <select id="line-type" class="line-type" title="Select line type"></select>
-            <input type="number" id="brushSize" title="Adjust line, rect, brush, circle, stroke-width" min="1" max="50" value="2" />
-        </div>
+        <select id="line-type" class="line-type" title="Select line type"></select>
+        <input type="number" id="brushSize" title="Adjust line, rect, brush, circle, stroke-width" min="1" max="50" value="2" />
         <button id="typeText" title="Add text">T</button>
         <button id="insertImage" title="Insert Image">🖼️</button>
         <div class="undo_redo">
@@ -47,60 +50,67 @@ if (!document.getElementById("annotationToolbar")) {
         <button id="save" title="Take Snapshot">📸</button>
         <button id="clear" title="Erase everything">🆑</button>
         <button id="exit">❌</button>
-        <div id="modal" class="modal">
-            <div id="modal-header" class="title">
-                <select id="font-select">
-                    <option value="Arial">Arial</option>
-                    <option value="sans-serif">Sans Serif</option>
-                    <option value="serif">Serif</option>
-                    <option value="monospace">Monospace</option>
-                    <option value="Roboto Slab">Roboto slab</option>
-                    <option value="Garamond">Garamond</option>
-                    <option value="Georgia">Georgia</option>
-                    <option value="Tahoma" selected>Tahoma</option>
-                    <option value="Open Sans">Open sans</option>
-                    <option value="Verdana">Verdana</option>
-                </select>
-                <div class="text-color-picker"></div>
-                <input type="number" title="Font Size" id="font_size" min="10" max="100" step="2" value="30"/>
-                <select id="bullet">
-                    <option value="     ">5 Space</option>
-                    <option value="✅">✅</option>
-                    <option value="☑️">☑️</option>
-                    <option value="✔️">✔️</option>
-                    <option value="🔶">🔶</option>
-                    <option value="🔹">🔹</option>
-                    <option value="➡️" selected>➡️</option>
-                    <option value=" ⇒ ">⇒</option>
-                    <option value=" ➜ ">➜</option>
-                    <option value=" ★ ">★</option>
-                    <option value=" — ">em dash</option>
-                    <option value="     — ">tab—</option>
-                    <option value="     ⇒ ">tab⟹</option>
-                    <option value="     ➜ ">tab➜</option>
-                    <option value="     ★ ">tab★</option>
-                    <option value="     🔶">tab🔶</option>
-                    <option value="     🔹">tab🔹</option>
-                    <option value="⭐">⭐</option>
-                    <option value="⚝ ">⚝</option>
-                    <option value="🔢">🔢</option>
-                    <option value="❌">❌</option>
-                    <option value="          ">10 Space</option>
-                    <option value="ABC">ABC</option>
-                    <option value="abc">abc</option>
-                </select>
-                <button id="addBullet">Add Marker</button>
-                <button id="closeModal">X</button>
-            </div>
-            <textarea id="textInput" placeholder="Add note..." autofocus></textarea>
-            <div id="submit_block">
-                <button id="clearText">Clear</button>
-                <button id="submitText">Add Text</button>
-            </div>
-        </div>
     `;
 
     document.body.appendChild(annotationDiv);
+    makeDraggable(annotationDiv);
+
+    const textModal = document.createElement("div");
+    textModal.id = "modal";
+    textModal.classList.add("modal");
+    textModal.innerHTML = `
+        <div id="modal-header" class="title">
+            <select id="font-select">
+                <option value="Arial">Arial</option>
+                <option value="sans-serif">Sans Serif</option>
+                <option value="serif">Serif</option>
+                <option value="monospace">Monospace</option>
+                <option value="Roboto Slab">Roboto slab</option>
+                <option value="Garamond">Garamond</option>
+                <option value="Georgia">Georgia</option>
+                <option value="Tahoma" selected>Tahoma</option>
+                <option value="Open Sans">Open sans</option>
+                <option value="Verdana">Verdana</option>
+            </select>
+            <div class="text-color-picker"></div>
+            <input type="number" title="Font Size" id="font_size" min="10" max="100" step="2" value="30"/>
+            <select id="bullet">
+                <option value="     ">5 Space</option>
+                <option value="✅">✅</option>
+                <option value="☑️">☑️</option>
+                <option value="✔️">✔️</option>
+                <option value="🔶">🔶</option>
+                <option value="🔹">🔹</option>
+                <option value="➡️" selected>➡️</option>
+                <option value=" ⇒ ">⇒</option>
+                <option value=" ➜ ">➜</option>
+                <option value=" ★ ">★</option>
+                <option value=" — ">em dash</option>
+                <option value="     — ">tab—</option>
+                <option value="     ⇒ ">tab⟹</option>
+                <option value="     ➜ ">tab➜</option>
+                <option value="     ★ ">tab★</option>
+                <option value="     🔶">tab🔶</option>
+                <option value="     🔹">tab🔹</option>
+                <option value="⭐">⭐</option>
+                <option value="⚝ ">⚝</option>
+                <option value="🔢">🔢</option>
+                <option value="❌">❌</option>
+                <option value="          ">10 Space</option>
+                <option value="ABC">ABC</option>
+                <option value="abc">abc</option>
+            </select>
+            <button id="addBullet">Add Marker</button>
+            <button id="closeModal">X</button>
+        </div>
+        <textarea id="textInput" placeholder="Add note..." autofocus></textarea>
+        <div id="submit_block">
+            <button id="clearText">Clear</button>
+            <button id="submitText">Add Text</button>
+        </div>
+    `;
+    document.body.appendChild(textModal);
+    makeDraggable(textModal);
 
     const colors = `
             <div class="color-picker-button" title="Color Picker"></div>
@@ -576,6 +586,7 @@ function injectCanvas() {
 
         const modal = document.getElementById("modal");
         modal.style.display = "block";
+
         disableScroll();
 
         const bullet = document.getElementById("bullet");
@@ -663,10 +674,7 @@ function injectCanvas() {
             autoNumber = 0;
             autoLetterIndex = 0;
         };
-
-        makeDraggable(modal);
-
-        // Stop scrolling document when mouse on modal
+        //Stop scrolling document when mouse on modal
         function disableScroll() {
             const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
             document.body.style.overflow = "hidden";
@@ -718,6 +726,9 @@ function injectCanvas() {
             }
         }
     });
+
+    //* resize tool bar
+    changeToolbarSize();
 }
 
 async function startFullPageCapture() {
@@ -818,4 +829,37 @@ function createNavigation() {
     document.body.appendChild(navDiv);
 
     handleNavigation(window);
+}
+
+function changeToolbarSize() {
+    const toolbar = document.getElementById("annotationToolbar");
+    const radioButtons = document.querySelectorAll('input[name="size"]');
+
+    radioButtons.forEach((radio) => {
+        radio.addEventListener("change", (e) => {
+            const size = e.target.value;
+            switch (size) {
+                case "1":
+                    positionToolbar();
+                    toolbar.style.width = "max-content";
+                    toolbar.style.height = "63px";
+                    break;
+                case "2":
+                    positionToolbar();
+                    toolbar.style.width = "460px";
+                    toolbar.style.height = "150px";
+                    break;
+                case "3":
+                    positionToolbar();
+                    toolbar.style.width = "101px";
+                    toolbar.style.height = "723px";
+                    break;
+            }
+        });
+        function positionToolbar() {
+            toolbar.style.top = "0";
+            toolbar.style.left = "50%";
+            toolbar.style.transform = "translateX(-50%)";
+        }
+    });
 }
