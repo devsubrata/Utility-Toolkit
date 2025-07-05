@@ -8,7 +8,11 @@ if (!document.getElementById("annotationToolbar")) {
     annotationDiv.id = "annotationToolbar";
     annotationDiv.classList.add("glassy");
     annotationDiv.innerHTML = `
-        <div class="title" style="font-size: 25px;">👋</div>
+        <div class="bar-size" title="toggle tool bar size">
+            <input type="radio" id="size1" name="size" value="1" checked />
+            <input type="radio" id="size2" name="size" value="2" />
+            <input type="radio" id="size3" name="size" value="3" />
+        </div>
         <div id="activeColor" title="Active Color"></div>
         <div class="color-picker"></div>
         <div class="color-picker"></div>
@@ -46,6 +50,7 @@ if (!document.getElementById("annotationToolbar")) {
         <button id="save" title="Take Snapshot">📸</button>
         <button id="clear" title="Erase everything">🆑</button>
         <button id="exit">❌</button>
+        <div class="title" style="font-size: 25px;">👋</div>
     `;
 
     document.body.appendChild(annotationDiv);
@@ -722,6 +727,9 @@ function injectCanvas() {
             }
         }
     });
+
+    //* resize tool bar
+    changeToolbarSize();
 }
 
 async function startFullPageCapture() {
@@ -822,4 +830,37 @@ function createNavigation() {
     document.body.appendChild(navDiv);
 
     handleNavigation(window);
+}
+
+function changeToolbarSize() {
+    const toolbar = document.getElementById("annotationToolbar");
+    const radioButtons = document.querySelectorAll('input[name="size"]');
+
+    radioButtons.forEach((radio) => {
+        radio.addEventListener("change", (e) => {
+            const size = e.target.value;
+            switch (size) {
+                case "1":
+                    positionToolbar();
+                    toolbar.style.width = "max-content";
+                    toolbar.style.height = "65px";
+                    break;
+                case "2":
+                    positionToolbar();
+                    toolbar.style.width = "460px";
+                    toolbar.style.height = "155px";
+                    break;
+                case "3":
+                    positionToolbar();
+                    toolbar.style.width = "107px";
+                    toolbar.style.height = "730px";
+                    break;
+            }
+        });
+        function positionToolbar() {
+            toolbar.style.top = "0";
+            toolbar.style.left = "50%";
+            toolbar.style.transform = "translateX(-50%)";
+        }
+    });
 }

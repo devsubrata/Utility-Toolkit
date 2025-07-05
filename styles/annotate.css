@@ -18,9 +18,18 @@
 
     width: max-content;
     box-sizing: border-box;
+}
 
-    /* resize: both; */
-    /* overflow: auto; */
+.bar-size {
+    margin: 0 7px;
+}
+
+#annotationToolbar .bar-size input {
+    display: block;
+    height: fit-content;
+}
+#annotationToolbar .bar-size input:nth-child(2) {
+    margin: 2px 0;
 }
 
 .glassy {
