@@ -198,11 +198,8 @@
     transform: translate(-50%, -50%);
     border: 10px solid orange;
     background: gold;
-    font-size: 25px;
     margin: 0;
     padding: 0;
-    resize: both;
-    overflow: auto;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     z-index: 20000;
 }
@@ -222,13 +219,25 @@
 #modal #submit_block {
     margin-top: -5px;
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
+    max-height: 32px;
+}
+
+#submit_block p {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-left: 5px;
 }
 
 #modal-header {
     margin: 0;
     display: flex;
     justify-content: center;
+}
+#modal-header #font_size {
+    padding-left: 8px;
+    width: 50px;
 }
 #modal-header #bullet {
     margin-left: 3px;
@@ -264,6 +273,67 @@
     padding: 5px 8px;
 }
 
+/**-------------bullet menu setup ------------*/
+.custom-select {
+    position: relative;
+    width: 80px;
+    background-color: #fff;
+}
+
+.selected {
+    padding: 2px;
+    height: 100%;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.options-menu {
+    display: inline-block; /* Allow natural content width */
+    width: auto;
+    white-space: normal; /* allow internal text wrapping */
+    position: absolute;
+    top: 110%;
+    left: 0;
+    background: #f9f9f9;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 5px 5px 0 5px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+}
+
+.category-row {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 5px;
+    border-bottom: 1px solid #aaa;
+    flex-wrap: nowrap; /* ❗ Prevent wrapping */
+    white-space: nowrap; /* ❗ Prevent breaking into next line */
+}
+
+.options-menu .category-row:last-child {
+    border-bottom: none;
+    margin-bottom: none;
+    padding-bottom: 0;
+}
+
+.option {
+    padding: 2px 4px;
+    margin-bottom: 5px;
+    background: #eee;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.2s;
+    display: inline-block;
+}
+
+.option:hover {
+    background: #ddd;
+}
+
+/**-------------expand canvas feature------------*/
 #expand_canvas {
     position: fixed;
     bottom: 0;
@@ -291,14 +361,14 @@
 .scroll-buttons {
     position: fixed;
     bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
+    left: 100%;
+    transform: translateX(-100%);
     display: flex;
     z-index: 15000;
 }
 
 .scroll-buttons button {
-    font-size: 24px;
+    font-size: 20px;
     border: none;
     background: transparent;
     color: white;

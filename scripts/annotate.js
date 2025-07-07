@@ -74,42 +74,21 @@ if (!document.getElementById("annotationToolbar")) {
             </select>
             <div class="text-color-picker"></div>
             <input type="number" title="Font Size" id="font_size" min="10" max="100" step="2" value="30"/>
-            <select id="bullet">
-                <option value="     ">5 Space</option>
-                <option value="✅">✅</option>
-                <option value="☑️">☑️</option>
-                <option value="✔️">✔️</option>
-                <option value="🔶">🔶</option>
-                <option value="🔹">🔹</option>
-                <option value="➡️" selected>➡️</option>
-                <option value=" ⇒ ">⇒</option>
-                <option value=" ➜ ">➜</option>
-                <option value=" ★ ">★</option>
-                <option value=" — ">em dash</option>
-                <option value="     — ">tab—</option>
-                <option value="     ⇒ ">tab⟹</option>
-                <option value="     ➜ ">tab➜</option>
-                <option value="     ★ ">tab★</option>
-                <option value="     🔶">tab🔶</option>
-                <option value="     🔹">tab🔹</option>
-                <option value="⭐">⭐</option>
-                <option value="⚝ ">⚝</option>
-                <option value="🔢">🔢</option>
-                <option value="❌">❌</option>
-                <option value="          ">10 Space</option>
-                <option value="ABC">ABC</option>
-                <option value="abc">abc</option>
-            </select>
+            ${create_bullet_menu()}
             <button id="addBullet">Add Marker</button>
             <button id="closeModal">X</button>
         </div>
         <textarea id="textInput" placeholder="Add note..." autofocus></textarea>
         <div id="submit_block">
-            <button id="clearText">Clear</button>
-            <button id="submitText">Add Text</button>
+            <p>Word Count:&nbsp;<span id="wc">0</span></p>
+            <div>
+                <button id="clearText">Clear</button>
+                <button id="submitText">Add Text</button>
+            </div>
         </div>
     `;
     document.body.appendChild(textModal);
+    bullet_menu_listener();
     makeDraggable(textModal);
 
     const colors = `
@@ -129,9 +108,110 @@ if (!document.getElementById("annotationToolbar")) {
     createNavigation();
 
     document.getElementById("exit")?.addEventListener("click", () => {
+        if (!confirm("Are you sure to close?")) return;
+
         ["drawingCanvas", "annotationToolbar", "expand_canvas", "bottomNavBar"].forEach((id) => {
             document.getElementById(id)?.remove();
         });
+    });
+}
+
+function create_bullet_menu() {
+    return `
+        <div class="custom-select">
+            <div id="bullet" class="selected" data-value="⭐">⭐</div>
+            <div class="options-menu">
+                <div class="category-row">
+                    <span class="option" data-value="✅">✅</span>
+                    <span class="option" data-value="☑️">☑️</span>
+                    <span class="option" data-value="✔️">✔️</span>
+                    <span class="option" data-value="🗸">🗸</span>
+                </div>
+                <div class="category-row">
+                    <span class="option" data-value="➡️">➡️</span>
+                    <span class="option" data-value="⬅️">⬅️</span>
+                    <span class="option" data-value="⬆️">⬆️</span>
+                    <span class="option" data-value="⬇️">⬇️</span>
+                </div>
+                <div class="category-row">
+                    <span class="option" data-value="✿">✿</span>
+                    <span class="option" data-value="❀">❀</span>
+                    <span class="option" data-value="✷">✷</span>
+                    <span class="option" data-value="𖤐">𖤐</span>
+                    <span class="option" data-value="𖤓">𖤓</span>
+                    <span class="option" data-value="✩">✩</span>
+                    <span class="option" data-value="✦">✦</span>
+                </div>
+                <div class="category-row">
+                    <span class="option" data-value="🟣">🟣</span>
+                    <span class="option" data-value="🔴">🔴</span>
+                    <span class="option" data-value="🟠">🟠</span>
+                    <span class="option" data-value="🟡">🟡</span>
+                    <span class="option" data-value="🟢">🟢</span>
+                    <span class="option" data-value="🔵">🔵</span>
+                </div>
+                <div class="category-row">
+                    <span class="option" data-value=" ⇒ ">⇒</span>
+                    <span class="option" data-value=" ➜ ">➜</span>
+                    <span class="option" data-value=" ★ ">★</span>
+                    <span class="option" data-value=" — ">—</span>
+                    <span class="option" data-value="🔹">🔹</span>
+                </div>
+                <div class="category-row">
+                    <span class="option" data-value="     — ">tab—</span>
+                    <span class="option" data-value="     ⇒ ">tab⟹</span>
+                    <span class="option" data-value="     ➜ ">tab➜</span>
+                    <span class="option" data-value="     ★ ">tab★</span>
+                    <span class="option" data-value="     🔹">tab🔹</span>
+                    <span class="option" data-value="     ">5 Space</span>
+                    <span class="option" data-value="          ">10 Space</span>
+                </div>
+                <div class="category-row">
+                    <span class="option" data-value="🔶">🔶</span>
+                    <span class="option" data-value="⭐">⭐</span>
+                    <span class="option" data-value="🔹">🔹</span>
+                    <span class="option" data-value="❌">❌</span>
+                    <span class="option" data-value="🔢">🔢</span>
+                    <span class="option" data-value="ABC">ABC</span>
+                    <span class="option" data-value="abc">abc</span>
+                </div>
+                <div class="category-row">
+                    <span class="option" data-value="🪰">🪰</span>
+                    <span class="option" data-value="🪳">🪳</span>
+                    <span class="option" data-value="🕷️">🕷️</span>
+                    <span class="option" data-value="🦋">🦋</span>
+                    <span class="option" data-value="🦉">🦉</span>
+                    <span class="option" data-value="🐧">🐧</span>
+                    <span class="option" data-value="🏵️">🏵️</span>
+                    <span class="option" data-value="🪲">🪲</span>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function bullet_menu_listener() {
+    const selected = document.querySelector(".selected");
+    const menu = document.querySelector(".options-menu");
+    const options = document.querySelectorAll(".option");
+
+    selected.addEventListener("click", () => {
+        menu.style.display = menu.style.display === "block" ? "none" : "block";
+    });
+
+    options.forEach((option) => {
+        option.addEventListener("click", () => {
+            selected.textContent = option.textContent;
+            selected.setAttribute("data-value", option.getAttribute("data-value"));
+            menu.style.display = "none";
+            console.log(`You selceted: "${selected.getAttribute("data-value")}"`);
+        });
+    });
+
+    document.addEventListener("click", (e) => {
+        if (!document.querySelector(".custom-select").contains(e.target)) {
+            menu.style.display = "none";
+        }
     });
 }
 
@@ -155,7 +235,7 @@ function injectCanvas() {
     const ctx = canvas.getContext("2d", { willReadFrequently: true });
     const brushSizeInput = document.getElementById("brushSize");
 
-    // Tools
+    //TODO:-------------- Tools------------------------
     const tools = {
         brush: document.getElementById("brush"),
         highlighter: document.getElementById("highlight"),
@@ -227,7 +307,7 @@ function injectCanvas() {
         else activeColor.style.backgroundColor = color1;
     }
 
-    // Start drawing
+    //TODO:--------------- Start drawing -----------------------
     function startPainting(e) {
         e.preventDefault();
         if (currentTool === "typeText") {
@@ -347,7 +427,7 @@ function injectCanvas() {
         redoStack.length = 0;
     }
 
-    // Event Listeners for mouse
+    //TODO:--------- Event Listeners for canvas ---------------------------------
     canvas.addEventListener("mousedown", startPainting);
     canvas.addEventListener("mousemove", draw);
     canvas.addEventListener("mouseup", stopPainting);
@@ -407,7 +487,7 @@ function injectCanvas() {
         lineToolsHandler();
     });
 
-    // Tool Handlers
+    //TODO:----------Tool Handlers-----------------------------------
     tools.brush.addEventListener("click", () => setActiveTool("brush"));
     tools.highlighter.addEventListener("click", () => setActiveTool("highlighter"));
     tools.lines.addEventListener("click", lineToolsHandler);
@@ -444,18 +524,21 @@ function injectCanvas() {
     document.getElementById("save").addEventListener("click", startFullPageCapture);
 
     // Opacity Control
-    document.getElementById("opacity").addEventListener("input", (e) => {
-        opacity = e.target.value;
+    function color_opacity_control() {
+        const opacity_input = document.getElementById("opacity");
+
+        if (opacity_input.value === "") return;
+        opacity = opacity_input.value;
+
         const { r, g, b } = extractRGB(color1);
         color1 = `rgba(${r}, ${g}, ${b}, ${opacity})`;
         document.getElementById("activeColor").style.backgroundColor = color1;
-    });
-
-    document.getElementById("exit")?.addEventListener("click", () => {
-        ["drawingCanvas", "custom-toolbar"].forEach((id) => {
-            document.getElementById(id)?.remove();
-        });
-    });
+    }
+    document.getElementById("opacity").addEventListener("input", color_opacity_control);
+    document.querySelector(".opacity_control label").onclick = () => {
+        document.getElementById("opacity").value = 1;
+        color_opacity_control();
+    };
 
     // Undo functionality
     document.getElementById("undo").addEventListener("click", () => {
@@ -499,6 +582,7 @@ function injectCanvas() {
     function extractRGB(rgbaString) {
         const rgbaRegex = /rgba\((\d+),\s*(\d+),\s*(\d+),\s*([\d.]+)\)/;
         const match = rgbaString.match(rgbaRegex);
+        if (match === null) return;
         return { r: parseInt(match[1], 10), g: parseInt(match[2], 10), b: parseInt(match[3], 10) };
     }
 
@@ -586,7 +670,6 @@ function injectCanvas() {
 
         const modal = document.getElementById("modal");
         modal.style.display = "block";
-
         disableScroll();
 
         const bullet = document.getElementById("bullet");
@@ -611,7 +694,7 @@ function injectCanvas() {
         const newAddBulletBtn = document.getElementById("addBullet");
 
         newAddBulletBtn.addEventListener("click", () => {
-            let currentBullet = bullet.value;
+            let currentBullet = bullet.dataset.value;
 
             if (currentBullet === "🔢") {
                 currentBullet = numbers[autoNumber];
@@ -641,6 +724,13 @@ function injectCanvas() {
             textInput.focus();
         });
 
+        textInput.addEventListener("input", (e) => {
+            const wordCountDisplay = document.getElementById("wc");
+            const text = e.target.value.trim();
+            const words = text === "" ? 0 : text.split(/\s+/).length;
+            wordCountDisplay.textContent = words;
+        });
+
         // Function to handle submission
         function submitText() {
             if (textInput.value.trim() !== "") {
@@ -650,6 +740,7 @@ function injectCanvas() {
             modal.style.display = "none";
             enableScroll();
             textInput.value = "";
+            document.getElementById("wc").textContent = "0";
         }
 
         submitBtn.onclick = submitText;
@@ -664,6 +755,7 @@ function injectCanvas() {
 
         clearBtn.onclick = () => {
             textInput.value = "";
+            document.getElementById("wc").textContent = "0";
             autoNumber = 0;
             autoLetterIndex = 0;
         };
