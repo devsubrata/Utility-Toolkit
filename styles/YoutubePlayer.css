@@ -23,9 +23,10 @@ th {
 
 #openYoutubePlayer {
     position: fixed;
-    min-width: 650px;
-    top: 50px;
-    left: 20px;
+    min-width: 700px;
+    min-height: 600px;
+    top: 0;
+    left: 0;
     background: #e9e0f5;
     border: 1px solid #ccc;
     padding: 0;
@@ -54,12 +55,19 @@ th {
     margin-left: auto;
 }
 
+#youtubePlayer {
+    border: 2px solid grey;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
 .title-bar .ctrl {
     cursor: pointer;
 }
 
 .content {
     width: 100%;
+    min-width: 650px;
     height: 100%;
     background: white;
     border: 2px solid #ccc;
@@ -79,12 +87,20 @@ th {
     display: flex;
     gap: 10px;
     align-items: center;
+    background-color: #cecbc3;
 }
 
-input[type="text"] {
+input[type="text"],
+input[type="number"] {
     flex-grow: 1;
     padding: 6px 10px;
     font-size: 1rem;
+}
+
+#videoInput {
+    border: 2px solid #aaa;
+    background-color: #fff;
+    border-radius: 5px;
 }
 
 #load-song,
@@ -104,6 +120,25 @@ input[type="text"] {
     background: #0844eb;
 }
 
+#searchBtn {
+    outline: none;
+    border: 2px solid gray;
+    width: 35px;
+    height: 35px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    font-size: 20px;
+    background: transparent;
+    transition: all 0.3s ease;
+}
+#searchBtn:hover {
+    border-color: #00acc1;
+    box-shadow: 0 0 0 2px rgba(0, 172, 193, 0.2);
+}
+
 #load-song:hover {
     background: #b4160d;
 }
@@ -114,24 +149,8 @@ input[type="text"] {
 iframe {
     flex-grow: 1;
     width: 100%;
-    height: 400px;
+    height: 500px;
     border: none;
-}
-
-#popupBtn {
-    background: #a57f00;
-    font-size: 16px;
-    padding: 10px;
-    color: white;
-    outline: none;
-    border: none;
-    border-bottom-left-radius: 10px;
-    border-bottom-right-radius: 10px;
-    cursor: pointer;
-}
-
-#popupBtn:hover {
-    background: #584401;
 }
 
 .floating-window.minimized .content {
@@ -259,4 +278,11 @@ iframe {
     width: 100%;
     height: auto;
     object-fit: contain;
+}
+
+#searchWindow {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: flex-end;
 }

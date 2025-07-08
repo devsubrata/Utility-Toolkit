@@ -1,2 +1,5 @@
 playground/
-API keys/
+API/
+node_modules/
+package-lock.json
+package.json

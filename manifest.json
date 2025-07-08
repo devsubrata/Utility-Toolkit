@@ -18,7 +18,7 @@
     "host_permissions": ["<all_urls>"],
     "web_accessible_resources": [
         {
-            "resources": ["scripts/*.js", "styles/*.css"],
+            "resources": ["scripts/API/api_key.json", "scripts/Data/channel-list.json", "scripts/*.js", "styles/*.css"],
             "matches": ["<all_urls>"]
         }
     ]
