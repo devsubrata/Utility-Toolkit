@@ -120,7 +120,8 @@ input[type="number"] {
     background: #0844eb;
 }
 
-#searchBtn {
+#searchBtn,
+#generalSearchBtn {
     outline: none;
     border: 2px solid gray;
     width: 35px;
@@ -137,6 +138,10 @@ input[type="number"] {
 #searchBtn:hover {
     border-color: #00acc1;
     box-shadow: 0 0 0 2px rgba(0, 172, 193, 0.2);
+}
+#generalSearchBtn:hover {
+    border-color: #4dc100;
+    box-shadow: 0 0 0 2px rgba(132, 0, 193, 0.2);
 }
 
 #load-song:hover {

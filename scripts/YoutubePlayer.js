@@ -27,7 +27,8 @@ if (!document.getElementById("openYoutubePlayer")) {
                 <button id="load-song">Load</button>
                 <button id="load-script">LoadScript</button>
                 <button id="showSongsBtn">DisplayList</button>
-                <button id="searchBtn">🔍</button>
+                <button id="searchBtn" title="Search in a youtube channel">🔍</button>
+                <button id="generalSearchBtn" title="Youtube general search">🔎</button>
             </div>
             <iframe id="youtubePlayer" src="" allowfullscreen></iframe>
             <!-- <button id="popupBtn">Open in Popup</button> -->
@@ -710,5 +711,168 @@ if (!document.getElementById("openYoutubePlayer")) {
 
             container.appendChild(card);
         }
+    }
+
+    //TODO: Youtube General Search
+    //* create a window for search
+    const generalSearchBtn = document.getElementById("generalSearchBtn");
+    generalSearchBtn.onclick = function () {
+        if (document.getElementById("generalSearchWindow")) return;
+
+        function parseISODurationToSeconds(iso) {
+            const match = iso.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+            if (!match) return 0;
+            const h = parseInt(match[1] || "0", 10);
+            const m = parseInt(match[2] || "0", 10);
+            const s = parseInt(match[3] || "0", 10);
+            return h * 3600 + m * 60 + s;
+        }
+
+        const generalSearchLoader = document.createElement("div");
+        generalSearchLoader.id = "generalSearchWindow";
+        generalSearchLoader.className =
+            "absolute top-0 left-[35%] w-[700px] h-[800px] bg-black text-white border-2 border-[#444] shadow-[0_0_10px_rgba(0,0,0,0.5)] resize overflow-hidden flex flex-col z-[25000]";
+        generalSearchLoader.innerHTML = `
+            <div class="title-bar flex justify-between items-center !mx-4 !my-1">
+                <span class="title">Youtube search</span>
+                <div class="flex gap-4">
+                    <span class="gsl-minimize-btn ctrl" title="minimize">—</span>
+                    <span class="gsl-maximize-btn ctrl" title="maximize">🗗</span>
+                    <span class="gsl-close-btn ctrl" title="Close">❌</span>
+                </div>
+            </div>
+            <div id="search-content" class="bg-amber-50 flex-1 overflow-y-auto">
+    
+            </div>
+        `;
+        document.body.appendChild(generalSearchLoader);
+        makeDraggable(generalSearchLoader);
+        closeWindow(document.querySelector(".gsl-close-btn"), generalSearchLoader, null);
+        loadContent();
+
+        const gsBtn = document.getElementById("search-btn");
+        if (!gsBtn) return;
+
+        gsBtn.addEventListener("click", async () => {
+            const response = await fetch(chrome.runtime.getURL("scripts/API/api_key.json"));
+            const data = await response.json();
+            const apiKey = data.YT_API_KEY;
+
+            const query = document.getElementById("generalSearchInput").value.trim();
+            if (!query) return;
+
+            const resultContainer = document.getElementById("globalSearchResults");
+            resultContainer.innerHTML = `<div class='text-center'>Loading...</div>`;
+
+            const baseURL = "https://www.googleapis.com/youtube/v3/search?";
+
+            const searchURL = `${baseURL}part=snippet&type=video&maxResults=10&q=${encodeURIComponent(query)}&key=${apiKey}`;
+            const searchRes = await fetch(searchURL);
+            const searchData = await searchRes.json();
+
+            if (!searchData.items) {
+                resultContainer.innerHTML = `<div class='text-red-600'>No results found</div>`;
+                return;
+            }
+
+            const videoIds = searchData.items.map((item) => item.id.videoId).join(",");
+            const statsURL = `https://www.googleapis.com/youtube/v3/videos?part=contentDetails,statistics&id=${videoIds}&key=${apiKey}`;
+            const statsRes = await fetch(statsURL);
+            const statsData = await statsRes.json();
+
+            resultContainer.innerHTML = "";
+
+            searchData.items.forEach((video, index) => {
+                const publishedAt = video.snippet.publishedAt;
+                const formattedDate = new Date(publishedAt).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                });
+                const timeAgoText = timeAgo(publishedAt);
+                const videoId = video.id.videoId;
+                const { title, thumbnails, channelTitle, channelId } = video.snippet;
+                const item = statsData.items[index];
+                const viewCount = item?.statistics?.viewCount || "N/A";
+                const duration = parseISODurationToSeconds(item?.contentDetails?.duration);
+
+                const card = document.createElement("div");
+                card.className = "border rounded-xl overflow-hidden shadow hover:shadow-lg transition !p-4 flex gap-4 bg-white";
+
+                card.innerHTML = `
+                    <div class="relative w-48 min-w-[12rem]">
+                        <img src="${thumbnails.medium.url}" alt="Thumbnail" class="rounded w-full h-auto">
+                        <span class="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white text-xs !px-2 !py-1 rounded">
+                            ${duration}
+                        </span>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-lg font-semibold !mb-1">${title}</h3>
+                        <p class="text-sm text-gray-600">👁️ ${Number(viewCount).toLocaleString()} views</p>
+                        <div class="text-xs text-gray-500 !mt-1">
+                            Published on <span class="font-medium">${formattedDate}</span> • ${timeAgoText}
+                        </div>
+                        <p class="text-sm text-gray-700">📺 ${channelTitle}</p>
+                        <div class="flex flex-wrap gap-2 !mt-3">
+                            <button class="gs-copy-btn" data-id=${channelId}>📋 Channel ID</button>
+                            <button class="gs-copy-btn" data-id=${videoId}>📋 Video ID</button>
+                            <button class="gs-copy-btn" data-id="https://www.youtube.com/watch?v=${videoId}">🔗 Copy Link</button>
+                        </div>
+                    </div>
+                `;
+                document.querySelectorAll(".gs-copy-btn").forEach((btn) => {
+                    const id = btn.dataset.id;
+                    navigator.clipboard.writeText(id).then(() => {
+                        const original = btn.innerText;
+                        btn.innerText = "Copied!";
+                        btn.disabled = true;
+                        setTimeout(() => {
+                            btn.innerText = original;
+                            btn.disabled = false;
+                        }, 1200);
+                    });
+                });
+                resultContainer.appendChild(card);
+            });
+        });
+    };
+    //* load search parameter on window
+    function loadContent() {
+        const searchForm = document.createElement("div");
+        searchForm.className = "max-w-5xl mx-auto !p-6";
+        searchForm.innerHTML = `
+            <h1 class="text-3xl font-bold text-center text-indigo-700 !mb-6">YouTube Channel & Video Search</h1>
+            <div class="flex gap-4 !mb-6 justify-center">
+                <input id="generalSearchInput" type="text" placeholder="Search videos..." class="bg-white text-black !text-xl w-full max-w-xl border-3 border-indigo-700 rounded !px-4 !py-2" />
+                <button id="search-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white !px-4 !py-2 rounded cursor-pointer">Search</button>
+            </div>
+            <div id="globalSearchResults" class="space-y-6"></div>
+        `;
+        const searchContent = document.getElementById("search-content");
+        if (searchContent) searchContent.appendChild(searchForm);
+    }
+
+    function timeAgo(dateString) {
+        const now = new Date();
+        const publishedDate = new Date(dateString);
+        const diffInSeconds = Math.floor((now - publishedDate) / 1000);
+
+        const units = [
+            { label: "year", seconds: 31536000 },
+            { label: "month", seconds: 2592000 },
+            { label: "week", seconds: 604800 },
+            { label: "day", seconds: 86400 },
+            { label: "hour", seconds: 3600 },
+            { label: "minute", seconds: 60 },
+            { label: "second", seconds: 1 },
+        ];
+
+        for (const unit of units) {
+            const count = Math.floor(diffInSeconds / unit.seconds);
+            if (count >= 1) {
+                return `${count} ${unit.label}${count > 1 ? "s" : ""} ago`;
+            }
+        }
+        return "just now";
     }
 }
