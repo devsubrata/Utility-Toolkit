@@ -1,5 +1,5 @@
 // for look a terms from various links
-if (!document.getElementById("searchWindow")) {
+if (!document.getElementById("searchBar")) {
     const search_links = lookUpLinks();
 
     const link = document.createElement("link");
@@ -8,7 +8,7 @@ if (!document.getElementById("searchWindow")) {
     document.head.appendChild(link);
 
     const searchDiv = document.createElement("div");
-    searchDiv.id = "searchWindow";
+    searchDiv.id = "searchBar";
     searchDiv.innerHTML = `
         <div id="search-modal" class="search-modal">
             <select id="search_options"></select>

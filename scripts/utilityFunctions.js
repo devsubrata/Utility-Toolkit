@@ -47,25 +47,31 @@ function minimizeWindow(elm, ui) {
     });
 }
 
-// Scrolling navigation
 function handleNavigation(ui) {
-    let vh;
-    if (ui === window) vh = window.innerHeight * 1.5;
-    else vh = ui.clientHeight * 2;
+    if (!ui) return consoleLog("No scrollable UI passed to handleNavigation");
 
-    document.getElementById("scrollToBottom").onclick = () => {
-        const top = ui === window ? document.body.scrollHeight : ui.scrollHeight;
-        ui.scrollTo({ top, behavior: "smooth" });
-    };
-    document.getElementById("scrollToTop").onclick = () => {
-        ui.scrollTo({ top: 0, behavior: "smooth" });
-    };
-    document.getElementById("scrollDown").onclick = () => {
-        ui.scrollBy({ top: vh, behavior: "smooth" });
-    };
-    document.getElementById("scrollUp").onclick = () => {
-        ui.scrollBy({ top: -vh, behavior: "smooth" });
-    };
+    let vh = ui === window ? window.innerHeight * 1.5 : ui.clientHeight * 2;
+
+    const scrollToBottomBtn = document.getElementById("scrollToBottom");
+    const scrollToTopBtn = document.getElementById("scrollToTop");
+    const scrollDownBtn = document.getElementById("scrollDown");
+    const scrollUpBtn = document.getElementById("scrollUp");
+
+    if (scrollToBottomBtn) {
+        scrollToBottomBtn.onclick = () => {
+            const top = ui === window ? document.body.scrollHeight : ui.scrollHeight;
+            ui.scrollTo({ top, behavior: "smooth" });
+        };
+    }
+    if (scrollToTopBtn) {
+        scrollToTopBtn.onclick = () => ui.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    if (scrollDownBtn) {
+        scrollDownBtn.onclick = () => ui.scrollBy({ top: vh, behavior: "smooth" });
+    }
+    if (scrollUpBtn) {
+        scrollUpBtn.onclick = () => ui.scrollBy({ top: -vh, behavior: "smooth" });
+    }
 }
 
 function lookUpLinks() {
@@ -253,4 +259,83 @@ function uploadSongList() {
     localStorage.setItem("EnglishSongs", JSON.stringify(EnglishSongs));
 
     consoleLog("EnglishSongs saved to localStorage!");
+}
+
+/**API functions */
+// Global reusable function to check for YouTube API errors
+async function handleYouTubeApiError(res) {
+    if (res.ok) return false; // No error, caller can continue
+
+    let errorMsg = "❌ An error occurred.";
+    try {
+        const data = await res.json();
+        const err = data?.error;
+
+        if (err?.errors?.some((e) => e.reason === "quotaExceeded")) {
+            errorMsg = "🚫 YouTube API quota exceeded. Please try again later.";
+        } else if (err?.message) {
+            errorMsg = `❌ ${err.message}`;
+        }
+    } catch (e) {
+        errorMsg = `❌ Error parsing response: ${e.message}`;
+    }
+
+    displayError(errorMsg);
+    return true; // Error was handled
+}
+
+// Optional: Utility function to display the error visibly
+function displayError(msg) {
+    const box = document.createElement("div");
+    box.textContent = msg;
+    box.style = `
+        position: fixed;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #ffdddd;
+        color: #900;
+        padding: 10px 20px;
+        border: 1px solid #f00;
+        border-radius: 8px;
+        z-index: 9999;
+        font-family: sans-serif;
+        font-weight: bold;
+    `;
+    document.body.appendChild(box);
+
+    setTimeout(() => box.remove(), 5000); // Auto-remove after 5 sec
+}
+
+//* Copy text of anything
+function copyId(id, btn) {
+    navigator.clipboard.writeText(id).then(() => {
+        const original = btn.innerText;
+        btn.innerText = "Copied";
+        btn.disabled = true;
+        setTimeout(() => {
+            btn.innerText = original;
+            btn.disabled = false;
+        }, 1200);
+    });
+}
+
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    const day = date.toLocaleString("en-GB", { day: "2-digit" });
+    const month = date.toLocaleString("en-GB", { month: "long" });
+    const year = date.toLocaleString("en-GB", { year: "numeric" });
+    return `📅${day}-${month}-${year}`;
+}
+
+function parseNumber(v) {
+    return parseInt(v, 10) || 0;
+}
+
+function formatViews(v) {
+    const n = parseNumber(v);
+    if (n >= 1e9) return (n / 1e9).toFixed(2) + "B";
+    if (n >= 1e6) return (n / 1e6).toFixed(1) + "M";
+    if (n >= 1e3) return (n / 1e3).toFixed(1) + "K";
+    return v;
 }
