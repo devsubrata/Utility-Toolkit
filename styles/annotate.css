@@ -18,18 +18,21 @@
 
     width: max-content;
     box-sizing: border-box;
+
+    /* resize: both; */
+    /* overflow: hidden; */
 }
 
-.bar-size {
-    margin: 0 7px;
+#annotationToolbar .gui-sizes input {
+    margin: 0;
+    padding: 0;
+    height: 15px;
 }
 
-#annotationToolbar .bar-size input {
-    display: block;
-    height: fit-content;
-}
-#annotationToolbar .bar-size input:nth-child(2) {
-    margin: 2px 0;
+.gui-sizes {
+    width: 40px;
+    display: flex;
+    flex-wrap: wrap;
 }
 
 .glassy {
@@ -140,6 +143,7 @@
 
 .text-color-picker {
     background-color: #0000ff;
+    height: auto;
 }
 
 .color-picker-button {
@@ -235,10 +239,26 @@
     display: flex;
     justify-content: center;
 }
-#modal-header #font_size {
+#modal-header #font-size {
     padding-left: 8px;
     width: 50px;
 }
+
+#modal-header #rotation-input {
+    padding-left: 8px;
+    width: 60px;
+}
+
+#modal-header .text-style {
+    display: flex;
+    flex-direction: column;
+    padding: 2px;
+    margin-left: 4px;
+    gap: 1px;
+    font-size: 14px;
+    color: #333;
+}
+
 #modal-header #bullet {
     margin-left: 3px;
 }

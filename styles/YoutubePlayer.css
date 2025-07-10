@@ -23,8 +23,6 @@ th {
 
 #openYoutubePlayer {
     position: fixed;
-    min-width: 700px;
-    min-height: 600px;
     top: 0;
     left: 0;
     background: #e9e0f5;
@@ -39,20 +37,18 @@ th {
     resize: both;
 }
 
+#openYoutubePlayer .playlist-title-bar,
 #openYoutubePlayer .title-bar {
+    min-width: 500px;
     background: #e6c193;
     padding: 8px 10px;
     border-top-left-radius: 10px;
     border-top-right-radius: 10px;
 
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
     gap: 10px;
-}
-
-#openYoutubePlayer .title-bar .minimize-btn {
-    margin-left: auto;
 }
 
 #youtubePlayer {
@@ -65,7 +61,11 @@ th {
     cursor: pointer;
 }
 
-.content {
+.bottom-nav button {
+    cursor: pointer;
+}
+
+#openYoutubePlayer .content {
     width: 100%;
     min-width: 650px;
     height: 100%;
@@ -85,7 +85,7 @@ th {
 #controls {
     padding: 7px;
     display: flex;
-    gap: 10px;
+    gap: 5px;
     align-items: center;
     background-color: #cecbc3;
 }
@@ -101,11 +101,11 @@ input[type="number"] {
     border: 2px solid #aaa;
     background-color: #fff;
     border-radius: 5px;
+    width: 200px;
 }
 
 #load-song,
-#load-script,
-#showSongsBtn {
+#load-script {
     padding: 7px 15px;
     font-size: 1rem;
     cursor: pointer;
@@ -115,35 +115,70 @@ input[type="number"] {
     border-radius: 4px;
     transition: background-color 0.3s ease;
 }
-#showSongsBtn,
+
 #load-script {
     background: #0844eb;
 }
 
-#searchBtn {
+#search-type {
+    padding: 5px 10px;
+    border: 1px solid grey;
     outline: none;
-    border: 2px solid gray;
-    width: 35px;
-    height: 35px;
+    border-radius: 10px;
+    background: #fff;
+}
+
+#searchBtn,
+#generalSearchBtn {
+    outline: none;
     cursor: pointer;
     display: flex;
     justify-content: center;
     align-items: center;
-    border-radius: 50%;
     font-size: 20px;
     background: transparent;
     transition: all 0.3s ease;
-}
-#searchBtn:hover {
-    border-color: #00acc1;
-    box-shadow: 0 0 0 2px rgba(0, 172, 193, 0.2);
+    cursor: pointer;
 }
 
 #load-song:hover {
     background: #b4160d;
 }
-#showSongsBtn:hover {
-    background: #012994;
+#showSongsBtn {
+    cursor: pointer;
+}
+
+#play-list-container {
+    display: inline;
+    position: relative;
+}
+#play-list-container #generatePlaylist {
+    display: none;
+    position: absolute;
+    top: 40px;
+    left: 0;
+    background: #fff;
+    /* width: 200px; */
+    border: 2px solid #aaa;
+    border-radius: 5px;
+}
+
+#generatePlaylist .song-list-btn {
+    display: block;
+    cursor: pointer;
+    width: 100%;
+    padding: 5px 10px;
+    text-align: left;
+    white-space: nowrap;
+}
+
+#generatePlaylist .song-list-btn:hover {
+    background-color: #aaa;
+}
+
+#channelListBtn {
+    cursor: pointer;
+    font-size: 25px;
 }
 
 iframe {
@@ -153,7 +188,7 @@ iframe {
     border: none;
 }
 
-.floating-window.minimized .content {
+#openYoutubePlayer.floating-window.minimized .content {
     display: none;
 }
 

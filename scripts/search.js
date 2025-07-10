@@ -1,5 +1,5 @@
 // for look a terms from various links
-if (!document.getElementById("searchWindow")) {
+if (!document.getElementById("searchBar")) {
     const search_links = lookUpLinks();
 
     const link = document.createElement("link");
@@ -8,7 +8,7 @@ if (!document.getElementById("searchWindow")) {
     document.head.appendChild(link);
 
     const searchDiv = document.createElement("div");
-    searchDiv.id = "searchWindow";
+    searchDiv.id = "searchBar";
     searchDiv.innerHTML = `
         <div id="search-modal" class="search-modal">
             <select id="search_options"></select>
@@ -64,7 +64,7 @@ if (!document.getElementById("searchWindow")) {
         document.getElementById("searchInput").value = "";
     });
 
-    makeDraggable(document.getElementById("search-modal"));
+    makeDraggableR(document.getElementById("search-modal"));
     closeWindow(searchDiv.querySelector("#closeSearchModal"), searchDiv, null);
 }
 
@@ -74,7 +74,7 @@ function openOnRightHalf(url) {
     const halfLgWidth = lgScreenWidth / 2;
     const left = laptopWidth + halfLgWidth; // Start at middle of LG screen
     const top = 0;
-    const width = 800;
+    const width = 930;
     const height = 1200;
 
     const win = window.open(url, "_blank", `width=${width},height=${height},left=${left},top=${top}`);

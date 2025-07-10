@@ -8,10 +8,13 @@ if (!document.getElementById("annotationToolbar")) {
     annotationDiv.id = "annotationToolbar";
     annotationDiv.classList.add("glassy");
     annotationDiv.innerHTML = `
-        <div class="bar-size" title="toggle tool bar size">
-            <input type="radio" id="size1" name="size" value="1" checked />
-            <input type="radio" id="size2" name="size" value="2" />
-            <input type="radio" id="size3" name="size" value="3" />
+        <div class="gui-sizes">
+            <input type="radio" id="size1" name="size" value="1" checked title="one-row-toolbar"/>
+            <input type="radio" id="size2" name="size" value="2" title="three-row-toolbar"/>
+            <input type="radio" id="size3" name="size" value="3" title="two-column-toolbar" />
+            <input type="radio" id="size4" name="size" value="4" title="three-column-toolbar"/>
+            <input type="radio" id="size5" name="size" value="5" title="four-row-toolbar" />
+            <input type="radio" id="size6" name="size" value="6" title="two-row-toolbar" />
         </div>
         <div id="activeColor" title="Active Color"></div>
         <div class="color-picker"></div>
@@ -53,7 +56,7 @@ if (!document.getElementById("annotationToolbar")) {
     `;
 
     document.body.appendChild(annotationDiv);
-    makeDraggable(annotationDiv);
+    makeDraggableR(annotationDiv);
 
     const textModal = document.createElement("div");
     textModal.id = "modal";
@@ -73,9 +76,20 @@ if (!document.getElementById("annotationToolbar")) {
                 <option value="Verdana">Verdana</option>
             </select>
             <div class="text-color-picker"></div>
-            <input type="number" title="Font Size" id="font_size" min="10" max="100" step="2" value="30"/>
+            <input type="number" title="Font Size" id="font-size" min="10" max="100" step="2" value="30"/>
+            <input type="number" title="add font angle" id="rotation-input" value="0" step="10" min="-360" max="360">
             ${create_bullet_menu()}
             <button id="addBullet">Add Marker</button>
+            <div class="text-style">
+                <label style="display: inline-flex; align-items: center; gap: 3px;">
+                    <input type="checkbox" id="bold-check">
+                    <span>Bold</span>
+                </label>
+                <label style="display: inline-flex; align-items: center; gap: 3px;">
+                    <input type="checkbox" id="italic-check">
+                    <span>Italic</span>
+                </label>
+            </div>
             <button id="closeModal">X</button>
         </div>
         <textarea id="textInput" placeholder="Add note..." autofocus></textarea>
@@ -650,19 +664,32 @@ function injectCanvas() {
         });
     }
 
-    // functions for adding text in canvas
     function addText(x, y, text) {
-        const fontSize = document.getElementById("font_size").value;
+        const fontSize = parseInt(document.getElementById("font-size").value);
         const fontFamily = document.getElementById("font-select").value;
-        ctx.font = `${fontSize}px ${fontFamily}`;
+        const isBold = document.getElementById("bold-check").checked;
+        const isItalic = document.getElementById("italic-check").checked;
+        const rotationDeg = parseFloat(document.getElementById("rotation-input").value) || 0;
+
+        // Build font string
+        ctx.font = `${isItalic ? "italic " : ""}${isBold ? "bold " : ""}${fontSize}px ${fontFamily}`;
         ctx.fillStyle = textColor;
-        y = y + (parseInt(fontSize) * 2.3) / 3;
+
+        const rotationRad = -(rotationDeg * (Math.PI / 180));
+        const lineHeight = fontSize + 3;
 
         const lines = text.split("\n");
-        lines.forEach((line) => {
-            ctx.fillText(line, x, y);
-            y += 3 + parseInt(fontSize);
+
+        ctx.save();
+        ctx.translate(x, y); // Move to base point
+        ctx.rotate(rotationRad); // Rotate coordinate system
+
+        lines.forEach((line, index) => {
+            const offsetY = (fontSize * 2.3) / 3 + lineHeight * index;
+            ctx.fillText(line, 0, offsetY); // Keep X = 0, shift Y in rotated space
         });
+
+        ctx.restore();
     }
 
     function showModal(e) {
@@ -738,9 +765,12 @@ function injectCanvas() {
                 navigator.clipboard.writeText(textInput.value);
             }
             modal.style.display = "none";
-            enableScroll();
             textInput.value = "";
             document.getElementById("wc").textContent = "0";
+            document.getElementById("bold-check").checked = false;
+            document.getElementById("italic-check").checked = false;
+            document.getElementById("rotation-input").value = 0;
+            enableScroll();
         }
 
         submitBtn.onclick = submitText;
@@ -943,8 +973,23 @@ function changeToolbarSize() {
                     break;
                 case "3":
                     positionToolbar();
-                    toolbar.style.width = "101px";
-                    toolbar.style.height = "723px";
+                    toolbar.style.width = "107px";
+                    toolbar.style.height = "740px";
+                    break;
+                case "4":
+                    positionToolbar();
+                    toolbar.style.width = "173px";
+                    toolbar.style.height = "408px";
+                    break;
+                case "5":
+                    positionToolbar();
+                    toolbar.style.width = "360px";
+                    toolbar.style.height = "190px";
+                    break;
+                case "6":
+                    positionToolbar();
+                    toolbar.style.width = "640px";
+                    toolbar.style.height = "105px";
                     break;
             }
         });
