@@ -1,0 +1,322 @@
+{
+    "EnglishSongs": [
+        {
+            "song_name": "Die With A Smile",
+            "artists": "Bruno Mars & Lady Gaga",
+            "video_id": "kPa7bsKwL-c, zgaCZOQCpp8"
+        },
+        {
+            "song_name": "Just The Way You Are",
+            "artists": "Bruno Mars",
+            "video_id": "LjhCEhWiKXk, u7XjPmN-tHw"
+        },
+        {
+            "song_name": "APT",
+            "artists": "Bruno Mars & ROSÉ",
+            "video_id": "ekr2nIex040"
+        },
+        {
+            "song_name": "Roar",
+            "artists": "Katy Perry",
+            "video_id": "CevxZvSJLk8"
+        },
+        {
+            "song_name": "Never Gonna Give You Up",
+            "artists": "Rick Astley",
+            "video_id": "dQw4w9WgXcQ"
+        },
+        {
+            "song_name": "Blank Space",
+            "artists": "Taylor Swift",
+            "video_id": "e-ORhEE9VVg, nAQ_1lTDvPQ"
+        },
+        {
+            "song_name": "Love Story",
+            "artists": "Taylor Swift",
+            "video_id": "e-8xg3vE8Ie_E"
+        },
+        {
+            "song_name": "You Belong With Me",
+            "artists": "Taylor Swift",
+            "video_id": "VuNIsY6JdUw, Xgf9XDT846M"
+        },
+        {
+            "song_name": "Shape of You",
+            "artists": "Ed Sheeran",
+            "video_id": "JGwWNGJdvx8, liTfD88dbCo"
+        },
+        {
+            "song_name": "It's My Life",
+            "artists": "Bon Jovi",
+            "video_id": "vx2u5uUu3DE"
+        },
+        {
+            "song_name": "Faded",
+            "artists": "Alan Walker",
+            "video_id": "60ItHLz5WEA, qdpXxGPqW-Y"
+        },
+        {
+            "song_name": "Hotel California",
+            "artists": "Eagles",
+            "video_id": "09839DpTctU"
+        },
+        {
+            "song_name": "(Everything I Do) I Do It For You",
+            "artists": "Bryan Adams",
+            "video_id": "Y0pdQU87dc8"
+        },
+        {
+            "song_name": "Summer Of '69",
+            "artists": "Bryan Adams",
+            "video_id": "eFjjO_lhf9c"
+        },
+        {
+            "song_name": "My Heart Will Go On",
+            "artists": "Céline Dion",
+            "video_id": "9bFHsd3o1w0"
+        },
+        {
+            "song_name": "I'm Alive",
+            "artists": "Céline Dion",
+            "video_id": "NJsa6-y4sDs, DnaS8IDF_8g"
+        },
+        {
+            "song_name": "We Belong To The Sea",
+            "artists": "Aqua",
+            "video_id": "XIVCb459bkQ"
+        },
+        {
+            "song_name": "Cheri Cheri Lady",
+            "artists": "Modern Talking",
+            "video_id": "eNvUS-6PTbs, lrIKt5uDWZo"
+        },
+        {
+            "song_name": "Brother Louie",
+            "artists": "Modern Talking",
+            "video_id": "Lp2qcCrdBLA, KWluXeUUUNA"
+        },
+        {
+            "song_name": "You're My Heart, You're My Soul",
+            "artists": "Modern Talking",
+            "video_id": "4kHl4FoK1Ys, pV84QBzCrF0"
+        },
+        {
+            "song_name": "Careless Whisper",
+            "artists": "George Michael",
+            "video_id": "izGwDsrQ1eQ, JqIHlDVqUTw"
+        },
+        {
+            "song_name": "La Isla Bonita",
+            "artists": "Madonna",
+            "video_id": "zpzdgmqIHOQ, KyM7sw4lVSk, XynJ_mvrl3Q"
+        },
+        {
+            "song_name": "Escape",
+            "artists": "Enrique Iglesias",
+            "video_id": "9mQJaXwGPlg, X5lRRZtjpFU"
+        }
+    ],
+    "BanglaBandSongs": [
+        {
+            "song_name": "কেন এই নিঃস্বঙ্গতা",
+            "artists": "Souls",
+            "video_id": "ojhGlFY6iAk"
+        },
+        {
+            "song_name": "Bristi dekhe onek kedechi",
+            "artists": "Souls",
+            "video_id": "sGxmirTIwjE"
+        },
+        {
+            "song_name": "Mon Shudhu Mon Chhuyechhe",
+            "artists": "Souls",
+            "video_id": "PGUjh17mER4"
+        },
+        {
+            "song_name": "Mukhorito Jibon",
+            "artists": "Souls",
+            "video_id": "8BpDTLUBwjY"
+        },
+        {
+            "song_name": "Firiye Dao",
+            "artists": "Miles",
+            "video_id": "ziXYKAx8Dx4"
+        },
+        {
+            "song_name": "চাঁদ তারা সূর্য নও তুমি",
+            "artists": "Miles",
+            "video_id": "BcvtG36bmi8"
+        },
+        {
+            "song_name": "কতকাল খুঁজবো তোমায়",
+            "artists": "Miles",
+            "video_id": "82-I90zkhRs"
+        },
+        {
+            "song_name": "Dhiki Dhiki",
+            "artists": "Miles",
+            "video_id": "0zgXMNe-Ijs"
+        },
+        {
+            "song_name": "Pahari Meye",
+            "artists": "Miles",
+            "video_id": "Y3RJ4U-KDC0"
+        },
+        {
+            "song_name": "Jala Jala",
+            "artists": "Miles",
+            "video_id": "rnO9sMMOW68"
+        },
+        {
+            "song_name": "Piyashi Mon",
+            "artists": "Miles",
+            "video_id": "k-f6IhZXikQ"
+        },
+        {
+            "song_name": "Frustration",
+            "artists": "Miles",
+            "video_id": "KVziDXxSsMI"
+        }
+    ],
+    "DevotionalMusic": [
+        {
+            "song_name": "মন চলো নিজ নিকেতনে",
+            "artists": "Swami Sarvagananda",
+            "video_id": "MakIstIkM6g"
+        },
+        {
+            "song_name": "Kato Dine Hobey Se Premo",
+            "artists": "Swami Sarvagananda",
+            "video_id": "htXE-sP76aQ"
+        },
+        {
+            "song_name": "কে তুমি বাজালে নবীন রাগেতে",
+            "artists": "Swami Sarvagananda",
+            "video_id": "mBSGOiK3UYQ"
+        },
+        {
+            "song_name": "স্বদেশ বিদেশ উছলি",
+            "artists": "Swami Sarvagananda",
+            "video_id": "eQlMTZ5q25o"
+        },
+        {
+            "song_name": "হাতে হাতে তালি দিয়ে",
+            "artists": "Swami Sarvagananda",
+            "video_id": "f7eZinotwGs"
+        },
+        {
+            "song_name": "অন্তরে জাগিছ গো মা",
+            "artists": "Swami Sarvagananda",
+            "video_id": "vhilznrj-Wo"
+        },
+        {
+            "song_name": "কে তুমি বাজালে নবীন রাগেতে",
+            "artists": "Swami Sarvagananda",
+            "video_id": "mBSGOiK3UYQ"
+        },
+        {
+            "song_name": "ক্ষ্যাপার হাটবাজার",
+            "artists": "Swami Sarvagananda",
+            "video_id": "kmYKE3ohYwc"
+        },
+        {
+            "song_name": "প্রেম ভরে মনরে গাহ রামকৃষ্ণ নাম",
+            "artists": "Aalo | আলো 🪔",
+            "video_id": "fDllCGDNvGA"
+        },
+        {
+            "song_name": "বাণীরূপে রহিয়াছ",
+            "artists": "Collected",
+            "video_id": "TSgQyUQS-7I"
+        },
+        {
+            "song_name": "শিব শিব মহাশিব শিব রামকৃষ্ণ নাম",
+            "artists": "Collected",
+            "video_id": "htXE-sP76aQ"
+        },
+        {
+            "song_name": "Jaya Jaya Janani",
+            "artists": "Swami Sarvagananda",
+            "video_id": "NC1-khv8rso"
+        }
+    ],
+    "MantraBhajan": [
+        {
+            "song_name": "Brahma rupa adi madhya",
+            "artists": "Collected",
+            "video_id": "OwERlU5gWhM"
+        },
+        {
+            "song_name": "Adya Stotram",
+            "artists": "Debasish Chakraborty",
+            "video_id": "nYoX87E1jWI"
+        },
+        {
+            "song_name": "প্রকৃীতিম পরমাং অভয়াং বরদাম",
+            "artists": "Collected",
+            "video_id": "38mmbXhQpRs"
+        },
+        {
+            "song_name": "রামকৃষ্ণ শরণং",
+            "artists": "Swami Sarvagananda",
+            "video_id": "mc-s0ML2UH0"
+        },
+        {
+            "song_name": "অয়ি গিরি নন্দিনি",
+            "artists": "Swami Sarvagananda",
+            "video_id": "hlMppsAsWq4"
+        },
+        {
+            "song_name": "Bhaja Govindam",
+            "artists": "Swami Sarvagananda",
+            "video_id": "CIZScZPUIIQ"
+        },
+        {
+            "song_name": "Shiva Tandava Stotram",
+            "artists": "Swami Sarvagananda",
+            "video_id": "SKgO1mFYAcY"
+        },
+        {
+            "song_name": "Sri Ramakrishna Astottarara Nam Sankirtanam",
+            "artists": "Swami Sarvagananda",
+            "video_id": "bJ8Tufuq-oY"
+        }
+    ],
+    "HindiMovieSongs": [
+        {
+            "song_name": "Oh My Darling",
+            "artists": "Mujhse Dosti Karoge",
+            "video_id": "usLLKvmCLXg"
+        },
+        {
+            "song_name": "Na Tum Jano Na Hum",
+            "artists": "Kaho Naa Pyaar Hai",
+            "video_id": "eSxo4l-epv8"
+        },
+        {
+            "song_name": "Kahin Pyaar Na Ho Jaye",
+            "artists": "Alka Yagnik & Kumar Sanu",
+            "video_id": "HUBHg1Wwbis"
+        },
+        {
+            "song_name": "Na Milo Humse Jyada",
+            "artists": "Badal (2000)",
+            "video_id": "buFBVmEjL9w"
+        },
+        {
+            "song_name": "Mera Mann (Lyrical Video)",
+            "artists": "Mann Movie",
+            "video_id": "sg69y8jetTk"
+        },
+        {
+            "song_name": "Jabse Dekha Khoye Khoye",
+            "artists": "Kumar Sanu & Alka",
+            "video_id": "gST08mWonCI"
+        },
+        {
+            "song_name": "Wada Raha Pyar Se Pyar Ka",
+            "artists": "Shreya Ghoshal",
+            "video_id": "nRV6GFucUdc"
+        }
+    ]
+}
