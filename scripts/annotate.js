@@ -8,10 +8,13 @@ if (!document.getElementById("annotationToolbar")) {
     annotationDiv.id = "annotationToolbar";
     annotationDiv.classList.add("glassy");
     annotationDiv.innerHTML = `
-        <div class="bar-size" title="toggle tool bar size">
+        <div class="gui-sizes">
             <input type="radio" id="size1" name="size" value="1" checked />
             <input type="radio" id="size2" name="size" value="2" />
             <input type="radio" id="size3" name="size" value="3" />
+            <input type="radio" id="size4" name="size" value="4" />
+            <input type="radio" id="size5" name="size" value="5" />
+            <input type="radio" id="size6" name="size" value="6" />
         </div>
         <div id="activeColor" title="Active Color"></div>
         <div class="color-picker"></div>
@@ -943,8 +946,23 @@ function changeToolbarSize() {
                     break;
                 case "3":
                     positionToolbar();
-                    toolbar.style.width = "101px";
-                    toolbar.style.height = "723px";
+                    toolbar.style.width = "107px";
+                    toolbar.style.height = "740px";
+                    break;
+                case "4":
+                    positionToolbar();
+                    toolbar.style.width = "173px";
+                    toolbar.style.height = "408px";
+                    break;
+                case "5":
+                    positionToolbar();
+                    toolbar.style.width = "360px";
+                    toolbar.style.height = "190px";
+                    break;
+                case "6":
+                    positionToolbar();
+                    toolbar.style.width = "278px";
+                    toolbar.style.height = "238px";
                     break;
             }
         });

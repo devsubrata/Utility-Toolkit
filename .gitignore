@@ -3,3 +3,5 @@ API/
 node_modules/
 package-lock.json
 package.json
+scripts/test_script.js
+styles/test_script.css
