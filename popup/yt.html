@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>YouTube Search Landing Page</title>
+        <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+    </head>
+    <body class="bg-gray-50 text-gray-800">
+        <div class="max-w-5xl mx-auto p-6">
+            <h1 class="text-3xl font-bold text-center text-indigo-700 mb-6">YouTube Channel & Video Search</h1>
+
+            <div class="flex gap-4 mb-6 justify-center">
+                <input id="searchInput" type="text" placeholder="Search videos..." class="w-full max-w-xl border rounded px-4 py-2 text-2xl" />
+                <button id="g_search" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded text-2xl">Search</button>
+            </div>
+
+            <div id="globalSearchResults" class="space-y-6"></div>
+        </div>
+        <script src="./API/api_key.js"></script>
+        <script src="./API/api_script.js"></script>
+    </body>
+</html>

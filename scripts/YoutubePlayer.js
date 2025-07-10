@@ -31,7 +31,6 @@ if (!document.getElementById("openYoutubePlayer")) {
                 <button id="generalSearchBtn" title="Youtube general search">🔎</button>
             </div>
             <iframe id="youtubePlayer" src="" allowfullscreen></iframe>
-            <!-- <button id="popupBtn">Open in Popup</button> -->
         </div>
         <div id="storedSongsList"></div>
     `;
@@ -719,13 +718,59 @@ if (!document.getElementById("openYoutubePlayer")) {
     generalSearchBtn.onclick = function () {
         if (document.getElementById("generalSearchWindow")) return;
 
-        function parseISODurationToSeconds(iso) {
-            const match = iso.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
-            if (!match) return 0;
-            const h = parseInt(match[1] || "0", 10);
-            const m = parseInt(match[2] || "0", 10);
-            const s = parseInt(match[3] || "0", 10);
-            return h * 3600 + m * 60 + s;
+        function isoDurationToTimeString(iso) {
+            const regex = /PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/;
+            if (iso === undefined) return "00:00";
+
+            const match = iso.match(regex);
+            if (!match) return "00:00";
+
+            let [, hours, minutes, seconds] = match.map(Number);
+
+            hours = hours || 0;
+            minutes = minutes || 0;
+            seconds = seconds || 0;
+
+            const pad = (num) => String(num).padStart(2, "0");
+            if (hours > 0) return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+            else return `${pad(minutes)}:${pad(seconds)}`;
+        }
+
+        function loadVideoId(btn) {
+            if (btn.dataset.chid) {
+                const channel_id = btn.dataset.chid;
+                const channelIdInput = document.getElementById("channelIdInput");
+                if (channelIdInput) channelIdInput.value = channel_id;
+                copyId(channel_id, btn);
+            } else if (btn.dataset.vid) {
+                const video_id = btn.dataset.vid;
+                if (video_id === "undefined") {
+                    alert("Invalid video id");
+                    return;
+                }
+                copyId(video_id, btn);
+                const iframe = document.getElementById("youtubePlayer");
+                const input = document.getElementById("videoInput");
+                if (iframe && input) {
+                    input.value = video_id;
+                    iframe.src = `https://www.youtube.com/embed/${video_id}`;
+                }
+            } else if (btn.dataset.link) {
+                const link = btn.dataset.link;
+                if (link.includes("undefined")) alert("Link is broken");
+                else window.open(link, "_blank");
+            }
+            function copyId(id, btn) {
+                navigator.clipboard.writeText(id).then(() => {
+                    const original = btn.innerText;
+                    btn.innerText = "Copied";
+                    btn.disabled = true;
+                    setTimeout(() => {
+                        btn.innerText = original;
+                        btn.disabled = false;
+                    }, 1200);
+                });
+            }
         }
 
         const generalSearchLoader = document.createElement("div");
@@ -762,11 +807,16 @@ if (!document.getElementById("openYoutubePlayer")) {
             if (!query) return;
 
             const resultContainer = document.getElementById("globalSearchResults");
-            resultContainer.innerHTML = `<div class='text-center'>Loading...</div>`;
+            resultContainer.innerHTML = `
+                <div class="flex flex-col items-center justify-center py-10 space-y-2">
+                    <div class="w-20 h-20 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                    <p class="text-4xl text-green-500">Loading videos...</p>
+                </div>
+            `;
 
             const baseURL = "https://www.googleapis.com/youtube/v3/search?";
 
-            const searchURL = `${baseURL}part=snippet&type=video&maxResults=10&q=${encodeURIComponent(query)}&key=${apiKey}`;
+            const searchURL = `${baseURL}part=snippet&type=video&maxResults=50&q=${encodeURIComponent(query)}&key=${apiKey}`;
             const searchRes = await fetch(searchURL);
             const searchData = await searchRes.json();
 
@@ -794,45 +844,39 @@ if (!document.getElementById("openYoutubePlayer")) {
                 const { title, thumbnails, channelTitle, channelId } = video.snippet;
                 const item = statsData.items[index];
                 const viewCount = item?.statistics?.viewCount || "N/A";
-                const duration = parseISODurationToSeconds(item?.contentDetails?.duration);
+                const duration = isoDurationToTimeString(item?.contentDetails?.duration);
 
                 const card = document.createElement("div");
-                card.className = "border rounded-xl overflow-hidden shadow hover:shadow-lg transition !p-4 flex gap-4 bg-white";
+                card.className = "border rounded-xl overflow-hidden shadow hover:shadow-lg transition !p-4 !mb-4 flex gap-4 bg-white";
 
                 card.innerHTML = `
-                    <div class="relative w-48 min-w-[12rem]">
-                        <img src="${thumbnails.medium.url}" alt="Thumbnail" class="rounded w-full h-auto">
-                        <span class="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white text-xs !px-2 !py-1 rounded">
-                            ${duration}
-                        </span>
-                    </div>
-                    <div class="flex-1">
-                        <h3 class="text-lg font-semibold !mb-1">${title}</h3>
-                        <p class="text-sm text-gray-600">👁️ ${Number(viewCount).toLocaleString()} views</p>
-                        <div class="text-xs text-gray-500 !mt-1">
-                            Published on <span class="font-medium">${formattedDate}</span> • ${timeAgoText}
+                        <div class="relative w-48 min-w-[12rem]  bg-gray-900 rounded-[5px]">
+                            <img src="${thumbnails.high.url}" alt="Thumbnail" class="rounded w-full h-auto">
+                            <span class="absolute bottom-2 right-2 bg-black bg-opacity-70 text-white text-xs !px-2 !py-1 rounded">
+                                ${duration}
+                            </span>
                         </div>
-                        <p class="text-sm text-gray-700">📺 ${channelTitle}</p>
-                        <div class="flex flex-wrap gap-2 !mt-3">
-                            <button class="gs-copy-btn" data-id=${channelId}>📋 Channel ID</button>
-                            <button class="gs-copy-btn" data-id=${videoId}>📋 Video ID</button>
-                            <button class="gs-copy-btn" data-id="https://www.youtube.com/watch?v=${videoId}">🔗 Copy Link</button>
+                        <div class="flex-1">
+                            <h3 class="text-xl text-indigo-700 font-semibold !mb-1">${title}</h3>
+                            <p class="text-sm text-gray-600">👁️ ${Number(viewCount).toLocaleString()} views</p>
+                            <div class="text-xs text-gray-500 !mt-1">
+                                ❀&nbsp;Published on <span class="font-medium">${formattedDate}</span>&nbsp;&nbsp;
+                                ❀&nbsp;${timeAgoText}&nbsp;
+                                <span class="font-bold text-blue-900">&nbsp;🔹&nbsp;SL: ${index + 1}</span>
+                            </div>
+                            <p class="text-lg text-orange-900 font-medium !my-1">📺 ${channelTitle}</p>
+                            <div class="flex flex-wrap gap-2">
+                                <button class="gs-copy-btn text-black cursor-pointer" data-chid="${channelId}">⭐Channel ID</button>&nbsp;
+                                <button class="gs-copy-btn text-black cursor-pointer" data-vid="${videoId}">⭐Video ID</button>&nbsp;
+                                <button class="gs-copy-btn text-black cursor-pointer" data-link="https://www.youtube.com/watch?v=${videoId}">⭐Watch</button>
+                            </div>
                         </div>
-                    </div>
                 `;
-                document.querySelectorAll(".gs-copy-btn").forEach((btn) => {
-                    const id = btn.dataset.id;
-                    navigator.clipboard.writeText(id).then(() => {
-                        const original = btn.innerText;
-                        btn.innerText = "Copied!";
-                        btn.disabled = true;
-                        setTimeout(() => {
-                            btn.innerText = original;
-                            btn.disabled = false;
-                        }, 1200);
-                    });
-                });
                 resultContainer.appendChild(card);
+            });
+
+            document.addEventListener("click", (e) => {
+                if (e.target.classList.contains("gs-copy-btn")) loadVideoId(e.target);
             });
         });
     };
@@ -841,10 +885,10 @@ if (!document.getElementById("openYoutubePlayer")) {
         const searchForm = document.createElement("div");
         searchForm.className = "max-w-5xl mx-auto !p-6";
         searchForm.innerHTML = `
-            <h1 class="text-3xl font-bold text-center text-indigo-700 !mb-6">YouTube Channel & Video Search</h1>
+            <h1 class="text-3xl font-bold text-center text-indigo-700 !mb-6">Search Youtube Videos</h1>
             <div class="flex gap-4 !mb-6 justify-center">
                 <input id="generalSearchInput" type="text" placeholder="Search videos..." class="bg-white text-black !text-xl w-full max-w-xl border-3 border-indigo-700 rounded !px-4 !py-2" />
-                <button id="search-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white !px-4 !py-2 rounded cursor-pointer">Search</button>
+                <button id="search-btn" class="bg-indigo-600 hover:bg-indigo-700 !text-xl text-white !px-4 !py-2 rounded cursor-pointer">Search</button>
             </div>
             <div id="globalSearchResults" class="space-y-6"></div>
         `;

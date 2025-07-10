@@ -17,3 +17,6 @@ document.getElementById("openAnnotationToolbar").addEventListener("click", () =>
 document.getElementById("openPlayer").addEventListener("click", () => injectScript("MusicPlayer.js"));
 document.getElementById("openYoutubePlayer").addEventListener("click", () => injectScript("YoutubePlayer.js"));
 document.getElementById("openScriptScroller").addEventListener("click", () => injectScript("ScriptScroller.js"));
+document.getElementById("YT").addEventListener("click", () => {
+    window.open("./yt.html", "_blank", `width=700,height=1000,left=600,top=0`);
+});
