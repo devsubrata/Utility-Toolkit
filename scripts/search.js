@@ -64,7 +64,7 @@ if (!document.getElementById("searchBar")) {
         document.getElementById("searchInput").value = "";
     });
 
-    makeDraggableR(document.getElementById("search-modal"));
+    makeDraggable(document.getElementById("search-modal"), false);
     closeWindow(searchDiv.querySelector("#closeSearchModal"), searchDiv, null);
 }
 

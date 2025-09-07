@@ -15,7 +15,7 @@ if (!document.getElementById("openYoutubePlayer")) {
     ytp.innerHTML = `
         <div class="title-bar">
             <span class="title">▶ YoutubePlayer</span>
-            <span class="video-title text-indigo-700"></span>
+            <span class="data-tooltip video-title text-indigo-700"></span>
             <div>
                 <span class="minimize-btn ctrl" title="minimize" style="margin-right: 5px;">—</span>
                 <span class="close-btn ctrl" title="Close">❌</span>
@@ -169,7 +169,17 @@ if (!document.getElementById("openYoutubePlayer")) {
             document.getElementById("song-title").textContent = fileName;
 
             closeWindow(imageWindow.querySelector(".img-close-btn"), imageWindow, null);
-            minimizeWindow(imageWindow.querySelector(".img-minimize-btn"), imageWindow);
+            let isScriptWindowMinimized = false;
+            imageWindow.querySelector(".img-minimize-btn").onclick = function () {
+                if (!isScriptWindowMinimized) {
+                    imageWindow.querySelector(".image-content").style.display = "none";
+                    imageWindow.style.height = "40px";
+                } else {
+                    imageWindow.querySelector(".image-content").style.display = "block";
+                    imageWindow.style.height = "800px";
+                }
+                isScriptWindowMinimized = !isScriptWindowMinimized;
+            };
 
             const maximizeBtn = imageWindow.querySelector(".img-maximize-btn");
             let isMaximized = false;
@@ -298,19 +308,7 @@ if (!document.getElementById("openYoutubePlayer")) {
                         const btn = document.createElement("button");
                         btn.textContent = `Link${i + 1}`;
                         btn.classList.add("id-btn");
-                        btn.onclick = () => {
-                            const iframe = document.getElementById("youtubePlayer");
-                            const input = document.getElementById("videoInput");
-                            const playerTitle = document.querySelector("#openYoutubePlayer .video-title");
-
-                            if (iframe && input) {
-                                input.value = id;
-                                iframe.src = `https://www.youtube.com/embed/${id}`;
-                                playerTitle.textContent = `"${i + 1}. ${song_name}"`;
-                            } else {
-                                alert(`Video ID: ${id}`);
-                            }
-                        };
+                        btn.onclick = () => load_media_into_player(id, `${i + 1 + ". " + song_name}`);
                         idBtnContainer.appendChild(btn);
                     });
 
@@ -791,10 +789,14 @@ if (!document.getElementById("openYoutubePlayer")) {
     function load_media_into_player(id, title = "") {
         const iframe = document.getElementById("youtubePlayer");
         const input = document.getElementById("videoInput");
+        const fullTitle = title.slice(3);
+
         if (title.length > 40) title = title.slice(0, 40) + "...";
 
         if (iframe && input) {
-            document.querySelector(".video-title").textContent = `"${title}"`;
+            const playerTitle = document.querySelector(".video-title");
+            playerTitle.textContent = `"${title}"`;
+            playerTitle.setAttribute("data-tooltip", fullTitle);
             input.value = id;
             iframe.src = `https://www.youtube.com/embed/${id}`;
         }

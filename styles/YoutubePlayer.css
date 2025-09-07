@@ -321,3 +321,31 @@ iframe {
     align-items: flex-end;
     justify-content: flex-end;
 }
+
+/** player title */
+.data-tooltip {
+    position: relative;
+}
+.data-tooltip::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: -55px;
+    left: 0;
+    background: #fdf3f1;
+    color: #183674;
+    border: 3px solid #f08b6d;
+    padding: 6px 8px;
+    border-radius: 4px;
+    font-weight: bold;
+    font-family: Tahoma;
+    font-size: 18px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+    white-space: nowrap;
+    z-index: 25500;
+}
+
+.data-tooltip:hover::after {
+    opacity: 1;
+}

@@ -1,39 +1,36 @@
-function makeDraggableR(el) {
+// function makeDraggableR(el) {
+//     let isDragging = false;
+//     let offsetX, offsetY;
+
+//     let titleBar = el.querySelector(".title") || el;
+//     titleBar.style.cursor = "grab";
+
+//     titleBar.addEventListener("mousedown", (e) => {
+//         if (e.target !== titleBar) return;
+
+//         isDragging = true;
+//         offsetX = e.clientX - el.offsetLeft;
+//         offsetY = e.clientY - el.offsetTop;
+//         document.body.style.userSelect = "none";
+//         titleBar.style.cursor = "grabbing";
+//     });
+
+//     document.addEventListener("mousemove", (e) => {
+//         if (!isDragging) return;
+//         el.style.left = `${e.clientX - offsetX}px`;
+//         el.style.top = `${e.clientY - offsetY}px`;
+//     });
+
+//     document.addEventListener("mouseup", () => {
+//         isDragging = false;
+//         document.body.style.userSelect = "";
+//         titleBar.style.cursor = "grab";
+//     });
+// }
+
+function makeDraggable(el, calcNew = true) {
     let isDragging = false;
     let offsetX, offsetY;
-
-    let titleBar = el.querySelector(".title") || el;
-    titleBar.style.cursor = "grab";
-
-    titleBar.addEventListener("mousedown", (e) => {
-        if (e.target !== titleBar) return;
-
-        isDragging = true;
-        offsetX = e.clientX - el.offsetLeft;
-        offsetY = e.clientY - el.offsetTop;
-        document.body.style.userSelect = "none";
-        titleBar.style.cursor = "grabbing";
-    });
-
-    document.addEventListener("mousemove", (e) => {
-        if (!isDragging) return;
-        el.style.left = `${e.clientX - offsetX}px`;
-        el.style.top = `${e.clientY - offsetY}px`;
-    });
-
-    document.addEventListener("mouseup", () => {
-        isDragging = false;
-        document.body.style.userSelect = "";
-        titleBar.style.cursor = "grab";
-    });
-}
-
-function makeDraggable(el) {
-    let isDragging = false;
-    let offsetX, offsetY;
-
-    // Ensure element is absolutely positioned
-    if (!["absolute", "fixed"].includes(getComputedStyle(el).position)) el.style.position = "absolute";
 
     let titleBar = el.querySelector(".title") || el;
     titleBar.style.cursor = "grab";
@@ -55,8 +52,7 @@ function makeDraggable(el) {
         let newLeft = e.clientX - offsetX;
         let newTop = e.clientY - offsetY;
 
-        newLeft = Math.max(0, Math.min(window.innerWidth - el.offsetWidth, newLeft));
-        newTop = Math.max(0, Math.min(window.innerHeight - el.offsetHeight, newTop));
+        if (calcNew) [newLeft, newTop] = preventOffscreen(newLeft, newTop);
 
         el.style.left = `${newLeft}px`;
         el.style.top = `${newTop}px`;
@@ -67,6 +63,12 @@ function makeDraggable(el) {
         document.body.style.userSelect = "";
         titleBar.style.cursor = "grab";
     });
+
+    function preventOffscreen(newLeft, newTop) {
+        newLeft = Math.max(0, Math.min(window.innerWidth - el.offsetWidth, newLeft));
+        newTop = Math.max(0, Math.min(window.innerHeight - el.offsetHeight, newTop));
+        return [newLeft, newTop];
+    }
 }
 
 function closeWindow(elm, ui, interval, options = {}) {

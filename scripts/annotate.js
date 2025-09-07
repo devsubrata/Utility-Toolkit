@@ -16,6 +16,7 @@ if (!document.getElementById("annotationToolbar")) {
             <input type="radio" id="size5" name="size" value="5" title="four-row-toolbar" />
             <input type="radio" id="size6" name="size" value="6" title="two-row-toolbar" />
         </div>
+        <div id="togglePreset" title="Toggle preset">P</div>
         <div id="activeColor" title="Active Color"></div>
         <div class="color-picker"></div>
         <div class="color-picker"></div>
@@ -56,7 +57,7 @@ if (!document.getElementById("annotationToolbar")) {
     `;
 
     document.body.appendChild(annotationDiv);
-    makeDraggableR(annotationDiv);
+    makeDraggable(annotationDiv, false);
 
     const textModal = document.createElement("div");
     textModal.id = "modal";
@@ -76,7 +77,7 @@ if (!document.getElementById("annotationToolbar")) {
                 <option value="Verdana">Verdana</option>
             </select>
             <div class="text-color-picker"></div>
-            <input type="number" title="Font Size" id="font-size" min="10" max="100" step="2" value="30"/>
+            <input type="number" title="Font Size" id="font-size" min="10" max="100" step="2" value="25"/>
             <input type="number" title="add font angle" id="rotation-input" value="0" step="10" min="-360" max="360">
             ${create_bullet_menu()}
             <button id="addBullet">Add Marker</button>
@@ -103,7 +104,7 @@ if (!document.getElementById("annotationToolbar")) {
     `;
     document.body.appendChild(textModal);
     bullet_menu_listener();
-    makeDraggable(textModal);
+    makeDraggable(textModal, false);
 
     const colors = `
             <div class="color-picker-button" title="Color Picker"></div>
@@ -272,7 +273,7 @@ function injectCanvas() {
     let opacity = 1.0;
     let color1 = `rgba(255,255,255,${opacity})`;
     let color2 = `rgba(255, 165, 0, 0.4)`;
-    let textColor = `#0000ff`;
+    let textColor = `#000000`;
     let currentTool = "eraser";
     let startX, startY;
     let snapshot; // Store canvas state before drawing a rectangle
@@ -851,6 +852,47 @@ function injectCanvas() {
 
     //* resize tool bar
     changeToolbarSize();
+
+    //* setting presets
+    function tooglePreset(presetNumber) {
+        const preset1 = () => {
+            opacity = 1;
+            color1 = `rgba(255,255,255,${opacity})`;
+            document.querySelector(".color-picker-button").style.backgroundColor = color1;
+            document.getElementById("opacity").value = opacity;
+            color_opacity_control();
+            setActiveTool("eraser");
+        };
+        const preset2 = (setOpacity, setBrushSize) => {
+            opacity = setOpacity;
+            brushSize = setBrushSize;
+
+            color1 = `rgba(0,0,255,${opacity})`;
+            document.querySelector(".color-picker-button").style.backgroundColor = `rgba(0,0,255,1)`;
+
+            document.getElementById("opacity").value = opacity;
+            document.getElementById("brushSize").value = brushSize;
+
+            color_opacity_control();
+            lineToolsHandler();
+        };
+        const preset3 = (setOpacity) => {
+            opacity = setOpacity;
+            document.getElementById("opacity").value = opacity;
+            color_opacity_control();
+            setActiveTool("eraser");
+        };
+
+        if (presetNumber === 0) preset1();
+        if (presetNumber === 1) preset2(0.5, 3);
+        if (presetNumber === 2) preset2(1, 2);
+        if (presetNumber === 3) preset3(0.06);
+    }
+    let presetNumber = 1;
+    document.getElementById("togglePreset").addEventListener("click", () => {
+        tooglePreset(presetNumber++);
+        presetNumber %= 4;
+    });
 }
 
 async function startFullPageCapture() {
@@ -979,11 +1021,11 @@ function changeToolbarSize() {
                 case "4":
                     positionToolbar();
                     toolbar.style.width = "173px";
-                    toolbar.style.height = "408px";
+                    toolbar.style.height = "440px";
                     break;
                 case "5":
                     positionToolbar();
-                    toolbar.style.width = "360px";
+                    toolbar.style.width = "400px";
                     toolbar.style.height = "190px";
                     break;
                 case "6":
@@ -994,7 +1036,7 @@ function changeToolbarSize() {
             }
         });
         function positionToolbar() {
-            toolbar.style.top = "0";
+            toolbar.style.top = "30px";
             toolbar.style.left = "50%";
             toolbar.style.transform = "translateX(-50%)";
         }

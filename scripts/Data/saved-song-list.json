@@ -54,6 +54,18 @@
             "tags": ["স্বামী শিবাধীশানন্দ"]
         },
         {
+            "song_name": "★ বিবেক গীতি - ০১",
+            "artists": "স্বামী শিবাধীশানন্দ",
+            "video_id": "JfXL-FrpRFo",
+            "tags": ["স্বামী শিবাধীশানন্দ", "list"]
+        },
+        {
+            "song_name": "★ বিবেক গীতি - ০২",
+            "artists": "স্বামী শিবাধীশানন্দ",
+            "video_id": "zF-e7y3Hbwo",
+            "tags": ["স্বামী শিবাধীশানন্দ", "list"]
+        },
+        {
             "song_name": "নাথ, তুমি সর্বস্ব আমার",
             "artists": "স্বামী শিবাধীশানন্দ",
             "video_id": "jbRQJF_9tPk",
@@ -119,10 +131,10 @@
             "tags": ["মাতৃ বন্দনা", "Ajoy Chakrabarty"]
         },
         {
-            "song_name": " শ্যামা সঙ্গীত",
+            "song_name": "শ্যামা সঙ্গীত",
             "artists": "Ajoy Chakrabarty",
             "video_id": "HwjIKH8H6Ts",
-            "tags": ["মাতৃ বন্দনা", "Ajoy Chakrabarty", "ShyamaSangeetList"]
+            "tags": ["মাতৃ বন্দনা", "Ajoy Chakrabarty", "ShyamaSangeetList", "list"]
         },
         {
             "song_name": "আমরা মায়ের ছেলে",
@@ -149,16 +161,16 @@
             "tags": ["মাতৃ বন্দনা", "Anuradha Paudwal"]
         },
         {
-            "song_name": "Shyama Sangeet",
+            "song_name": "শ্যামা সঙ্গীত",
             "artists": "Anuradha Paudwal",
             "video_id": "mQnpy2tY9n0",
-            "tags": ["মাতৃ বন্দনা", "Anuradha Paudwal", "ShyamaSangeetList"]
+            "tags": ["মাতৃ বন্দনা", "Anuradha Paudwal", "ShyamaSangeetList", "list"]
         },
         {
-            "song_name": "Shyama Sangeet",
+            "song_name": "শ্যামা সঙ্গীত",
             "artists": "Kumar Sanu",
             "video_id": "-AdQOWzFTfY",
-            "tags": ["মাতৃ বন্দনা", "Kumar Sanu", "ShyamaSangeetList"]
+            "tags": ["মাতৃ বন্দনা", "Kumar Sanu", "ShyamaSangeetList", "list"]
         },
         {
             "song_name": "Durge Durge Durgatinashini",
@@ -376,6 +388,27 @@
             "tags": ["LearnEnglish", "Eminem"]
         },
         {
+            "song_name": "Mockingbird",
+            "artists": "Eminem Music",
+            "video_id": "S9bCLPwzSC0, 37V3b39_EXw, CflETAu1f4I",
+            "lyrics": "https://genius.com/Eminem-mockingbird-lyrics",
+            "tags": ["LearnEnglish", "Eminem"]
+        },
+        {
+            "song_name": "Love The Way You Lie",
+            "artists": "Eminem Music",
+            "video_id": "uelHwf8o7_U",
+            "lyrics": "https://genius.com/Eminem-love-the-way-you-lie-lyrics",
+            "tags": ["LearnEnglish", "Eminem"]
+        },
+        {
+            "song_name": "Cleaning Out My Closet",
+            "artists": "Eminem Music",
+            "video_id": "RQ9_TKayu9s",
+            "lyrics": "https://genius.com/Eminem-cleanin-out-my-closet-lyrics",
+            "tags": ["LearnEnglish", "Eminem"]
+        },
+        {
             "song_name": "Die With A Smile",
             "artists": "Bruno Mars & Lady Gaga",
             "video_id": "kPa7bsKwL-c, zgaCZOQCpp8",
@@ -411,6 +444,13 @@
             "video_id": "e-ORhEE9VVg, nAQ_1lTDvPQ",
             "lyrics": "#",
             "tags": ["Taylor Swift"]
+        },
+		{
+            "song_name": "Shake It Off",
+            "artists": "Taylor Swift",
+            "video_id": "nfWlot6h_JM, zIOVMHMNfJ4, bmN0Vie3Yzc",
+            "lyrics": "https://genius.com/Taylor-swift-shake-it-off-lyrics",
+            "tags": ["Taylor Swift", "LearnEnglish"]
         },
         {
             "song_name": "Love Story",
@@ -522,6 +562,13 @@
             "artists": "Enrique Iglesias",
             "video_id": "9mQJaXwGPlg, X5lRRZtjpFU",
             "lyrics": "#"
+        },
+        {
+            "song_name": "Someone Like You",
+            "artists": "Adele",
+            "video_id": "hLQl3WQQoQ0, NAc83CF8Ejk, 4Qz_Gdxto5c",
+            "lyrics": "https://genius.com/Adele-someone-like-you-lyrics",
+            "tags": ["LearnEnglish"]
         }
     ],
     "BanglaBandSongs": [
