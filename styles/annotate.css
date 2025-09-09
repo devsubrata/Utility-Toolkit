@@ -44,15 +44,35 @@
 }
 
 #annotationToolbar #togglePreset {
-    width: 20px;
-    height: 20px;
     font-size: 20px;
     display: flex;
-    border: 1px solid salmon;
+    border: 2px solid salmon;
     border-radius: 3px;
     justify-content: center;
     align-items: center;
     cursor: pointer;
+    user-select: none;
+    padding: 0 10px;
+}
+
+#annotationToolbar #togglePreset:active {
+    background-color: salmon;
+}
+
+#annotationToolbar .save-menu {
+    position: relative;
+}
+#annotationToolbar .save-menu .menu-content {
+    position: absolute;
+    background-color: rgb(224, 196, 160);
+    display: none;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 5px;
+    padding: 5px;
+    border: 2px solid rgb(231, 161, 70);
+}
+#annotationToolbar .save-menu .save-menu-btn:hover {
+    background-color: chocolate;
 }
 
 #annotationToolbar div > input,

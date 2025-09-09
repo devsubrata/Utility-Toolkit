@@ -51,9 +51,17 @@ if (!document.getElementById("annotationToolbar")) {
         <button id="color_detector" title="Pick color from canvas">🔥</button>
         <button id="filledCircle" title="Filled circle">⚫</button>
         <button id="eraser" title="Erase" class="active">E</button>
-        <button id="save" title="Take Snapshot">📸</button>
-        <button id="clear" title="Erase everything">🆑</button>
-        <button id="exit">❌</button>
+        <div class="save-menu">
+            <button class="save-menu-btn" title="More options">☰</button>
+            <div class="menu-content">
+                <button id="save" title="Take Snapshot">📸</button>
+                <button id="saveLayer" title="Save layers">💾</button>
+                <button id="restoreLayer" title="Restore layers">📂</button>
+                <button id="clear" title="Erase everything">🆑</button>
+                <button id="exit">❌</button>
+            </div>
+        </div>
+        <input type="file" id="fileInput" accept="image/png" style="display:none">
     `;
 
     document.body.appendChild(annotationDiv);
@@ -536,7 +544,22 @@ function injectCanvas() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
     });
 
-    document.getElementById("save").addEventListener("click", startFullPageCapture);
+    document.querySelector(".save-menu-btn").onclick = () => {
+        const saveMenu = document.querySelector(".menu-content");
+        saveMenu.style.display = saveMenu.style.display === "none" || saveMenu.style.display === "" ? "grid" : "none";
+    };
+    document.getElementById("save").onclick = () => {
+        startFullPageCapture();
+        document.querySelector(".menu-content").style.display = "none";
+    };
+    document.getElementById("saveLayer").onclick = () => {
+        saveAllLayers();
+        document.querySelector(".menu-content").style.display = "none";
+    };
+    document.getElementById("restoreLayer").onclick = () => {
+        restoreAllLayers();
+        document.querySelector(".menu-content").style.display = "none";
+    };
 
     // Opacity Control
     function color_opacity_control() {
@@ -894,6 +917,40 @@ function injectCanvas() {
         presetNumber %= 4;
     });
 }
+//TODO:------------save & restore canvas drawing-------------------------------
+function saveAllLayers() {
+    const canvas = document.getElementById("drawingCanvas");
+    const dataURL = canvas.toDataURL("image/png"); // includes transparency
+
+    const a = document.createElement("a");
+    a.href = dataURL;
+    a.download = "canvas.png";
+    a.click();
+}
+function restoreAllLayers() {
+    // Trigger hidden file input
+    document.getElementById("fileInput").click();
+    // When file is selected
+    document.getElementById("fileInput").onchange = function (event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const img = new Image();
+            img.onload = function () {
+                const canvas = document.getElementById("drawingCanvas");
+                const ctx = canvas.getContext("2d");
+
+                // Clear canvas and draw restored image at top-left corner
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0);
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    };
+}
 
 async function startFullPageCapture() {
     const originalScrollY = window.scrollY;
@@ -1010,7 +1067,7 @@ function changeToolbarSize() {
                     break;
                 case "2":
                     positionToolbar();
-                    toolbar.style.width = "460px";
+                    toolbar.style.width = "425px";
                     toolbar.style.height = "150px";
                     break;
                 case "3":
@@ -1020,17 +1077,17 @@ function changeToolbarSize() {
                     break;
                 case "4":
                     positionToolbar();
-                    toolbar.style.width = "173px";
-                    toolbar.style.height = "440px";
+                    toolbar.style.width = "165px";
+                    toolbar.style.height = "415px";
                     break;
                 case "5":
                     positionToolbar();
                     toolbar.style.width = "400px";
-                    toolbar.style.height = "190px";
+                    toolbar.style.height = "150px";
                     break;
                 case "6":
                     positionToolbar();
-                    toolbar.style.width = "640px";
+                    toolbar.style.width = "590px";
                     toolbar.style.height = "105px";
                     break;
             }
