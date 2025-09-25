@@ -171,7 +171,7 @@ function colorList() {
         <div class="color-swatch" data-color="#7F00FF" style="background-color: #7F00FF"></div>
         <div class="color-swatch" data-color="#B163FF" style="background-color: #B163FF"></div>
         <div class="color-swatch" data-color="#ff00ff" style="background-color: #ff00ff"></div>
-        <div class="color-swatch" data-color="#0e98ba" style="background-color: #0e98ba"></div>
+        <div class="color-swatch" data-color="#12c1ed" style="background-color: #12c1ed"></div>
         <div class="color-swatch" data-color="#00ffff" style="background-color: #00ffff"></div>
         <div class="color-swatch" data-color="#ffff00" style="background-color: #ffff00"></div>
     `;

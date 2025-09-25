@@ -16,8 +16,8 @@ if (!document.getElementById("annotationToolbar")) {
             <input type="radio" id="size5" name="size" value="5" title="four-row-toolbar" />
             <input type="radio" id="size6" name="size" value="6" title="two-row-toolbar" />
         </div>
-        <div id="togglePreset" title="Toggle preset">P</div>
         <div id="activeColor" title="Active Color"></div>
+        <div id="togglePreset" title="Toggle preset">P</div>
         <div class="color-picker"></div>
         <div class="color-picker"></div>
         <div class="highlight_div">
@@ -54,6 +54,8 @@ if (!document.getElementById("annotationToolbar")) {
         <div class="save-menu">
             <button class="save-menu-btn" title="More options">☰</button>
             <div class="menu-content">
+                <button id="borderedRectangle" title="Bordered Rectangle">▭</button>
+                <button id="borderedCircle" title="Bordered Circle">◯</button>
                 <button id="save" title="Take Snapshot">📸</button>
                 <button id="saveLayer" title="Save layers">💾</button>
                 <button id="restoreLayer" title="Restore layers">📂</button>
@@ -265,12 +267,14 @@ function injectCanvas() {
         lines: document.getElementById("lines"),
         rectangle: document.getElementById("rectangle"),
         filledRectangle: document.getElementById("filledRectangle"),
+        borderedRectangle: document.getElementById("borderedRectangle"),
         typeText: document.getElementById("typeText"),
         pasteImage: document.getElementById("insertImage"),
         eraser: document.getElementById("eraser"),
         eyeDropperTool: document.getElementById("color_detector"),
         circle: document.getElementById("circle"),
         filledCircle: document.getElementById("filledCircle"),
+        borderedCircle: document.getElementById("borderedCircle"),
     };
 
     let painting = false;
@@ -290,7 +294,7 @@ function injectCanvas() {
 
     const [colorPicker1, colorPicker2] = document.querySelectorAll(".color-picker");
     colorPicker1.children[0].style.backgroundColor = color1;
-    colorPicker2.children[0].style.backgroundColor = color2;
+    colorPicker2.children[0].style.backgroundColor = `rgba(255, 165, 0, 1)`;
 
     // pupulate line type
     function populateLineType() {
@@ -354,8 +358,10 @@ function injectCanvas() {
             case "inclinedLine":
             case "rectangle":
             case "filledRectangle":
+            case "borderedRectangle":
             case "circle":
             case "filledCircle":
+            case "borderedCircle":
             case "highlighter":
             case "eraser":
                 snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -401,6 +407,7 @@ function injectCanvas() {
                 break;
             case "rectangle":
             case "filledRectangle":
+            case "borderedRectangle":
             case "eraser":
                 ctx.putImageData(snapshot, 0, 0);
                 let width = pos.x - startX;
@@ -410,6 +417,12 @@ function injectCanvas() {
                 } else if (currentTool === "filledRectangle") {
                     ctx.fillStyle = color2;
                     ctx.fillRect(startX, startY, width, height);
+                } else if (currentTool === "borderedRectangle") {
+                    const { r, g, b } = extractRGB(color2);
+                    ctx.strokeStyle = `rgb(${r},${g},${b})`;
+                    ctx.strokeRect(startX, startY, width, height);
+                    ctx.fillStyle = color1;
+                    ctx.fillRect(startX, startY, width, height);
                 } else {
                     ctx.fillStyle = color1;
                     ctx.fillRect(startX, startY, width, height);
@@ -417,12 +430,19 @@ function injectCanvas() {
                 break;
             case "circle":
             case "filledCircle":
+            case "borderedCircle":
                 ctx.putImageData(snapshot, 0, 0);
                 const radius = Math.sqrt((startX - pos.x) ** 2 + (startY - pos.y) ** 2);
                 ctx.beginPath();
                 ctx.arc(startX, startY, radius, 0, Math.PI * 2);
                 if (currentTool === "circle") {
                     ctx.stroke();
+                } else if (currentTool === "borderedCircle") {
+                    const { r, g, b } = extractRGB(color2);
+                    ctx.strokeStyle = `rgb(${r},${g},${b})`;
+                    ctx.stroke();
+                    ctx.fillStyle = color1;
+                    ctx.fill();
                 } else {
                     ctx.fillStyle = color1;
                     ctx.fill();
@@ -516,6 +536,7 @@ function injectCanvas() {
     tools.lines.addEventListener("click", lineToolsHandler);
     tools.rectangle.addEventListener("click", () => setActiveTool("rectangle"));
     tools.filledRectangle.addEventListener("click", () => setActiveTool("filledRectangle"));
+    tools.borderedRectangle.addEventListener("click", () => setActiveTool("borderedRectangle"));
     tools.eraser.addEventListener("click", () => setActiveTool("eraser"));
     tools.eyeDropperTool.addEventListener("click", () => setActiveTool("eyeDropperTool"));
     tools.typeText.addEventListener("click", () => {
@@ -528,6 +549,7 @@ function injectCanvas() {
     });
     tools.circle.addEventListener("click", () => setActiveTool("circle"));
     tools.filledCircle.addEventListener("click", () => setActiveTool("filledCircle"));
+    tools.borderedCircle.addEventListener("click", () => setActiveTool("borderedCircle"));
 
     // highlighter Size
     document.getElementById("highlighterSize").addEventListener("input", (e) => {
@@ -773,6 +795,8 @@ function injectCanvas() {
 
             // Focus back on textInput
             textInput.focus();
+
+            navigator.clipboard.writeText(currentBullet);
         });
 
         textInput.addEventListener("input", (e) => {
@@ -886,35 +910,47 @@ function injectCanvas() {
             color_opacity_control();
             setActiveTool("eraser");
         };
-        const preset2 = (setOpacity, setBrushSize) => {
+        const preset2 = (setOpacity, setBrushSize, lineTool = true) => {
             opacity = setOpacity;
             brushSize = setBrushSize;
-
-            color1 = `rgba(0,0,255,${opacity})`;
-            document.querySelector(".color-picker-button").style.backgroundColor = `rgba(0,0,255,1)`;
 
             document.getElementById("opacity").value = opacity;
             document.getElementById("brushSize").value = brushSize;
 
-            color_opacity_control();
-            lineToolsHandler();
+            function colorSettings(r, g, b) {
+                color1 = `rgba(${r},${g},${b},${opacity})`;
+                document.querySelector(".color-picker-button").style.backgroundColor = `rgba(${r},${g},${b},1)`;
+                color_opacity_control();
+            }
+
+            if (lineTool) {
+                lineToolsHandler();
+                colorSettings(0, 0, 255);
+            } else {
+                setActiveTool("rectangle");
+                colorSettings(18, 193, 235);
+            }
         };
-        const preset3 = (setOpacity) => {
+        const preset3 = (setOpacity, isborderedRectangle = true) => {
             opacity = setOpacity;
             document.getElementById("opacity").value = opacity;
             color_opacity_control();
-            setActiveTool("eraser");
+            if (isborderedRectangle) setActiveTool("borderedRectangle");
+            else {
+                setActiveTool("eraser");
+            }
         };
 
         if (presetNumber === 0) preset1();
         if (presetNumber === 1) preset2(0.5, 3);
-        if (presetNumber === 2) preset2(1, 2);
-        if (presetNumber === 3) preset3(0.06);
+        if (presetNumber === 2) preset2(1, 2, false);
+        if (presetNumber === 3) preset3(0.06, false);
+        if (presetNumber === 2) preset3(0.1);
     }
     let presetNumber = 1;
     document.getElementById("togglePreset").addEventListener("click", () => {
         tooglePreset(presetNumber++);
-        presetNumber %= 4;
+        presetNumber %= 5;
     });
 }
 //TODO:------------save & restore canvas drawing-------------------------------
@@ -1082,8 +1118,8 @@ function changeToolbarSize() {
                     break;
                 case "5":
                     positionToolbar();
-                    toolbar.style.width = "400px";
-                    toolbar.style.height = "150px";
+                    toolbar.style.width = "335px";
+                    toolbar.style.height = "188px";
                     break;
                 case "6":
                     positionToolbar();

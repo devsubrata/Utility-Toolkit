@@ -214,6 +214,11 @@
     ],
     "MantraBhajan": [
         {
+            "song_name": "Hare Rama Hare Krishna",
+            "artists": "Sadhana Sargam",
+            "video_id": "b_yDzgq5Gas, nKX0v-hEXoI, Zdcth9NndEA, 3Hx0umh_uiA"
+        },
+        {
             "song_name": "Brahma rupa adi madhya",
             "artists": "Collected",
             "video_id": "OwERlU5gWhM"
@@ -231,32 +236,44 @@
         {
             "song_name": "প্রকৃীতিম পরমাং অভয়াং বরদাম",
             "artists": "Collected",
-            "video_id": "38mmbXhQpRs"
+            "video_id": "38mmbXhQpRs",
+            "tags": ["স্বামী সর্বগানন্দ", "মাতৃ বন্দনা"]
         },
         {
             "song_name": "রামকৃষ্ণ শরণং",
             "artists": "স্বামী সর্বগানন্দ",
-            "video_id": "mc-s0ML2UH0"
+            "video_id": "mc-s0ML2UH0",
+            "tags": ["স্বামী সর্বগানন্দ"]
         },
         {
             "song_name": "অয়ি গিরি নন্দিনি",
             "artists": "স্বামী সর্বগানন্দ",
-            "video_id": "hlMppsAsWq4"
+            "video_id": "hlMppsAsWq4",
+            "tags": ["স্বামী সর্বগানন্দ", "মাতৃ বন্দনা"]
+        },
+        {
+            "song_name": "Rupang Dehi Jayang Dehi",
+            "artists": "স্বামী সর্বগানন্দ",
+            "video_id": "ZljQ3Z6ddk0, 6IIPuGG7O-Y",
+            "tags": ["স্বামী সর্বগানন্দ", "মাতৃ বন্দনা", "Ajoy Chakrabarty"]
         },
         {
             "song_name": "Bhaja Govindam",
             "artists": "স্বামী সর্বগানন্দ",
-            "video_id": "CIZScZPUIIQ"
+            "video_id": "CIZScZPUIIQ",
+            "tags": ["স্বামী সর্বগানন্দ"]
         },
         {
             "song_name": "Shiva Tandava Stotram",
             "artists": "স্বামী সর্বগানন্দ",
-            "video_id": "SKgO1mFYAcY"
+            "video_id": "SKgO1mFYAcY",
+            "tags": ["স্বামী সর্বগানন্দ"]
         },
         {
             "song_name": "Sri Ramakrishna Astottarara Nam Sankirtanam",
             "artists": "স্বামী সর্বগানন্দ",
-            "video_id": "bJ8Tufuq-oY"
+            "video_id": "bJ8Tufuq-oY",
+            "tags": ["স্বামী সর্বগানন্দ"]
         },
         {
             "song_name": "শিব প্রণাম মন্ত্র",
@@ -301,7 +318,7 @@
             "artists": "Elton John",
             "video_id": "GlPlfCy1urI, fwrD70WeSzs",
             "lyrics": "https://genius.com/Elton-john-your-song-lyrics",
-            "tags": ["LearnEnglish"]
+            "tags": ["LearnEnglish", "Elton John"]
         },
         {
             "song_name": "Paradise",
@@ -445,7 +462,7 @@
             "lyrics": "#",
             "tags": ["Taylor Swift"]
         },
-		{
+        {
             "song_name": "Shake It Off",
             "artists": "Taylor Swift",
             "video_id": "nfWlot6h_JM, zIOVMHMNfJ4, bmN0Vie3Yzc",
@@ -569,6 +586,32 @@
             "video_id": "hLQl3WQQoQ0, NAc83CF8Ejk, 4Qz_Gdxto5c",
             "lyrics": "https://genius.com/Adele-someone-like-you-lyrics",
             "tags": ["LearnEnglish"]
+        },
+        {
+            "song_name": "I'm Still Standing",
+            "artists": "Elton John",
+            "video_id": "ZHwVBirqD2s, MJ_aPtt4U8M",
+            "lyrics": "#",
+            "tags": ["Elton John"]
+        },
+        {
+            "song_name": "Papa Don't Preach",
+            "artists": "Madonna",
+            "video_id": "G333Is7VPOg",
+            "lyrics": "https://genius.com/Madonna-papa-dont-preach-lyrics",
+            "tags": ["Madonna"]
+        },
+        {
+            "song_name": "When Doves Cry",
+            "artists": "Prince",
+            "video_id": "TDITpFvzBpg",
+            "lyrics": "https://genius.com/Prince-and-the-revolution-when-doves-cry-lyrics"
+        },
+        {
+            "song_name": "When Doves Cry",
+            "artists": "Prince",
+            "video_id": "TDITpFvzBpg",
+            "lyrics": "https://genius.com/Prince-and-the-revolution-when-doves-cry-lyrics"
         }
     ],
     "BanglaBandSongs": [
