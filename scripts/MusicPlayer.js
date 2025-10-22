@@ -1,3 +1,32 @@
+// if (!document.getElementById("openPlayer")) {
+//     const link = document.createElement("link");
+//     link.rel = "stylesheet";
+//     link.href = chrome.runtime.getURL("styles/MusicPlayer.css");
+//     document.head.appendChild(link);
+
+//     const player = document.createElement("div");
+//     player.id = "openPlayer";
+//     player.classList.add("floating-window");
+//     player.innerHTML = `
+//         <div class="title-bar">
+//             <span class="title">▶ MusicPlayer</span>
+//             <span class="minimize-btn ctrl" title="minimize">—</span>
+//             <span class="close-btn ctrl" title="Close">❌</span>
+//         </div>
+//         <div class="content drop-area">
+//             <input type="file" id="fileInput" accept="audio/mpeg" multiple style="display: none" />
+//             <input type="file" id="imageFileInput" accept="image/*" style="display: none" />
+//             <div class="load-div">
+//                 <button id="loadBtn">Load Musics</button>
+//                 <button id="loadScript">Load Lyric</button>
+//             </div>
+//             <audio id="audioPlayer" controls style="width: 100%"></audio>
+//             <ul id="playlist" class="list-group"></ul>
+//         </div>
+//     `;
+//     document.body.appendChild(player);
+// makeDraggable(player);
+
 if (!document.getElementById("openPlayer")) {
     const link = document.createElement("link");
     link.rel = "stylesheet";
@@ -20,18 +49,117 @@ if (!document.getElementById("openPlayer")) {
                 <button id="loadBtn">Load Musics</button>
                 <button id="loadScript">Load Lyric</button>
             </div>
-            <audio id="audioPlayer" controls style="width: 100%"></audio>
+
+            <!-- Audio without default controls -->
+            <audio id="audioPlayer"></audio>
+
+            <!-- Custom progress bar -->
+            <div class="progress-container" style="display:flex; align-items:center; margin:5px 0;">
+                <span id="currentTime">0:00</span>
+                <input type="range" id="progressBar" value="0" min="0" max="100" step="0.1" style="flex:1; margin:0 5px;">
+                <span id="duration">0:00</span>
+            </div>
+
+            <!-- Control panel -->
+            <div class="player-controls">
+                <label for="volumeSlider" id="volumeLabel">🔊</label>
+                <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="1">
+                <input type="number" id="timeInput" placeholder="5s" min="0" style="width: 55px"/>
+                <button id="rewindBtn">⏪</button>
+                <button id="playPauseBtn">⏯️</button>
+                <button id="forwardBtn">⏩</button>
+            </div>
             <ul id="playlist" class="list-group"></ul>
         </div>
     `;
     document.body.appendChild(player);
     makeDraggable(player);
 
+    // ======= JS Logic =======
+    const audioPlayer = document.getElementById("audioPlayer");
+    const volumeSlider = document.getElementById("volumeSlider");
+    const volumeLabel = document.getElementById("volumeLabel");
+    const playPauseBtn = document.getElementById("playPauseBtn");
+    const timeInput = document.getElementById("timeInput");
+    const rewindBtn = document.getElementById("rewindBtn");
+    const forwardBtn = document.getElementById("forwardBtn");
+    const progressBar = document.getElementById("progressBar");
+    const currentTimeSpan = document.getElementById("currentTime");
+    const durationSpan = document.getElementById("duration");
+
+    function formatTime(sec) {
+        const minutes = Math.floor(sec / 60);
+        const seconds = Math.floor(sec % 60);
+        return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+    }
+
+    volumeSlider.addEventListener("input", () => {
+        audioPlayer.volume = volumeSlider.value;
+    });
+
+    // Store last volume before muting
+    let lastVolume = audioPlayer.volume;
+
+    // Volume slider change
+    volumeSlider.addEventListener("input", () => {
+        audioPlayer.volume = volumeSlider.value;
+        if (audioPlayer.volume === 0) {
+            volumeLabel.textContent = "🔇";
+        } else {
+            volumeLabel.textContent = "🔊";
+            lastVolume = audioPlayer.volume;
+        }
+    });
+
+    // Click on label to mute/unmute
+    volumeLabel.addEventListener("click", () => {
+        if (audioPlayer.volume > 0) {
+            lastVolume = audioPlayer.volume;
+            audioPlayer.volume = 0;
+            volumeSlider.value = 0;
+            volumeLabel.textContent = "🔇";
+        } else {
+            audioPlayer.volume = lastVolume || 1;
+            volumeSlider.value = lastVolume || 1;
+            volumeLabel.textContent = "🔊";
+        }
+    });
+
+    playPauseBtn.addEventListener("click", () => {
+        if (audioPlayer.paused) audioPlayer.play();
+        else audioPlayer.pause();
+    });
+
+    rewindBtn.addEventListener("click", () => {
+        const seconds = parseInt(timeInput.value) || 5;
+        audioPlayer.currentTime = Math.max(0, audioPlayer.currentTime - seconds);
+    });
+
+    forwardBtn.addEventListener("click", () => {
+        const seconds = parseInt(timeInput.value) || 5;
+        audioPlayer.currentTime = Math.min(audioPlayer.duration, audioPlayer.currentTime + seconds);
+    });
+
+    // Update progress bar while playing
+    audioPlayer.addEventListener("timeupdate", () => {
+        const value = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+        progressBar.value = value || 0;
+        currentTimeSpan.textContent = formatTime(audioPlayer.currentTime);
+        durationSpan.textContent = formatTime(audioPlayer.duration || 0);
+    });
+
+    // Seek audio when user drags the slider
+    progressBar.addEventListener("input", () => {
+        let currentTime = (progressBar.value / 100) * audioPlayer.duration;
+        if (!currentTime) return;
+        audioPlayer.currentTime = currentTime;
+    });
+
+    //TODO:------------------------------------------------------------------------------ */
     const DB_NAME = "MP3PlayerDB";
     const DB_VERSION = 1;
     const STORE_NAME = "songs";
     const fileInput = document.getElementById("fileInput");
-    const audioPlayer = document.getElementById("audioPlayer");
     const playlistEl = document.getElementById("playlist");
     const loadSongs = document.getElementById("loadBtn");
     const dropZone = document.querySelector(".content");

@@ -60,6 +60,7 @@ if (!document.getElementById("annotationToolbar")) {
                 <button id="saveLayer" title="Save layers">💾</button>
                 <button id="restoreLayer" title="Restore layers">📂</button>
                 <button id="clear" title="Erase everything">🆑</button>
+                <button id="placeBottom" title="place bottom">🗕</button>
                 <button id="exit">❌</button>
             </div>
         </div>
@@ -897,8 +898,17 @@ function injectCanvas() {
         }
     });
 
-    //* resize tool bar
+    //* resize/positon tool bar
     changeToolbarSize();
+    document.getElementById("placeBottom").addEventListener("click", () => {
+        const toolbar = document.getElementById("annotationToolbar");
+        toolbar.style.width = "max-content";
+        toolbar.style.height = "63px";
+        toolbar.style.top = "96%";
+        toolbar.style.left = "50%";
+        toolbar.style.transform = "translate(-50%, -50%)";
+        document.querySelector(".save-menu .menu-content").style.display = "none";
+    });
 
     //* setting presets
     function tooglePreset(presetNumber) {
@@ -954,15 +964,30 @@ function injectCanvas() {
     });
 }
 //TODO:------------save & restore canvas drawing-------------------------------
-function saveAllLayers() {
-    const canvas = document.getElementById("drawingCanvas");
-    const dataURL = canvas.toDataURL("image/png"); // includes transparency
+// function saveAllLayers() {
+//     const canvas = document.getElementById("drawingCanvas");
+//     const dataURL = canvas.toDataURL("image/png"); // includes transparency
 
-    const a = document.createElement("a");
-    a.href = dataURL;
-    a.download = "canvas.png";
-    a.click();
+//     const a = document.createElement("a");
+//     a.href = dataURL;
+//     a.download = "canvas.png";
+//     a.click();
+// }
+
+async function saveAllLayers() {
+    const canvas = document.getElementById("drawingCanvas");
+    const blob = await new Promise((res) => canvas.toBlob(res, "image/png"));
+
+    const handle = await window.showSaveFilePicker({
+        suggestedName: "canvas.png",
+        types: [{ description: "PNG Image", accept: { "image/png": [".png"] } }],
+    });
+
+    const writable = await handle.createWritable();
+    await writable.write(blob);
+    await writable.close();
 }
+
 function restoreAllLayers() {
     // Trigger hidden file input
     document.getElementById("fileInput").click();

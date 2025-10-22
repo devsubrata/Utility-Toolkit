@@ -17,4 +17,5 @@ document.getElementById("openAnnotationToolbar").addEventListener("click", () =>
 document.getElementById("openPlayer").addEventListener("click", () => injectScript("MusicPlayer.js"));
 document.getElementById("openYoutubePlayer").addEventListener("click", () => injectScript("YoutubePlayer.js"));
 document.getElementById("openScriptScroller").addEventListener("click", () => injectScript("ScriptScroller.js"));
+document.getElementById("openToDoList").addEventListener("click", () => injectScript("ToDoList.js"));
 document.getElementById("testScript").addEventListener("click", () => injectScript("test_script.js"));

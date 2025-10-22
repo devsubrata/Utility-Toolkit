@@ -120,6 +120,7 @@ function handleNavigation(ui) {
 function lookUpLinks() {
     return {
         "Google search": "https://www.google.com/search?q={search_term}",
+        AI_Review: "https://www.google.com/search?q={search_term}&udm=50",
         "Cambridge dictionary": "https://dictionary.cambridge.org/dictionary/english/{search_term}",
         "Longman dictionary": "https://www.ldoceonline.com/dictionary/{search_term}",
         "Oxford dictionary": "https://www.oxfordlearnersdictionaries.com/definition/english/{search_term}",
