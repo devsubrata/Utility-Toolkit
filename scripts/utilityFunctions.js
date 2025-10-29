@@ -152,29 +152,34 @@ function colorList() {
         <div class="color-swatch" data-color="#ffffff" style="background-color: #ffffff"></div>
         <div class="color-swatch" data-color="#000000" style="background-color: #000000"></div>
         <div class="color-swatch" data-color="#ff0000" style="background-color: #ff0000"></div>
+        <div class="color-swatch" data-color="#fe3b00" style="background-color: #fe3b00"></div>
         <div class="color-swatch" data-color="#f43f5e" style="background-color: #f43f5e"></div>
+        <div class="color-swatch" data-color="#ff0066" style="background-color: #ff0066"></div>
         <div class="color-swatch" data-color="#9f1239" style="background-color: #9f1239"></div>
         <div class="color-swatch" data-color="#4B0001" style="background-color: #4B0001"></div>
         <div class="color-swatch" data-color="#964B00" style="background-color: #964B00"></div>
         <div class="color-swatch" data-color="#BE5103" style="background-color: #BE5103"></div>
         <div class="color-swatch" data-color="#ffa500" style="background-color: #ffa500"></div>
+        <div class="color-swatch" data-color="#ffff00" style="background-color: #ffff00"></div>
         <div class="color-swatch" data-color="#00ff00" style="background-color: #00ff00"></div>
         <div class="color-swatch" data-color="#009c1a" style="background-color: #009c1a"></div>
         <div class="color-swatch" data-color="#429A31" style="background-color: #429A31"></div>
         <div class="color-swatch" data-color="#84cc16" style="background-color: #84cc16"></div>
         <div class="color-swatch" data-color="#365314" style="background-color: #365314"></div>
         <div class="color-swatch" data-color="#134e4a" style="background-color: #134e4a"></div>
+        <div class="color-swatch" data-color="#12c1ed" style="background-color: #12c1ed"></div>
+        <div class="color-swatch" data-color="#00ffff" style="background-color: #00ffff"></div>
         <div class="color-swatch" data-color="#050372" style="background-color: #050372"></div>
         <div class="color-swatch" data-color="#0000ff" style="background-color: #0000ff"></div>
         <div class="color-swatch" data-color="#0047ab" style="background-color: #0047ab"></div>
         <div class="color-swatch" data-color="#2B0057" style="background-color: #2B0057"></div>
         <div class="color-swatch" data-color="#51158C" style="background-color: #51158C"></div>
         <div class="color-swatch" data-color="#7F00FF" style="background-color: #7F00FF"></div>
+        <div class="color-swatch" data-color="#6601ff" style="background-color: #6601ff"></div>
         <div class="color-swatch" data-color="#B163FF" style="background-color: #B163FF"></div>
+        <div class="color-swatch" data-color="#cb00cc" style="background-color: #cb00cc"></div>
         <div class="color-swatch" data-color="#ff00ff" style="background-color: #ff00ff"></div>
-        <div class="color-swatch" data-color="#12c1ed" style="background-color: #12c1ed"></div>
-        <div class="color-swatch" data-color="#00ffff" style="background-color: #00ffff"></div>
-        <div class="color-swatch" data-color="#ffff00" style="background-color: #ffff00"></div>
+        <div class="color-swatch" data-color="#cc00ff" style="background-color: #cc00ff"></div>
     `;
 }
 

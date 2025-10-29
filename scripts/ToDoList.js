@@ -31,19 +31,18 @@ if (!document.getElementById("ToDoList")) {
 
         <!-- Modal -->
         <div id="taskModal" class="hidden fixed inset-0 bg-black/30 flex items-center justify-center z-[999999]">
-            <div class="bg-white !p-6 rounded-xl w-80 flex flex-col gap-3 shadow-lg">
+            <div class="bg-white !p-6 rounded-xl w-120 flex flex-col gap-3 shadow-lg">
                 <h2 id="modalTitle" class="text-lg font-semibold text-gray-800">Add Task</h2>
 
-                <input id="modalTaskText" type="text" placeholder="Task description" class="w-full !px-3 !py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400 outline-none"/>
+                <textarea id="modalTaskText" type="text" placeholder="Task description"
+                    class="w-full !px-3 !py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-400 outline-none"></textarea>
 
-                <div class="flex gap-2 items-center">
-                    <label class="text-sm text-gray-600">Start:</label>
-                    <input id="modalStartTime" type="datetime-local" class="flex-1 !px-2 !py-1 border border-gray-300 rounded-md text-sm"/>
-                </div>
+                <!-- Removed Start Date field -->
 
                 <div class="flex gap-2 items-center">
                     <label class="text-sm text-gray-600">Est. Duration:</label>
-                    <input id="modalDurationValue" type="number" min="1" class="w-16 !px-2 !py-1 border border-gray-300 rounded-md text-sm"/>
+                    <input id="modalDurationValue" type="number" min="1"
+                        class="w-16 !px-2 !py-1 border border-gray-300 rounded-md text-sm"/>
                     <select id="modalDurationUnit" class="!px-2 !py-1 border border-gray-300 rounded-md text-sm">
                         <option value="min">min</option>
                         <option value="hr">hr</option>
@@ -59,9 +58,8 @@ if (!document.getElementById("ToDoList")) {
         </div>
     `;
     document.body.appendChild(toDoList);
-    makeDraggable(toDoList); // your existing draggable function
+    makeDraggable(toDoList);
 
-    /* ---------- FUNCTIONALITY ---------- */
     const taskList = toDoList.querySelector("#taskList");
     const minimizeBtn = toDoList.querySelector(".minimize-btn");
     const closeBtn = toDoList.querySelector(".close-btn");
@@ -70,7 +68,6 @@ if (!document.getElementById("ToDoList")) {
     const modal = toDoList.querySelector("#taskModal");
     const modalTitle = modal.querySelector("#modalTitle");
     const modalText = modal.querySelector("#modalTaskText");
-    const modalStartTime = modal.querySelector("#modalStartTime");
     const modalDurationValue = modal.querySelector("#modalDurationValue");
     const modalDurationUnit = modal.querySelector("#modalDurationUnit");
     const cancelModal = modal.querySelector("#cancelModal");
@@ -78,6 +75,7 @@ if (!document.getElementById("ToDoList")) {
 
     let tasks = JSON.parse(localStorage.getItem("chrome_todo_tasks")) || [];
     let editingIndex = null;
+    let timers = {}; // active intervals
 
     const saveTasks = () => localStorage.setItem("chrome_todo_tasks", JSON.stringify(tasks));
 
@@ -85,49 +83,92 @@ if (!document.getElementById("ToDoList")) {
         taskList.innerHTML = "";
         tasks.forEach((task, index) => {
             const li = document.createElement("li");
-            li.className = "bg-white border border-gray-200 rounded-lg !p-3 flex flex-col shadow-sm hover:border-indigo-600";
-
-            const durationText = task.completionDate
-                ? `${Math.round((new Date(task.completionDate) - new Date(task.addedDate)) / 60000)} min total`
-                : "";
+            li.className = "bg-white border border-gray-200 rounded-lg !p-3 flex flex-col shadow-sm hover:border-indigo-600 transition-all";
 
             li.innerHTML = `
+                <!-- Row 1: Title + Action Buttons -->
                 <div class="flex justify-between items-start">
-                    <div class="flex flex-col">
-                        <span>${index + 1}. 
-                        <span class="${task.completed ? "line-through text-gray-400" : "text-indigo-800 font-bold"} font-xl">
-                            ${task.text}
-                        </span></span>
-                        <span class="text-xs text-gray-500 !mt-1">
-                            Added: ${new Date(task.addedDate).toLocaleString()}
-                            ${task.startDate ? `<br>Start: ${new Date(task.startDate).toLocaleString()}` : ""}
-                            ${task.completionDate ? `<br>Done: ${new Date(task.completionDate).toLocaleString()}` : ""}
-                            ${durationText ? `<br>Duration: ${durationText}` : ""}
-                            ${task.estimatedDuration.value !== null ? `<br>Est: ${task.estimatedDuration.value} ${task.estimatedDuration.unit}` : ""}
-                        </span>
-                    </div>
+                    <span class="${task.completed ? "line-through text-gray-400" : "text-indigo-800 font-bold"} text-base">
+                        ${index + 1}. ${task.text}
+                    </span>
                     <div class="flex items-center gap-1 text-lg">
                         <span class="cursor-pointer complete-btn" title="Complete">${task.completed ? "↩️" : "✅"}</span>
                         <span class="cursor-pointer edit-btn" title="Edit">✏️</span>
                         <span class="cursor-pointer delete-btn" title="Delete">🗑️</span>
                     </div>
                 </div>
+
+                <!-- Row 2: Added Date + Buttons -->
+                <div class="flex justify-between items-center text-gray-600 text-sm font-medium !mt-0.5">
+                    <div>Added: ${formatDate(task.addedDate)}</div>
+                    <div class="flex justify-center items-center gap-2">
+                        <button class="start-btn text-xl" title="Start/Pause">${task.timerRunning ? "⏸" : "▶"}</button>
+                        <button class="reset-btn text-xl" title="Reset">🔄</button>
+                    </div>
+                </div>
+
+                <!-- Row 3: Start Date + Stopwatch -->
+                <div class="flex justify-between items-center !mt-1">
+                    <div class="text-xs text-gray-500 start-date">
+                        ${task.startedAt ? `Start: ${new Date(task.startedAt.toLocaleString())}` : ""}
+                    </div>
+                    <div class="flex justify-center items-center">
+                        <span class="elapsed-time text-sm font-semibold text-gray-800">
+                            ${formatElapsed(task.elapsed || 0)}
+                        </span>
+                    </div>
+                </div>
             `;
 
-            // --- Actions ---
+            // --- Elements ---
+            const startBtn = li.querySelector(".start-btn");
+            const elapsedSpan = li.querySelector(".elapsed-time");
+            const startDateDiv = li.querySelector(".start-date");
+
+            startBtn.onclick = () => toggleTimer(index, startBtn, elapsedSpan, startDateDiv);
+
+            // Action buttons
             li.querySelector(".complete-btn").onclick = () => {
                 task.completed = !task.completed;
                 task.completionDate = task.completed ? new Date().toISOString() : null;
+                task.timerRunning = false;
+                clearInterval(timers[index]);
                 saveTasks();
                 renderTasks();
             };
 
-            li.querySelector(".edit-btn").onclick = () => {
-                openModal(task, index);
-            };
+            li.querySelector(".reset-btn").addEventListener("click", () => {
+                // Stop any running interval
+                if (timers[index]) {
+                    clearInterval(timers[index]);
+                    delete timers[index];
+                }
+
+                // Reset task timing fields
+                task.elapsed = 0;
+                task.timerRunning = false;
+                task.startedAt = null; // hide start date
+                // if you used a "firstStartedAt" earlier and want it cleared too, clear it:
+                if ("firstStartedAt" in task) task.firstStartedAt = null;
+
+                // Update DOM immediately
+                const elapsedEl = li.querySelector(".elapsed-time");
+                const startDateEl = li.querySelector(".start-date");
+                const startBtnEl = li.querySelector(".start-btn");
+
+                if (elapsedEl) elapsedEl.textContent = "00h:00m:00s";
+                if (startDateEl) startDateEl.textContent = "";
+                if (startBtnEl) startBtnEl.textContent = "▶";
+                startBtnEl?.classList?.remove("running");
+
+                saveTasks();
+            });
+
+            li.querySelector(".edit-btn").onclick = () => openModal(task, index);
 
             li.querySelector(".delete-btn").onclick = () => {
                 if (confirm("Delete this task?")) {
+                    clearInterval(timers[index]);
                     tasks.splice(index, 1);
                     saveTasks();
                     renderTasks();
@@ -138,20 +179,82 @@ if (!document.getElementById("ToDoList")) {
         });
     };
 
+    function formatDate(isoDate) {
+        const d = new Date(isoDate);
+        const day = String(d.getDate()).padStart(2, "0");
+        const month = String(d.getMonth() + 1).padStart(2, "0");
+        const year = d.getFullYear();
+        return `${day}-${month}-${year}`;
+    }
+
+    function formatDateTime(msOrIso) {
+        const d = new Date(msOrIso);
+        const h = String(d.getHours()).padStart(2, "0");
+        const m = String(d.getMinutes()).padStart(2, "0");
+        return `${formatDate(d)} ${h}:${m}`;
+    }
+
+    // Stopwatch helpers
+    function toggleTimer(index, button, timeDisplay, startDateDiv) {
+        const task = tasks[index];
+
+        if (!task.timerRunning) {
+            // --- START or RESUME timer ---
+            task.timerRunning = true;
+            // always set a fresh timestamp for this run
+            task.startedAt = Date.now();
+
+            // update visible start date to the current start time (so it ALWAYS refreshes)
+            startDateDiv.textContent = `Start: ${new Date(task.startedAt).toLocaleString()}`;
+
+            // ensure any previous interval is cleared before creating a new one
+            if (timers[index]) clearInterval(timers[index]);
+            timers[index] = setInterval(() => {
+                const elapsedNow = (task.elapsed || 0) + (Date.now() - task.startedAt);
+                timeDisplay.textContent = formatElapsed(elapsedNow);
+            }, 1000);
+
+            button.textContent = "⏸";
+            button.classList?.add("running");
+        } else {
+            // --- PAUSE timer ---
+            task.timerRunning = false;
+            // accumulate elapsed time
+            task.elapsed = (task.elapsed || 0) + (Date.now() - task.startedAt);
+            // reset startedAt so it won't be used while paused
+            task.startedAt = null;
+            if (timers[index]) {
+                clearInterval(timers[index]);
+                delete timers[index];
+            }
+            button.textContent = "▶";
+            button.classList?.remove("running");
+            // update displayed elapsed (paused)
+            timeDisplay.textContent = formatElapsed(task.elapsed || 0);
+        }
+
+        saveTasks();
+    }
+
+    function formatElapsed(ms) {
+        const totalSec = Math.floor(ms / 1000);
+        const h = Math.floor(totalSec / 3600);
+        const m = Math.floor((totalSec % 3600) / 60);
+        const s = totalSec % 60;
+        return `${h > 0 ? h + "h " : ""}${m}m ${s}s`;
+    }
+
     const openModal = (task = null, index = null) => {
         modal.classList.remove("hidden");
-        // makeDraggable(modal);
         if (task) {
             modalTitle.textContent = "Edit Task";
             modalText.value = task.text;
-            modalStartTime.value = task.startDate?.slice(0, 16) || "";
             modalDurationValue.value = task.estimatedDuration.value;
             modalDurationUnit.value = task.estimatedDuration.unit;
             editingIndex = index;
         } else {
             modalTitle.textContent = "Add Task";
             modalText.value = "";
-            modalStartTime.value = new Date().toISOString().slice(0, 16);
             modalDurationValue.value = "";
             modalDurationUnit.value = "min";
             editingIndex = null;
@@ -170,17 +273,19 @@ if (!document.getElementById("ToDoList")) {
         const newTask = {
             text,
             addedDate: editingIndex !== null ? tasks[editingIndex].addedDate : new Date().toISOString(),
-            startDate: modalStartTime.value || new Date().toISOString(),
             completed: editingIndex !== null ? tasks[editingIndex].completed : false,
             completionDate: editingIndex !== null ? tasks[editingIndex].completionDate : null,
             estimatedDuration: {
                 value: modalDurationValue.value || null,
                 unit: modalDurationUnit.value,
             },
+            startedAt: null,
+            elapsed: 0,
+            timerRunning: false,
         };
 
         if (editingIndex !== null) {
-            tasks[editingIndex] = newTask;
+            tasks[editingIndex] = { ...tasks[editingIndex], ...newTask };
         } else {
             tasks.push(newTask);
         }

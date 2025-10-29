@@ -48,14 +48,15 @@ if (!document.getElementById("annotationToolbar")) {
             <label for="opacity">🌓</label>
             <input type="number" title="Adjust opacity" id="opacity" min="0.00" max="1.00" step="0.05" value="1" />
         </div>
-        <button id="color_detector" title="Pick color from canvas">🔥</button>
+        <button id="miniTextTool" title="Mini text tool">𝐓</button>
         <button id="filledCircle" title="Filled circle">⚫</button>
-        <button id="eraser" title="Erase" class="active">E</button>
+        <button id="eraser" title="Erase" class="active">𝐄</button>
         <div class="save-menu">
             <button class="save-menu-btn" title="More options">☰</button>
             <div class="menu-content">
                 <button id="borderedRectangle" title="Bordered Rectangle">▭</button>
                 <button id="borderedCircle" title="Bordered Circle">◯</button>
+                <button id="color_detector" title="Pick color from canvas">🔥</button>
                 <button id="save" title="Take Snapshot">📸</button>
                 <button id="saveLayer" title="Save layers">💾</button>
                 <button id="restoreLayer" title="Restore layers">📂</button>
@@ -270,6 +271,7 @@ function injectCanvas() {
         filledRectangle: document.getElementById("filledRectangle"),
         borderedRectangle: document.getElementById("borderedRectangle"),
         typeText: document.getElementById("typeText"),
+        miniTextTool: document.getElementById("miniTextTool"),
         pasteImage: document.getElementById("insertImage"),
         eraser: document.getElementById("eraser"),
         eyeDropperTool: document.getElementById("color_detector"),
@@ -321,6 +323,7 @@ function injectCanvas() {
     // Set active tool
     function setActiveTool(tool) {
         if (tool !== "typeText") isTyping = false;
+        if (tool !== "miniTextTool") isTyping = false;
         if (tool !== "pasteImage") isPasting = false;
 
         currentTool = tool;
@@ -338,7 +341,7 @@ function injectCanvas() {
     //TODO:--------------- Start drawing -----------------------
     function startPainting(e) {
         e.preventDefault();
-        if (currentTool === "typeText") {
+        if (currentTool === "typeText" || currentTool === "miniTextTool") {
             isTyping = true;
             return;
         }
@@ -488,6 +491,8 @@ function injectCanvas() {
             }
         } else if (currentTool === "pasteImage") {
             handlePasteImage(e);
+        } else if (currentTool === "miniTextTool") {
+            addMiniTextModal(e);
         } else {
             showModal(e);
         }
@@ -543,6 +548,10 @@ function injectCanvas() {
     tools.typeText.addEventListener("click", () => {
         isTyping = true;
         setActiveTool("typeText");
+    });
+    tools.miniTextTool.addEventListener("click", () => {
+        isTyping = true;
+        setActiveTool("miniTextTool");
     });
     tools.pasteImage.addEventListener("click", () => {
         isPasting = true;
@@ -855,6 +864,85 @@ function injectCanvas() {
         function enableScroll() {
             document.body.style.overflow = "";
             document.body.style.paddingRight = ""; // Reset padding
+        }
+    }
+
+    function addMiniTextModal(e) {
+        if (!isTyping) return;
+
+        const existingModal = document.getElementById("miniTextModal");
+        if (existingModal) existingModal.remove();
+        const textarea = document.createElement("textarea");
+        textarea.id = "miniTextModal";
+        textarea.classList.add("mini-textarea");
+
+        // Dynamic size and position
+        textarea.style.left = `${e.offsetX}px`;
+        textarea.style.top = `${e.offsetY}px`;
+        textarea.style.fontSize = `${highlighterSize}px`;
+        textarea.style.height = `${highlighterSize + 2}px`;
+
+        document.body.appendChild(textarea);
+        textarea.focus();
+
+        // --- Hidden span to measure width ---
+        const measure = document.createElement("span");
+        measure.style.position = "absolute";
+        measure.style.visibility = "hidden";
+        measure.style.whiteSpace = "pre";
+        measure.style.font = `${highlighterSize}px Arial`;
+        document.body.appendChild(measure);
+
+        // --- Adjust width dynamically ---
+        function adjustWidth() {
+            // Find longest line among all lines
+            const lines = textarea.value.split("\n");
+            let longest = "";
+            for (const line of lines) if (line.length > longest.length) longest = line;
+
+            measure.textContent = longest || " ";
+            const newWidth = measure.offsetWidth + 20; // padding
+            textarea.style.width = `${newWidth}px`;
+        }
+
+        textarea.addEventListener("input", adjustWidth);
+        adjustWidth(); // initialize
+
+        // --- Add text to canvas ---
+        function addText() {
+            const text = textarea.value.trim();
+            if (text) {
+                ctx.font = `${highlighterSize}px Arial`;
+                ctx.fillStyle = color1;
+
+                const lines = text.split("\n");
+                const lineHeight = highlighterSize + 2;
+
+                lines.forEach((line, index) => {
+                    ctx.fillText(line, e.offsetX, e.offsetY + highlighterSize + lineHeight * index);
+                });
+
+                navigator.clipboard.writeText(text);
+            }
+            reset();
+        }
+
+        textarea.onkeydown = (event) => {
+            if (event.key === "Enter" && event.shiftKey) {
+                event.preventDefault();
+                addText();
+            }
+            if (event.key === "Enter" && !event.shiftKey) {
+                setTimeout(() => {
+                    textarea.style.height = "auto";
+                    textarea.style.height = textarea.scrollHeight + "px";
+                }, 0);
+            }
+            if (event.key === "Escape") reset();
+        };
+        function reset() {
+            textarea.remove();
+            measure.remove();
         }
     }
 

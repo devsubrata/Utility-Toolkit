@@ -325,6 +325,30 @@
     padding: 5px 8px;
 }
 
+/*rulesets for minitextTool*/
+.mini-textarea {
+    position: absolute;
+    font-family: "Open sans", sans-serif;
+    padding: 3px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.9);
+    z-index: 20000;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.2s ease;
+    outline: none;
+    width: 150px;
+    white-space: nowrap;
+    overflow: hidden;
+    line-height: 1.2;
+    color: darkblue;
+    font-weight: 500;
+}
+
+.mini-textarea:focus {
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    border-color: #007bff;
+}
 /**-------------bullet menu setup ------------*/
 .custom-select {
     position: relative;

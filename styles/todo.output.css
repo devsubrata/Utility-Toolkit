@@ -12,6 +12,7 @@
     --color-amber-50: oklch(98.7% 0.022 95.277);
     --color-yellow-600: oklch(68.1% 0.162 75.834);
     --color-green-500: oklch(72.3% 0.219 149.579);
+    --color-green-600: oklch(62.7% 0.194 149.214);
     --color-green-800: oklch(44.8% 0.119 151.328);
     --color-blue-50: oklch(97% 0.014 254.604);
     --color-blue-100: oklch(93.2% 0.032 255.585);
@@ -22,7 +23,6 @@
     --color-blue-700: oklch(48.8% 0.243 264.376);
     --color-blue-800: oklch(42.4% 0.199 265.638);
     --color-blue-900: oklch(37.9% 0.146 265.522);
-    --color-indigo-300: oklch(78.5% 0.115 274.713);
     --color-indigo-400: oklch(67.3% 0.182 276.935);
     --color-indigo-500: oklch(58.5% 0.233 277.117);
     --color-indigo-600: oklch(51.1% 0.262 276.966);
@@ -30,15 +30,9 @@
     --color-indigo-800: oklch(39.8% 0.195 277.366);
     --color-indigo-900: oklch(35.9% 0.144 278.697);
     --color-violet-400: oklch(70.2% 0.183 293.541);
-    --color-violet-500: oklch(60.6% 0.25 292.717);
     --color-violet-800: oklch(43.2% 0.232 292.759);
     --color-violet-900: oklch(38% 0.189 293.745);
     --color-pink-800: oklch(45.9% 0.187 3.815);
-    --color-slate-50: oklch(98.4% 0.003 247.858);
-    --color-slate-100: oklch(96.8% 0.007 247.896);
-    --color-slate-200: oklch(92.9% 0.013 255.508);
-    --color-slate-400: oklch(70.4% 0.04 256.788);
-    --color-slate-500: oklch(55.4% 0.046 257.417);
     --color-gray-50: oklch(98.5% 0.002 247.839);
     --color-gray-100: oklch(96.7% 0.003 264.542);
     --color-gray-200: oklch(92.8% 0.006 264.531);
@@ -266,9 +260,6 @@
   .right-2 {
     right: calc(var(--spacing) * 2);
   }
-  .right-10 {
-    right: calc(var(--spacing) * 10);
-  }
   .bottom-1 {
     bottom: calc(var(--spacing) * 1);
   }
@@ -407,9 +398,6 @@
   .list-item {
     display: list-item;
   }
-  .table {
-    display: table;
-  }
   .h-10 {
     height: calc(var(--spacing) * 10);
   }
@@ -446,29 +434,17 @@
   .h-screen {
     height: 100vh;
   }
-  .max-h-\[500px\] {
-    max-height: 500px;
-  }
   .max-h-\[800px\] {
     max-height: 800px;
   }
   .min-h-screen {
     min-height: 100vh;
   }
-  .w-1 {
-    width: calc(var(--spacing) * 1);
-  }
   .w-1\/2 {
     width: calc(1/2 * 100%);
   }
-  .w-2 {
-    width: calc(var(--spacing) * 2);
-  }
   .w-2\/3 {
     width: calc(2/3 * 100%);
-  }
-  .w-3 {
-    width: calc(var(--spacing) * 3);
   }
   .w-3\/5 {
     width: calc(3/5 * 100%);
@@ -491,23 +467,14 @@
   .w-48 {
     width: calc(var(--spacing) * 48);
   }
-  .w-80 {
-    width: calc(var(--spacing) * 80);
-  }
-  .w-96 {
-    width: calc(var(--spacing) * 96);
+  .w-120 {
+    width: calc(var(--spacing) * 120);
   }
   .w-\[75px\] {
     width: 75px;
   }
   .w-\[450px\] {
     width: 450px;
-  }
-  .w-\[500px\] {
-    width: 500px;
-  }
-  .w-\[550px\] {
-    width: 550px;
   }
   .w-\[725px\] {
     width: 725px;
@@ -542,17 +509,11 @@
   .flex-1 {
     flex: 1;
   }
-  .border-collapse {
-    border-collapse: collapse;
-  }
   .transform {
     transform: var(--tw-rotate-x,) var(--tw-rotate-y,) var(--tw-rotate-z,) var(--tw-skew-x,) var(--tw-skew-y,);
   }
   .animate-spin {
     animation: var(--animate-spin);
-  }
-  .cursor-move {
-    cursor: move;
   }
   .cursor-pointer {
     cursor: pointer;
@@ -771,15 +732,6 @@
   .\!p-6 {
     padding: calc(var(--spacing) * 6) !important;
   }
-  .p-3 {
-    padding: calc(var(--spacing) * 3);
-  }
-  .p-4 {
-    padding: calc(var(--spacing) * 4);
-  }
-  .p-6 {
-    padding: calc(var(--spacing) * 6);
-  }
   .\!px-1\.5 {
     padding-inline: calc(var(--spacing) * 1.5) !important;
   }
@@ -798,12 +750,6 @@
   .px-2 {
     padding-inline: calc(var(--spacing) * 2);
   }
-  .px-3 {
-    padding-inline: calc(var(--spacing) * 3);
-  }
-  .px-4 {
-    padding-inline: calc(var(--spacing) * 4);
-  }
   .\!py-0\.5 {
     padding-block: calc(var(--spacing) * 0.5) !important;
   }
@@ -818,12 +764,6 @@
   }
   .\!py-10 {
     padding-block: calc(var(--spacing) * 10) !important;
-  }
-  .py-1 {
-    padding-block: calc(var(--spacing) * 1);
-  }
-  .py-2 {
-    padding-block: calc(var(--spacing) * 2);
   }
   .py-10 {
     padding-block: calc(var(--spacing) * 10);
@@ -975,9 +915,6 @@
   }
   .line-through {
     text-decoration-line: line-through;
-  }
-  .underline {
-    text-decoration-line: underline;
   }
   .shadow {
     --tw-shadow: 0 1px 3px 0 var(--tw-shadow-color, rgb(0 0 0 / 0.1)), 0 1px 2px -1px var(--tw-shadow-color, rgb(0 0 0 / 0.1));
