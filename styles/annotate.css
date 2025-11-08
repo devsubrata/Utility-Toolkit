@@ -329,7 +329,7 @@
 .mini-textarea {
     position: absolute;
     font-family: "Open sans", sans-serif;
-    padding: 3px;
+    padding: 4px;
     border: 1px solid #ccc;
     border-radius: 6px;
     background: rgba(255, 255, 255, 0.9);
@@ -338,6 +338,7 @@
     transition: box-shadow 0.2s ease;
     outline: none;
     width: 150px;
+    box-sizing: content-box;
     white-space: nowrap;
     overflow: hidden;
     line-height: 1.2;

@@ -1195,9 +1195,9 @@ if (!document.getElementById("openYoutubePlayer")) {
                         <button class="cursor-pointer copy-btn bg-gray-100 hover:bg-gray-200 !px-2 !py-1 rounded text-xs" data-title="${i + 1}. ${
                     v.title
                 }" data-id="${v.videoId}">LoadOnPlayer</button>
-                        <button class="copy-link bg-gray-100 hover:bg-gray-200 !px-2 !py-1 rounded text-xs cursor-pointer" data-link="https://www.youtube.com/watch?v=${
+                        <button class="copy-link bg-gray-100 hover:bg-gray-200 !px-2 !py-1 rounded text-xs cursor-pointer" data-link="${
                             v.videoId
-                        }">Copy Link</button>
+                        }">Copy ID</button>
                         <button class="load-btn bg-gray-100 hover:bg-gray-200 !px-2 !py-1 rounded text-xs cursor-pointer" data-link="https://www.youtube.com/watch?v=${
                             v.videoId
                         }">PlayOnYt</button>

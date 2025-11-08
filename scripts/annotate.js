@@ -606,7 +606,9 @@ function injectCanvas() {
     }
     document.getElementById("opacity").addEventListener("input", color_opacity_control);
     document.querySelector(".opacity_control label").onclick = () => {
-        document.getElementById("opacity").value = 1;
+        let opacityInput = document.getElementById("opacity");
+        let opacityValue = parseFloat(opacityInput.value);
+        opacityInput.value = opacityValue === 1 ? 0.2 : 1;
         color_opacity_control();
     };
 
@@ -880,7 +882,7 @@ function injectCanvas() {
         textarea.style.left = `${e.offsetX}px`;
         textarea.style.top = `${e.offsetY}px`;
         textarea.style.fontSize = `${highlighterSize}px`;
-        textarea.style.height = `${highlighterSize + 2}px`;
+        textarea.style.height = `${highlighterSize + 5}px`;
 
         document.body.appendChild(textarea);
         textarea.focus();
@@ -913,7 +915,8 @@ function injectCanvas() {
             const text = textarea.value.trim();
             if (text) {
                 ctx.font = `${highlighterSize}px Arial`;
-                ctx.fillStyle = color1;
+                const { r, g, b } = extractRGB(color1);
+                ctx.fillStyle = `rgb(${r},${g},${b})`;
 
                 const lines = text.split("\n");
                 const lineHeight = highlighterSize + 2;
@@ -933,10 +936,13 @@ function injectCanvas() {
                 addText();
             }
             if (event.key === "Enter" && !event.shiftKey) {
-                setTimeout(() => {
-                    textarea.style.height = "auto";
-                    textarea.style.height = textarea.scrollHeight + "px";
-                }, 0);
+                // setTimeout(() => {
+                //     textarea.style.height = "auto";
+                //     textarea.style.height = textarea.scrollHeight + "px";
+                // }, 0);
+
+                textarea.style.height = "auto";
+                textarea.style.height = textarea.scrollHeight + "px";
             }
             if (event.key === "Escape") reset();
         };
@@ -973,15 +979,107 @@ function injectCanvas() {
 
         const items = e.clipboardData.items;
         const scale = getImageScale();
+
         for (const item of items) {
             if (item.type.indexOf("image") !== -1) {
                 const blob = item.getAsFile();
                 const img = new Image();
+
                 img.onload = function () {
-                    ctx.drawImage(img, clickPosition.x, clickPosition.y, img.width * scale, img.height * scale);
+                    // Take a snapshot of the canvas so previous drawings remain intact
+                    const canvasSnapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    // Initialize draggable mode only when pasting is active
+                    if (isPasting) {
+                        makeImageDraggable(img, scale, { x: clickPosition.x, y: clickPosition.y }, canvasSnapshot);
+                    }
+
+                    // --- Helper for draggable pasted image ---
+                    function makeImageDraggable(image, scaleFactor, startPos, snapshot) {
+                        let tempX = startPos.x;
+                        let tempY = startPos.y;
+                        let isDragging = false;
+                        let offsetX = 0;
+                        let offsetY = 0;
+                        // Draw preview on top of existing canvas
+                        function drawTemp() {
+                            ctx.putImageData(snapshot, 0, 0);
+                            ctx.drawImage(image, tempX, tempY, image.width * scaleFactor, image.height * scaleFactor);
+                            ctx.save();
+                            ctx.strokeStyle = "rgba(0,0,0,0.35)";
+                            ctx.lineWidth = 1;
+                            ctx.strokeRect(tempX, tempY, image.width * scaleFactor, image.height * scaleFactor);
+                            ctx.restore();
+                        }
+                        drawTemp();
+
+                        function isInsideImage(x, y) {
+                            return x >= tempX && x <= tempX + image.width * scaleFactor && y >= tempY && y <= tempY + image.height * scaleFactor;
+                        }
+
+                        // Mouse down → start drag
+                        function onMouseDown(ev) {
+                            const rect = canvas.getBoundingClientRect();
+                            const x = ev.clientX - rect.left;
+                            const y = ev.clientY - rect.top;
+                            if (isInsideImage(x, y)) {
+                                isDragging = true;
+                                offsetX = x - tempX;
+                                offsetY = y - tempY;
+                                canvas.style.cursor = "grabbing";
+                            }
+                        }
+                        // Mouse move → update drag or cursor
+                        function onMouseMove(ev) {
+                            const rect = canvas.getBoundingClientRect();
+                            const x = ev.clientX - rect.left;
+                            const y = ev.clientY - rect.top;
+                            // Change cursor only when hovering over image
+                            if (!isDragging) {
+                                canvas.style.cursor = isInsideImage(x, y) ? "grab" : "default";
+                            } else {
+                                // Update position while dragging
+                                tempX = x - offsetX;
+                                tempY = y - offsetY;
+                                drawTemp();
+                            }
+                        }
+                        // Mouse up → stop drag
+                        function onMouseUp() {
+                            if (isDragging) {
+                                isDragging = false;
+                                canvas.style.cursor = "grab";
+                            }
+                        }
+                        // Keyboard: Enter = fix, Esc = cancel
+                        function onKeyDown(ev) {
+                            if (ev.key === "Enter") {
+                                // Fix image permanently
+                                ctx.putImageData(snapshot, 0, 0);
+                                ctx.drawImage(image, tempX, tempY, image.width * scaleFactor, image.height * scaleFactor);
+                                cleanup();
+                            } else if (ev.key === "Escape") {
+                                // Cancel placement
+                                ctx.putImageData(snapshot, 0, 0);
+                                cleanup();
+                            }
+                        }
+                        // Cleanup
+                        function cleanup() {
+                            canvas.removeEventListener("mousedown", onMouseDown);
+                            canvas.removeEventListener("mousemove", onMouseMove);
+                            canvas.removeEventListener("mouseup", onMouseUp);
+                            window.removeEventListener("keydown", onKeyDown);
+                            canvas.style.cursor = "default";
+                        }
+                        // Attach listeners
+                        canvas.addEventListener("mousedown", onMouseDown);
+                        canvas.addEventListener("mousemove", onMouseMove);
+                        canvas.addEventListener("mouseup", onMouseUp);
+                        window.addEventListener("keydown", onKeyDown);
+                    }
                 };
                 img.src = URL.createObjectURL(blob);
-                break; // Only handle the first image
+                break; // Handle only first image item
             }
         }
     });
@@ -1000,6 +1098,16 @@ function injectCanvas() {
 
     //* setting presets
     function tooglePreset(presetNumber) {
+        function colorSettings(r, g, b, opacity, picker) {
+            if (picker === 1) {
+                color1 = `rgba(${r},${g},${b},${opacity})`;
+                document.querySelector(".color-picker-button").style.backgroundColor = `rgba(${r},${g},${b},1)`;
+                color_opacity_control();
+            } else {
+                color2 = `rgba(${r},${g},${b},${opacity})`;
+                document.querySelectorAll(".color-picker-button")[1].style.backgroundColor = `rgba(${r},${g},${b},1)`;
+            }
+        }
         const preset1 = () => {
             opacity = 1;
             color1 = `rgba(255,255,255,${opacity})`;
@@ -1015,26 +1123,23 @@ function injectCanvas() {
             document.getElementById("opacity").value = opacity;
             document.getElementById("brushSize").value = brushSize;
 
-            function colorSettings(r, g, b) {
-                color1 = `rgba(${r},${g},${b},${opacity})`;
-                document.querySelector(".color-picker-button").style.backgroundColor = `rgba(${r},${g},${b},1)`;
-                color_opacity_control();
-            }
-
             if (lineTool) {
                 lineToolsHandler();
-                colorSettings(0, 0, 255);
+                colorSettings(0, 0, 255, opacity, 1);
             } else {
                 setActiveTool("rectangle");
-                colorSettings(18, 193, 235);
+                colorSettings(18, 193, 235, opacity, 1);
             }
         };
         const preset3 = (setOpacity, isborderedRectangle = true) => {
             opacity = setOpacity;
             document.getElementById("opacity").value = opacity;
             color_opacity_control();
-            if (isborderedRectangle) setActiveTool("borderedRectangle");
-            else {
+            if (isborderedRectangle) {
+                setActiveTool("borderedRectangle");
+                colorSettings(18, 193, 235, opacity, 1);
+                colorSettings(18, 193, 235, opacity, 2);
+            } else {
                 setActiveTool("eraser");
             }
         };
@@ -1043,7 +1148,7 @@ function injectCanvas() {
         if (presetNumber === 1) preset2(0.5, 3);
         if (presetNumber === 2) preset2(1, 2, false);
         if (presetNumber === 3) preset3(0.06, false);
-        if (presetNumber === 2) preset3(0.1);
+        if (presetNumber === 4) preset3(0.2);
     }
     let presetNumber = 1;
     document.getElementById("togglePreset").addEventListener("click", () => {
