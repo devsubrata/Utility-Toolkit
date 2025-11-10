@@ -296,21 +296,21 @@
             "song_name": "Beat It",
             "artists": "Michael Jackson",
             "video_id": "oRdxUFDoQe0, 8fO8jVZ3T9g, DSQ63A9nQq8",
-            "lyrics": "#",
+            "lyrics": "https://genius.com/Michael-jackson-beat-it-lyrics",
             "tags": ["LearnEnglish", "Michael Jackson"]
         },
         {
             "song_name": "Buffalo Soldier",
             "artists": "Bob Marley",
             "video_id": "dG2uPYOIVDM, uMUQMSXLlHM, fLPEHL3OI_A, _7mLAeH4pLw",
-            "lyrics": "#",
+            "lyrics": "https://genius.com/Bob-marley-and-the-wailers-buffalo-soldier-lyrics",
             "tags": ["LearnEnglish", "Bob Marley"]
         },
         {
             "song_name": "Redemption Song",
             "artists": "Bob Marley",
             "video_id": "yv5xonFSC4c, 9ZpxaeICYyg, _7mLAeH4pLw",
-            "lyrics": "#",
+            "lyrics": "https://genius.com/Bob-marley-and-the-wailers-redemption-song-lyrics",
             "tags": ["LearnEnglish", "Bob Marley"]
         },
         {
@@ -324,49 +324,49 @@
             "song_name": "Paradise",
             "artists": "Coldplay",
             "video_id": "1G4isv_Fylg, V50Pfad6oi0, fwrD70WeSzs",
-            "lyrics": "#",
+            "lyrics": "https://genius.com/Coldplay-paradise-lyrics",
             "tags": ["LearnEnglish"]
         },
         {
             "song_name": "New Rules",
             "artists": "Dua Lipa",
             "video_id": "k2qgadSvNyU, fwrD70WeSzs",
-            "lyrics": "#",
+            "lyrics": "https://genius.com/Dua-lipa-new-rules-lyrics",
             "tags": ["LearnEnglish"]
         },
         {
             "song_name": "A Hard Rain is Gonna Fall",
             "artists": "Bob Dylan",
             "video_id": "T5al0HmR4to, iUD5snx-XOo, fwrD70WeSzs",
-            "lyrics": "#",
+            "lyrics": "https://genius.com/Bob-dylan-a-hard-rains-a-gonna-fall-lyrics",
             "tags": ["LearnEnglish"]
         },
         {
             "song_name": "Where Is The Love?",
             "artists": "Black Eyed Peas",
             "video_id": "WpYeekQkAdc, fwrD70WeSzs",
-            "lyrics": "#",
+            "lyrics": "https://genius.com/Black-eyed-peas-where-is-the-love-lyrics",
             "tags": ["LearnEnglish"]
         },
         {
             "song_name": "I Don't Trust Myself",
             "artists": "John Mayer",
             "video_id": "kXR-jtXMJJQ, fwrD70WeSzs",
-            "lyrics": "#",
+            "lyrics": "https://genius.com/John-mayer-i-dont-trust-myself-with-loving-you-lyrics",
             "tags": ["LearnEnglish"]
         },
         {
             "song_name": "Rain On Me",
             "artists": "Lady Gaga, Ariana Grande",
             "video_id": "AoAm4om0wTs, fwrD70WeSzs",
-            "lyrics": "#",
-            "tags": ["LearnEnglish"]
+            "lyrics": "https://genius.com/Lady-gaga-and-ariana-grande-rain-on-me-lyrics",
+            "tags": ["LearnEnglish", "Lady Gaga"]
         },
         {
             "song_name": "Don't Stop Me Now",
             "artists": "Queen Official",
             "video_id": "HgzGwKwLmgM, qaH7exO9GzQ, fwrD70WeSzs",
-            "lyrics": "#",
+            "lyrics": "https://genius.com/Queen-dont-stop-me-now-lyrics",
             "tags": ["LearnEnglish"]
         },
         {
@@ -429,37 +429,40 @@
             "song_name": "Die With A Smile",
             "artists": "Bruno Mars & Lady Gaga",
             "video_id": "kPa7bsKwL-c, zgaCZOQCpp8",
-            "lyrics": "#"
+            "lyrics": "https://genius.com/Lady-gaga-and-bruno-mars-die-with-a-smile-lyrics",
+            "tags": ["Bruno Mars", "Lady Gaga"]
         },
         {
             "song_name": "Just The Way You Are",
             "artists": "Bruno Mars",
             "video_id": "LjhCEhWiKXk, u7XjPmN-tHw",
-            "lyrics": "#"
+            "lyrics": "https://genius.com/Bruno-mars-just-the-way-you-are-lyrics",
+            "tags": ["Bruno Mars"]
         },
         {
             "song_name": "APT",
             "artists": "Bruno Mars & ROSÉ",
             "video_id": "ekr2nIex040",
-            "lyrics": "#"
+            "lyrics": "https://genius.com/Genius-romanizations-rose-and-bruno-mars-apt-romanized-lyrics",
+            "tags": ["Bruno Mars"]
         },
         {
             "song_name": "Roar",
             "artists": "Katy Perry",
             "video_id": "CevxZvSJLk8",
-            "lyrics": "#"
+            "lyrics": "https://genius.com/Katy-perry-roar-lyrics"
         },
         {
             "song_name": "Never Gonna Give You Up",
             "artists": "Rick Astley",
             "video_id": "dQw4w9WgXcQ",
-            "lyrics": "#"
+            "lyrics": "https://genius.com/Rick-astley-never-gonna-give-you-up-lyrics"
         },
         {
             "song_name": "Blank Space",
             "artists": "Taylor Swift",
             "video_id": "e-ORhEE9VVg, nAQ_1lTDvPQ",
-            "lyrics": "#",
+            "lyrics": "https://genius.com/Taylor-swift-blank-space-lyrics",
             "tags": ["Taylor Swift"]
         },
         {
@@ -473,52 +476,52 @@
             "song_name": "Love Story",
             "artists": "Taylor Swift",
             "video_id": "e-8xg3vE8Ie_E",
-            "lyrics": "#",
+            "lyrics": "https://genius.com/Taylor-swift-love-story-lyrics",
             "tags": ["Taylor Swift"]
         },
         {
             "song_name": "You Belong With Me",
             "artists": "Taylor Swift",
             "video_id": "VuNIsY6JdUw, Xgf9XDT846M",
-            "lyrics": "#",
+            "lyrics": "https://genius.com/Taylor-swift-you-belong-with-me-lyrics",
             "tags": ["Taylor Swift"]
         },
         {
             "song_name": "Shape of You",
             "artists": "Ed Sheeran",
             "video_id": "JGwWNGJdvx8, liTfD88dbCo",
-            "lyrics": "#"
+            "lyrics": "https://genius.com/Ed-sheeran-shape-of-you-lyrics"
         },
         {
             "song_name": "It's My Life",
             "artists": "Bon Jovi",
             "video_id": "vx2u5uUu3DE",
-            "lyrics": "#"
+            "lyrics": "https://genius.com/Bon-jovi-its-my-life-lyrics"
         },
         {
             "song_name": "Faded",
             "artists": "Alan Walker",
             "video_id": "60ItHLz5WEA, qdpXxGPqW-Y",
-            "lyrics": "#"
+            "lyrics": "https://genius.com/Alan-walker-faded-lyrics"
         },
         {
             "song_name": "Hotel California",
             "artists": "Eagles",
             "video_id": "09839DpTctU",
-            "lyrics": "#"
+            "lyrics": "https://genius.com/Eagles-hotel-california-lyrics"
         },
         {
             "song_name": "(Everything I Do) I Do It For You",
             "artists": "Bryan Adams",
             "video_id": "Y0pdQU87dc8",
-            "lyrics": "#",
+            "lyrics": "https://genius.com/Bryan-adams-everything-i-do-i-do-it-for-you-lyrics",
             "tags": ["Bryan Adams"]
         },
         {
             "song_name": "Summer Of '69",
             "artists": "Bryan Adams",
             "video_id": "eFjjO_lhf9c",
-            "lyrics": "#",
+            "lyrics": "https://genius.com/Bryan-adams-summer-of-69-lyrics",
             "tags": ["Bryan Adams"]
         },
         {
@@ -532,53 +535,53 @@
             "song_name": "I'm Alive",
             "artists": "Céline Dion",
             "video_id": "NJsa6-y4sDs, DnaS8IDF_8g",
-            "lyrics": "#",
+            "lyrics": "https://genius.com/Celine-dion-im-alive-lyrics",
             "tags": ["Céline Dion"]
         },
         {
             "song_name": "We Belong To The Sea",
             "artists": "Aqua",
             "video_id": "XIVCb459bkQ",
-            "lyrics": "#"
+            "lyrics": "https://genius.com/Aqua-we-belong-to-the-sea-lyrics"
         },
         {
             "song_name": "Cheri Cheri Lady",
             "artists": "Modern Talking",
             "video_id": "eNvUS-6PTbs, lrIKt5uDWZo",
-            "lyrics": "#",
+            "lyrics": "https://genius.com/Modern-talking-cheri-cheri-lady-lyrics",
             "tags": ["Modern Talking"]
         },
         {
             "song_name": "Brother Louie",
             "artists": "Modern Talking",
             "video_id": "Lp2qcCrdBLA, KWluXeUUUNA",
-            "lyrics": "#",
+            "lyrics": "https://genius.com/Modern-talking-brother-louie-lyrics",
             "tags": ["Modern Talking"]
         },
         {
             "song_name": "You're My Heart, You're My Soul",
             "artists": "Modern Talking",
             "video_id": "4kHl4FoK1Ys, pV84QBzCrF0",
-            "lyrics": "#",
+            "lyrics": "https://genius.com/Modern-talking-youre-my-heart-youre-my-soul-lyrics",
             "tags": ["Modern Talking"]
         },
         {
             "song_name": "Careless Whisper",
             "artists": "George Michael",
             "video_id": "izGwDsrQ1eQ, JqIHlDVqUTw",
-            "lyrics": "#"
+            "lyrics": "https://genius.com/George-michael-careless-whisper-lyrics"
         },
         {
             "song_name": "La Isla Bonita",
             "artists": "Madonna",
             "video_id": "zpzdgmqIHOQ, KyM7sw4lVSk, XynJ_mvrl3Q",
-            "lyrics": "#"
+            "lyrics": "https://genius.com/Madonna-la-isla-bonita-lyrics"
         },
         {
             "song_name": "Escape",
             "artists": "Enrique Iglesias",
             "video_id": "9mQJaXwGPlg, X5lRRZtjpFU",
-            "lyrics": "#"
+            "lyrics": "https://genius.com/Enrique-iglesias-escape-lyrics"
         },
         {
             "song_name": "Someone Like You",
@@ -591,7 +594,14 @@
             "song_name": "I'm Still Standing",
             "artists": "Elton John",
             "video_id": "ZHwVBirqD2s, MJ_aPtt4U8M",
-            "lyrics": "#",
+            "lyrics": "https://genius.com/Elton-john-im-still-standing-lyrics",
+            "tags": ["Elton John"]
+        },
+        {
+            "song_name": "Sacrifice",
+            "artists": "Elton John",
+            "video_id": "NrLkTZrPZA4, 2LmsEdusex0",
+            "lyrics": "https://genius.com/Elton-john-sacrifice-lyrics",
             "tags": ["Elton John"]
         },
         {

@@ -11,4 +11,5 @@
   <li><strong>▶ YTPlayer:</strong> Re-invent Youtube by this amazing Youtube player! (before that you have to collect your yt apikey from Google)</li>
   <li><strong>🖼️ ScriptScroller:</strong> View images from your system interactively</li>
   <li><strong>📝 ToDoList:</strong> Add your must-do tasks</li>
+  <li><strong>📌 Sticky Notes:</strong> It can be your digital diary! Jot down and keep track of your daily notes</li>
 </ul>

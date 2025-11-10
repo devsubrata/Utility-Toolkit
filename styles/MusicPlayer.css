@@ -75,6 +75,14 @@
     display: none;
 }
 
+.floating-window.minimized .title-bar {
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+}
+.floating-window .title-bar {
+    transition: border-radius 0.3s;
+}
+
 /*TODO:-----------------player controls----------------*/
 .player-controls {
     display: flex;

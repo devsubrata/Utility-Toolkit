@@ -287,7 +287,7 @@ function injectCanvas() {
     let highlighterSize = 20;
     let opacity = 1.0;
     let color1 = `rgba(255,255,255,${opacity})`;
-    let color2 = `rgba(255, 165, 0, 0.4)`;
+    let color2 = `rgba(255, 165, 0, 0.3)`;
     let textColor = `#000000`;
     let currentTool = "eraser";
     let startX, startY;
@@ -1157,16 +1157,6 @@ function injectCanvas() {
     });
 }
 //TODO:------------save & restore canvas drawing-------------------------------
-// function saveAllLayers() {
-//     const canvas = document.getElementById("drawingCanvas");
-//     const dataURL = canvas.toDataURL("image/png"); // includes transparency
-
-//     const a = document.createElement("a");
-//     a.href = dataURL;
-//     a.download = "canvas.png";
-//     a.click();
-// }
-
 async function saveAllLayers() {
     const canvas = document.getElementById("drawingCanvas");
     const blob = await new Promise((res) => canvas.toBlob(res, "image/png"));

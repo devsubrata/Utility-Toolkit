@@ -1,33 +1,3 @@
-// function makeDraggableR(el) {
-//     let isDragging = false;
-//     let offsetX, offsetY;
-
-//     let titleBar = el.querySelector(".title") || el;
-//     titleBar.style.cursor = "grab";
-
-//     titleBar.addEventListener("mousedown", (e) => {
-//         if (e.target !== titleBar) return;
-
-//         isDragging = true;
-//         offsetX = e.clientX - el.offsetLeft;
-//         offsetY = e.clientY - el.offsetTop;
-//         document.body.style.userSelect = "none";
-//         titleBar.style.cursor = "grabbing";
-//     });
-
-//     document.addEventListener("mousemove", (e) => {
-//         if (!isDragging) return;
-//         el.style.left = `${e.clientX - offsetX}px`;
-//         el.style.top = `${e.clientY - offsetY}px`;
-//     });
-
-//     document.addEventListener("mouseup", () => {
-//         isDragging = false;
-//         document.body.style.userSelect = "";
-//         titleBar.style.cursor = "grab";
-//     });
-// }
-
 function makeDraggable(el, calcNew = true) {
     let isDragging = false;
     let offsetX, offsetY;
@@ -254,6 +224,22 @@ function formatDate(dateString) {
     return `📅${day}-${month}-${year}`;
 }
 
+function formatDateTime(isoString) {
+    const d = new Date(isoString);
+    const day = String(d.getDate()).padStart(2, "0");
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const year = d.getFullYear();
+
+    let hours = d.getHours();
+    const minutes = String(d.getMinutes()).padStart(2, "0");
+    const seconds = String(d.getSeconds()).padStart(2, "0");
+    const ampm = hours >= 12 ? "PM" : "AM";
+    hours = hours % 12 || 12; // convert to 12-hour format
+    hours = String(hours).padStart(2, "0");
+
+    return `${day}-${month}-${year}, ${hours}:${minutes}:${seconds} ${ampm}`;
+}
+
 function parseNumber(v) {
     return parseInt(v, 10) || 0;
 }
@@ -264,4 +250,87 @@ function formatViews(v) {
     if (n >= 1e6) return (n / 1e6).toFixed(1) + "M";
     if (n >= 1e3) return (n / 1e3).toFixed(1) + "K";
     return v;
+}
+
+function loadSymbols() {
+    return [
+        "✔️",
+        "✅",
+        "☑️",
+        "➡️",
+        "⬅️",
+        "⬆️",
+        "⬇️",
+        "🟩",
+        "🟥",
+        "🟦",
+        "✿",
+        "❀",
+        "✷",
+        "𖤐",
+        "𖤓",
+        "✩",
+        "✦",
+        "—",
+        "➜",
+        "➔",
+        "➨",
+        "➜",
+        "▶",
+        "⇒",
+        "⟹",
+        "★",
+        "🔹",
+        "🔶",
+        "⭐",
+        "❌",
+        "🪰",
+        "🪳",
+        "🕷️",
+        "🦋",
+        "🦉",
+        "🐧",
+        "🏵️",
+        "🪲",
+        "1️⃣",
+        "2️⃣",
+        "3️⃣",
+        "4️⃣",
+        "5️⃣",
+        "6️⃣",
+        "7️⃣",
+        "8️⃣",
+        "9️⃣",
+        "🔟",
+        "❤️",
+        "🧡",
+        "💛",
+        "💚",
+        "💙",
+        "💜",
+    ];
+}
+
+function loadStickyNoteShortcuts() {
+    return [
+        { "h-line": "——————————————————————————" },
+        { "tab⟹": "\t⟹ " },
+        { "tab➜": "\t➜ " },
+        { "tab★": "\t★ " },
+        {
+            "v-line": `|\n|\n|\n|\n|`,
+        },
+        {
+            "double-v-line": `||\n||\n||\n||\n||`,
+        },
+        { stars1: "★★★★★★★★★★★★★★★★★" },
+        { stars2: "✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦✦" },
+        { "@@@@@": "@@@@@@@@@@@@@@@@@@@@@@@@@@@" },
+        { hash: "###########################" },
+        { dashes: "-------------------------------------" },
+        { equals: "=====================================" },
+        { dots: "......................................." },
+        { "arrow-line": "➜➜➜➜➜➜➜➜➜➜➜➜➜➜➜➜➜➜➜➜➜" },
+        { "boxed-line": "+---------------------------------+" },
+    ];
 }

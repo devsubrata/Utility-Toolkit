@@ -1,32 +1,3 @@
-// if (!document.getElementById("openPlayer")) {
-//     const link = document.createElement("link");
-//     link.rel = "stylesheet";
-//     link.href = chrome.runtime.getURL("styles/MusicPlayer.css");
-//     document.head.appendChild(link);
-
-//     const player = document.createElement("div");
-//     player.id = "openPlayer";
-//     player.classList.add("floating-window");
-//     player.innerHTML = `
-//         <div class="title-bar">
-//             <span class="title">▶ MusicPlayer</span>
-//             <span class="minimize-btn ctrl" title="minimize">—</span>
-//             <span class="close-btn ctrl" title="Close">❌</span>
-//         </div>
-//         <div class="content drop-area">
-//             <input type="file" id="fileInput" accept="audio/mpeg" multiple style="display: none" />
-//             <input type="file" id="imageFileInput" accept="image/*" style="display: none" />
-//             <div class="load-div">
-//                 <button id="loadBtn">Load Musics</button>
-//                 <button id="loadScript">Load Lyric</button>
-//             </div>
-//             <audio id="audioPlayer" controls style="width: 100%"></audio>
-//             <ul id="playlist" class="list-group"></ul>
-//         </div>
-//     `;
-//     document.body.appendChild(player);
-// makeDraggable(player);
-
 if (!document.getElementById("openPlayer")) {
     const link = document.createElement("link");
     link.rel = "stylesheet";

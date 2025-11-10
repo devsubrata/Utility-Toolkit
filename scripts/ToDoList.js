@@ -12,7 +12,7 @@ if (!document.getElementById("ToDoList")) {
 
     toDoList.innerHTML = `
         <!-- Header -->
-        <div class="title-bar bg-gray-800 text-white !px-4 !py-2 flex justify-between items-center rounded-t-2xl">
+        <div class="title-bar bg-gray-800 text-white !px-4 !py-2 flex justify-between items-center rounded-t-xl">
             <span class="title font-semibold text-xl">📝 ToDoList</span>
             <div class="space-x-2 text-lg">
                 <span class="cursor-pointer minimize-btn">—</span>
@@ -21,7 +21,7 @@ if (!document.getElementById("ToDoList")) {
         </div>
 
         <!-- Content -->
-        <div class="content !p-4 bg-gray-50 flex flex-col gap-3 overflow-y-auto max-h-[800px] rounded-b-2xl">
+        <div class="content !p-4 bg-gray-50 flex flex-col gap-3 overflow-y-auto max-h-[800px] rounded-b-xl">
             <button id="addTaskBtn"
                 class="cursor-pointer w-full bg-indigo-500 hover:bg-indigo-600 text-white font-semibold !py-2 rounded-lg transition-all">
                 ➕ Add Task
@@ -300,7 +300,9 @@ if (!document.getElementById("ToDoList")) {
 
     minimizeBtn.onclick = () => {
         const content = toDoList.querySelector(".content");
+        const titleBar = toDoList.querySelector(".title-bar");
         content.classList.toggle("hidden");
+        titleBar.classList.toggle("rounded-b-xl");
     };
 
     closeBtn.onclick = () => {

@@ -62,3 +62,8 @@
 .floating-window.minimized .content {
     display: none;
 }
+
+.floating-window.minimized .title-bar {
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+}

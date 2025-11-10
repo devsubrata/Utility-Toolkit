@@ -191,6 +191,10 @@ iframe {
 #openYoutubePlayer.floating-window.minimized .content {
     display: none;
 }
+#openYoutubePlayer.floating-window.minimized .title-bar {
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
 
 #storedSongsList {
     position: fixed;
