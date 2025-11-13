@@ -240,6 +240,17 @@ function formatDateTime(isoString) {
     return `${day}-${month}-${year}, ${hours}:${minutes}:${seconds} ${ampm}`;
 }
 
+function getUniqueFileName() {
+    const now = new Date();
+    const dd = String(now.getDate()).padStart(2, "0");
+    const mm = String(now.getMonth() + 1).padStart(2, "0");
+    const yyyy = String(now.getFullYear());
+    const hh = String(now.getHours()).padStart(2, "0");
+    const min = String(now.getMinutes()).padStart(2, "0");
+    const ss = String(now.getSeconds()).padStart(2, "0");
+    return `${yyyy}${mm}${dd}-${hh}${min}${ss}`;
+}
+
 function parseNumber(v) {
     return parseInt(v, 10) || 0;
 }
@@ -312,7 +323,47 @@ function loadSymbols() {
 }
 
 function loadStickyNoteShortcuts() {
+    const colorPalletes = () => {
+        let colorString = "## ";
+        const colorNames = [
+            "black",
+            "dimgray",
+            "slategray",
+            "darkslategray",
+            "darkgray",
+            "navy",
+            "royalblue",
+            "steelblue",
+            "teal",
+            "darkcyan",
+            "maroon",
+            "firebrick",
+            "brown",
+            "saddlebrown",
+            "indianred",
+            "darkolivegreen",
+            "seagreen",
+            "forestgreen",
+            "darkgreen",
+            "indigo",
+            "rebeccapurple",
+            "darkmagenta",
+            "purple",
+        ];
+
+        // Build markdown with color spans separated by |
+        colorString += colorNames.map((name) => `<span style="color:${name}">${name}</span>`).join(" | ");
+
+        return colorString;
+    };
+
     return [
+        {
+            header: `——————————————————————————————\n      title\n——————————————————————————————`,
+        },
+        {
+            EqualsHeader: `======================\n      title\n======================`,
+        },
         { "h-line": "——————————————————————————" },
         { "tab⟹": "\t⟹ " },
         { "tab➜": "\t➜ " },
@@ -332,5 +383,22 @@ function loadStickyNoteShortcuts() {
         { dots: "......................................." },
         { "arrow-line": "➜➜➜➜➜➜➜➜➜➜➜➜➜➜➜➜➜➜➜➜➜" },
         { "boxed-line": "+---------------------------------+" },
+        {
+            "HTML-list": `<ul style="list-style-type: '➜ '; padding-left: 50px; color: darkblue; font-size: 25px; font-weight: bold">
+    <li>list one</li>
+    <li>list two</li>
+    <li>list three</li>
+    <li>list four</li>
+    <li>list five</li>
+</ul>`,
+        },
+        {
+            "HTML-heading": `<h1 style="text-align:center; color:brown;">19</h1>
+<h1 style="text-align:center; color:blue;">The is blue heading</h1>
+<h2 style="text-align:center; padding: 5px; border-top: 3px solid tomato; border-bottom: 3px solid tomato;">Social Life</h2>`,
+        },
+        {
+            colors: colorPalletes(),
+        },
     ];
 }

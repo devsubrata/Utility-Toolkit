@@ -16,7 +16,7 @@
     resize: both;
     display: flex;
     flex-direction: column;
-    z-index: 4000;
+    z-index: 12000;
 }
 
 /* Pin and buttons bar */
@@ -117,7 +117,7 @@
     display: flex;
     flex-direction: column;
     font-family: "Segoe UI", Tahoma, sans-serif;
-    z-index: 5000;
+    z-index: 12000;
 }
 
 /* Title bar */
@@ -249,7 +249,7 @@
     display: flex;
     flex-wrap: wrap;
     gap: 5px;
-    z-index: 6000;
+    z-index: 12000;
     overflow-y: auto;
 }
 
@@ -270,9 +270,9 @@
     box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2);
     padding: 4px;
     border-radius: 6px;
-    z-index: 6000;
+    z-index: 12000;
     min-width: 200px;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
     gap: 4px;
 }
 
@@ -295,5 +295,130 @@
 
 /* Hover effect */
 #shortcutMenu button:hover {
+    background: #fff38a;
+}
+
+/*TODO: Markdown Viewer Window */
+.markdown-viewer {
+    position: fixed;
+    top: 120px;
+    left: 550px;
+    width: 650px;
+    height: 550px;
+    background: #fffdf5;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.25);
+    resize: both;
+    overflow: auto;
+    z-index: 12000;
+    display: flex;
+    flex-direction: column;
+    font-family: "Segoe UI", Tahoma, sans-serif;
+}
+
+/* Title Bar */
+.markdown-viewer .title-bar {
+    background: #ffe97f;
+    padding: 6px 10px;
+    font-weight: bold;
+    cursor: move;
+    user-select: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.markdown-viewer .title {
+    font-size: 15px;
+}
+
+.markdown-viewer .close-btn {
+    background: transparent;
+    border: none;
+    font-size: 15px;
+    cursor: pointer;
+    padding: 0 6px;
+    transition: transform 0.2s;
+}
+
+.markdown-viewer .close-btn:hover {
+    transform: scale(1.2);
+}
+
+/* Content Area */
+.markdown-viewer .markdown-content {
+    flex: 1;
+    padding: 10px 12px;
+    overflow-y: auto;
+}
+
+/* Markdown Styles */
+.markdown-viewer h1,
+.markdown-viewer h2,
+.markdown-viewer h3 {
+    margin-top: 0.5em;
+    color: #333;
+}
+
+.markdown-viewer p {
+    margin: 0.5em 0;
+}
+
+.markdown-viewer code {
+    background: #f5f5f5;
+    padding: 2px 5px;
+    border-radius: 4px;
+    font-family: monospace;
+}
+
+.markdown-viewer pre code {
+    display: block;
+    padding: 8px;
+    overflow-x: auto;
+}
+
+.markdown-viewer ul,
+.markdown-viewer ol {
+    padding-left: 20px;
+}
+
+.markdown-viewer blockquote {
+    border-left: 3px solid #ffd966;
+    padding-left: 10px;
+    color: #666;
+    margin: 0.5em 0;
+}
+/*TODO:-Option menu------------*/
+#optionsMenu {
+    position: absolute;
+    display: none;
+    background: #fffbe0;
+    border: 1px solid #e0e0e0;
+    box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2);
+    padding: 4px;
+    border-radius: 6px;
+    z-index: 12000;
+    min-width: 120px;
+}
+
+#optionsMenu .menu-btn {
+    display: block;
+    width: 100%;
+    margin: 2px 0;
+    padding: 4px 6px;
+    background: #fffdf1;
+    border: 1px solid #e0e0e0;
+    cursor: pointer;
+    text-align: left;
+    font-family: "Segoe UI", Tahoma, sans-serif;
+    font-size: 14px;
+    border-radius: 4px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+#optionsMenu .menu-btn:hover {
     background: #fff38a;
 }

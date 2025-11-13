@@ -21,6 +21,7 @@ if (!document.getElementById("stickyNote")) {
             <button class="menu-btn" title="Save">💾</button>
             <button class="menu-btn" title="Select a emoji">🤪</button>
             <button class="menu-btn" title="insert objects">🔗</button>
+            <button id="openMarkdownViewer" title="Markdown Viewer">🪶</button>
             <button class="menu-btn" title="Options">⚙️</button>
         </div>
         <textarea class="note-content" placeholder="Write your note here..."></textarea>
@@ -377,8 +378,6 @@ if (!document.getElementById("stickyNote")) {
             saveNote(userTitle);
             alert("Note saved.");
         });
-    } else {
-        console.warn('Save button not found: .menu-btn[title="Save"]');
     }
 
     // Add new note (clear main UI)
@@ -416,10 +415,16 @@ if (!document.getElementById("stickyNote")) {
 
     /* Close main note (optional save then remove) */
     closeBtn.addEventListener("click", () => {
-        saveNote();
-        const list = document.getElementById("notesListWindow");
-        if (list) list.remove();
-        note.remove();
+        const close = () => {
+            const list = document.getElementById("notesListWindow");
+            if (list) list.remove();
+            note.remove();
+        };
+        if (textarea.value.trim() !== "") {
+            if (confirm("Are you sure to close?")) close();
+            return;
+        }
+        close();
     });
 
     textarea.addEventListener("keydown", function (e) {
@@ -505,8 +510,8 @@ if (!document.getElementById("stickyNote")) {
     const shortcutBtn = document.querySelector('.menu-btn[title="insert objects"]');
     shortcutBtn.addEventListener("click", () => {
         const rect = shortcutBtn.getBoundingClientRect();
-        shortcutMenu.style.top = rect.bottom + "px";
-        shortcutMenu.style.left = rect.left + "px";
+        shortcutMenu.style.top = `${rect.bottom + window.scrollY}px`;
+        shortcutMenu.style.left = `${rect.left + window.scrollX}px`;
         shortcutMenu.style.display = shortcutMenu.style.display === "grid" ? "none" : "grid";
     });
 
@@ -516,4 +521,115 @@ if (!document.getElementById("stickyNote")) {
             shortcutMenu.style.display = "none";
         }
     });
+
+    //TODO:-------------Markdown viewer---------------
+    document.getElementById("openMarkdownViewer").onclick = () => {
+        // Remove existing viewer if already open
+        const existing = document.getElementById("markdownViewer");
+        if (existing) return;
+        // Create markdown viewer window
+        const viewer = document.createElement("div");
+        viewer.id = "markdownViewer";
+        viewer.className = "markdown-viewer";
+        viewer.innerHTML = `
+                <div class="title-bar">
+                    <div class="title">🪶 Markdown Viewer</div>
+                    <button id="closeMarkdownViewer" class="close-btn">✖</button>
+                </div>
+                <div id="markdownContent" class="markdown-content"></div>
+            `;
+        document.body.appendChild(viewer);
+        makeDraggable(viewer);
+        // Render markdown using global `marked` object
+        const contentDiv = viewer.querySelector("#markdownContent");
+        contentDiv.innerHTML = marked.parse(textarea.value);
+        // Live update
+        textarea.addEventListener("input", () => {
+            contentDiv.innerHTML = marked.parse(textarea.value);
+        });
+        // Close button
+        viewer.querySelector("#closeMarkdownViewer").onclick = () => viewer.remove();
+    };
+
+    //TODO:-------------Options---------------
+    // Create options menu
+    const optionsBtn = document.querySelector('.menu-btn[title="Options"]');
+
+    const optionsMenu = document.createElement("div");
+    optionsMenu.id = "optionsMenu";
+    optionsMenu.innerHTML = `
+        <button class="menu-btn" title="export">📤 Export</button>
+        <button class="menu-btn" title="import">📥 Import</button>
+    `;
+    document.body.appendChild(optionsMenu);
+
+    // Toggle dropdown
+    optionsBtn.onclick = () => {
+        optionsMenu.style.display = optionsMenu.style.display === "block" ? "none" : "block";
+        // Style and position it under the Options button
+        const rect = optionsBtn.getBoundingClientRect();
+        optionsMenu.style.top = `${rect.bottom + window.scrollY}px`;
+        optionsMenu.style.left = `${rect.left + window.scrollX}px`;
+    };
+
+    // Close menu if clicked outside
+    document.addEventListener("click", (e) => {
+        if (!optionsBtn.contains(e.target) && !optionsMenu.contains(e.target)) {
+            optionsMenu.style.display = "none";
+        }
+    });
+
+    // Attach export/import functionality
+    optionsMenu.querySelector('button[title="export"]').onclick = exportNote;
+    optionsMenu.querySelector('button[title="import"]').onclick = importNote;
+
+    async function importNote() {
+        try {
+            const [fileHandle] = await window.showOpenFilePicker({
+                types: [
+                    { description: "Text File", accept: { "text/plain": [".txt"] } },
+                    { description: "Markdown File", accept: { "text/markdown": [".md"] } },
+                ],
+                multiple: false,
+            });
+            const file = await fileHandle.getFile();
+            const text = await file.text();
+            textarea.value = text;
+            textarea.dispatchEvent(new Event("input")); // trigger any live updates
+        } catch (err) {
+            if (err.name !== "AbortError") console.error(err);
+            // User canceled
+        }
+        optionsMenu.style.display = "none";
+    }
+
+    async function exportNote() {
+        const content = textarea.value;
+        if (!content) return alert("Note is empty!");
+
+        try {
+            const handle = await window.showSaveFilePicker({
+                suggestedName: getUniqueFileName(),
+                types: [
+                    {
+                        description: "Text File",
+                        accept: { "text/plain": [".txt"] },
+                    },
+                    {
+                        description: "Markdown File",
+                        accept: { "text/markdown": [".md"] },
+                    },
+                ],
+            });
+
+            const writable = await handle.createWritable();
+            await writable.write(content);
+            await writable.close();
+            alert("✅ Note exported successfully!");
+        } catch (err) {
+            if (err.name !== "AbortError") console.error(err);
+            // User canceled, do nothing
+        }
+        optionsMenu.style.display = "none";
+    }
 }
