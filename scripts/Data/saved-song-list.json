@@ -291,6 +291,29 @@
             "video_id": "RuJ_BPKdJpo, 0fdRAy5J4ts, p9YkDeTij90, CCOyfD1zkfk, hiBxKwtn08Q"
         }
     ],
+    "Motivational": [
+        {
+            "song_name": "How to manage your 24 hours for success",
+            "artists": "Jack Ma",
+            "video_id": "UNZR9rlcZdA",
+            "lyrics": "#",
+            "tags": ["Jack Ma Motivation"]
+        },
+        {
+            "song_name": "Your Morning Decides Everything",
+            "artists": "Jack Ma",
+            "video_id": "RKgLVzHrPxE",
+            "lyrics": "#",
+            "tags": ["Jack Ma Motivation"]
+        },
+        {
+            "song_name": "How to Master Your 24 Hours Every Day Like a Genius",
+            "artists": "Jack Ma",
+            "video_id": "Hm1AndRjTFM",
+            "lyrics": "#",
+            "tags": ["Jack Ma Motivation"]
+        }
+    ],
     "EnglishSongs": [
         {
             "song_name": "Beat It",
@@ -778,6 +801,7 @@
         { "song_name": "শোন গো দখিনো হাওয়া", "artists": "ইন্দ্রানী সেন", "video_id": "H6un-5v6tKA", "tags": [] },
         { "song_name": "আমি খোলা জানালা", "artists": "Srikanto Acharya", "video_id": "t3by7HpD-dw", "tags": [] },
         { "song_name": "আগে যদি জানতাম", "artists": "লাকী আখন্দ", "video_id": "t0UtCH2dPLWc, exmBPSxWRG0", "tags": [] },
+        { "song_name": "লাকি আখন্দের বাছাই করা গান", "artists": "লাকী আখন্দ", "video_id": "Vj66AvazZ6w, 6E9J8biF8RE", "tags": [] },
         { "song_name": "Amay Dekona", "artists": "লাকী আখন্দ", "video_id": "HJeoxVJBphs", "tags": [] },
         { "song_name": "Many Popular Songs", "artists": "by different artists", "video_id": "qMgPsJPPgVg", "tags": [] }
     ],

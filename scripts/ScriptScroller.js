@@ -73,21 +73,22 @@ if (!document.getElementById("openScriptScroller")) {
     let isMaximized = false;
     let isMinimized = false;
     let prevViewerStyles = {};
+    let imageCount = 0;
 
     function handleFiles(images) {
-        fileList.innerHTML = "";
-
+        let prevImageCount = imageCount;
+        imageCount += images.length;
         const fileCount = document.getElementById("file-count");
-        fileCount.textContent = `Total: ${images.length} scripts uploaded`;
+        fileCount.textContent = `Total: ${imageCount} scripts uploaded`;
 
         images.forEach((file, index) => {
             const li = document.createElement("li");
-            li.innerHTML = `<span style="color: blue;"><strong>${index + 1}</strong></span>. ${file.name}`;
+            li.innerHTML = `<span style="color: blue;"><strong>${prevImageCount + index + 1}</strong></span>. ${file.name}`;
             li.addEventListener("click", () => {
                 if (isMinimized) toggleMinimize();
                 viewerWindow.style.display = "flex";
                 handleNavigation(document.getElementById("imageContainer"));
-                showImage(index);
+                showImage(prevImageCount + index);
             });
             fileList.appendChild(li);
         });
@@ -96,14 +97,16 @@ if (!document.getElementById("openScriptScroller")) {
     loadImageBtn.onclick = () => imageInput.click();
 
     imageInput.addEventListener("change", (e) => {
-        images = Array.from(e.target.files);
-        handleFiles(images);
+        const newFiles = Array.from(e.target.files);
+        images.push(...newFiles);
+        handleFiles(newFiles);
     });
 
     // Handle files dropped onto the drop zone
     dropZone.addEventListener("drop", (e) => {
-        images = Array.from(e.dataTransfer.files); // Get the dropped files
-        handleFiles(images); // Handle them
+        const newFiles = Array.from(e.dataTransfer.files);
+        images.push(...newFiles);
+        handleFiles(newFiles);
     });
 
     // Highlight the drop zone when dragging files over it

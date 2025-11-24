@@ -21,6 +21,7 @@ if (!document.getElementById("stickyNote")) {
             <button class="menu-btn" title="Save">💾</button>
             <button class="menu-btn" title="Select a emoji">🤪</button>
             <button class="menu-btn" title="insert objects">🔗</button>
+            <button class="menu-btn" title="insert html">HTML</button>
             <button id="openMarkdownViewer" title="Markdown Viewer">🪶</button>
             <button class="menu-btn" title="Options">⚙️</button>
         </div>
@@ -520,6 +521,242 @@ if (!document.getElementById("stickyNote")) {
         if (!shortcutMenu.contains(e.target) && e.target !== shortcutBtn) {
             shortcutMenu.style.display = "none";
         }
+    });
+
+    //TODO:-------------Add HTML Formatting---------------
+    // <button class="menu-btn" title="insert html"></></button>
+    const htmlMenuBtn = document.querySelector('.menu-btn[title="insert html"]'); // 🗒️ button
+    htmlMenuBtn.addEventListener("click", () => {
+        // Remove existing panel if any
+        const existing = document.getElementById("htmlPanel");
+        if (existing) existing.remove();
+
+        // Create panel
+        const panel = document.createElement("div");
+        panel.id = "htmlPanel";
+        panel.classList.add("floating-panel"); // add class for styling
+
+        panel.innerHTML = `
+            <div class="section">
+                <div class="section-header">HTML Tag</div>
+                <select id="tagSelector">
+                    <option value="span">span</option>
+                    <option value="h1">h1</option>
+                    <option value="h2">h2</option>
+                    <option value="h3">h3</option>
+                    <option value="p">P</option>
+                    <option value="li">li</option>
+                </select>
+            </div>
+            <div class="section">
+                <div class="section-header">CSS Rules</div>
+                <div class="style-option">
+                    <label><input type="checkbox" class="css-check" data-key="color">color</label>
+                    <input type="text" class="css-value" placeholder="red">
+                    <input type="color" class="preset-color preset">
+                </div>
+                <div class="style-option">
+                    <label><input type="checkbox" class="css-check" data-key="background">background</label>
+                    <input type="text" class="css-value" placeholder="#eee">
+                    <input type="color" class="preset-bg preset">
+                </div>
+                <div class="style-option">
+                    <label><input type="checkbox" class="css-check" data-key="text-align">text-align</label>
+                    <input type="text" class="css-value" placeholder="center">
+                    <select class="preset-select preset">
+                        <option value="">Preset</option>
+                        <option>left</option>
+                        <option>center</option>
+                        <option>right</option>
+                        <option>justify</option>
+                    </select>
+                </div>
+                <div class="style-option">
+                    <label><input type="checkbox" class="css-check" data-key="border">border</label>
+                    <input type="text" class="css-value" placeholder="1px solid #000">
+                    <select class="preset-select preset">
+                        <option value="">Preset</option>
+                        <option>1px solid #ddd</option>
+                        <option>2px solid #bbb</option>
+                    </select>
+                </div>
+                <div class="style-option">
+                    <label><input type="checkbox" class="css-check" data-key="border-radius">border-radius</label>
+                    <input type="text" class="css-value" placeholder="10px">
+                    <select class="preset-select preset">
+                        <option value="">Preset</option>
+                        <option>0px</option>
+                        <option>5px</option>
+                        <option>10px</option>
+                        <option>20px</option>
+                        <option>50%</option>
+                    </select>
+                </div>
+                <div class="style-option">
+                    <label><input type="checkbox" class="css-check" data-key="padding">padding</label>
+                    <input type="text" class="css-value" placeholder="10px">
+                    <select class="preset-select preset">
+                        <option value="">Preset</option>
+                        <option>5px</option>
+                        <option>10px</option>
+                        <option>15px</option>
+                        <option>20px</option>
+                    </select>
+                </div>
+                <div class="style-option">
+                    <label><input type="checkbox" class="css-check" data-key="font-size">font-size</label>
+                    <input type="text" class="css-value" placeholder="20px">
+                    <select class="preset-select preset">
+                        <option value="">Preset</option>
+                        <option>20px</option>
+                        <option>25px</option>
+                        <option>30px</option>
+                        <option>35px</option>
+                    </select>
+                </div>
+                <div class="style-option">
+                    <label><input type="checkbox" class="css-check" data-key="font-weight">font-weight</label>
+                    <input type="text" class="css-value" placeholder="bold">
+                    <select class="preset-select preset">
+                        <option value="">Preset</option>
+                        <option>normal</option>
+                        <option>bold</option>
+                        <option>100</option>
+                        <option>300</option>
+                        <option>500</option>
+                        <option>700</option>
+                        <option>900</option>
+                    </select>
+                </div>
+            </div>
+            <div class="section">
+                <div class="section-header">Quick Rulesets</div>
+                <div id="copyRuleset">
+                    <span data-ruleset="background: lightgreen;">background</span>
+                    <span data-ruleset="text-align: center;">text-align</span>
+                    <span data-ruleset="color: blue;">color</span>
+                    <span data-ruleset="padding: 5px;">padding</span>
+                    <span data-ruleset="border: 1px solid grey;">border</span>
+                    <span data-ruleset="border-radius: 10px;">border-radius</span>
+                    <span data-ruleset="font-family: 'Roboto Slab';">font-family</span>
+                    <span data-ruleset="font-size: 25px;">font-size</span>
+                    <span data-ruleset="font-weight: bold;">font-weight</span>
+                    <span data-ruleset="</br>">new line</span>
+                    <span data-ruleset="nbsp;">space</span>
+                </div>
+                <div class="section-header">Quick Presets</div>
+                <div id="copyPreset">
+                    ${populatePreset()}
+                </div>
+            </div>
+            <button id="applyBtn">Add</button>
+        `;
+        document.body.appendChild(panel);
+
+        // Position panel
+        const rect = htmlMenuBtn.getBoundingClientRect();
+        panel.style.left = rect.left + window.scrollX + "px";
+        panel.style.top = rect.bottom + window.scrollY + "px";
+        panel.style.minWidth = rect.width + "px";
+
+        attachHtmlPanelLogic(panel);
+    });
+
+    function populatePreset() {
+        const presetObj = htmlPreset();
+        let presets = "";
+        Object.keys(presetObj).forEach((key) => {
+            presets += `<span data-preset="${key}">${key}</span>`;
+        });
+        return presets;
+    }
+
+    function attachHtmlPanelLogic(panel) {
+        document.querySelectorAll(".style-option").forEach((option) => {
+            const input = option.querySelector(".css-value");
+            // for selects
+            option.querySelectorAll(".preset-select")?.forEach((select) => {
+                select.addEventListener("change", () => {
+                    if (select.value) input.value = select.value;
+                });
+            });
+            // for color pickers
+            option.querySelectorAll(".preset-color, .preset-bg")?.forEach((color) => {
+                color.addEventListener("input", () => {
+                    input.value = color.value;
+                });
+            });
+        });
+
+        panel.querySelector("#applyBtn").addEventListener("click", () => {
+            const tag = panel.querySelector("#tagSelector").value;
+
+            const styleOpts = panel.querySelectorAll(".style-option");
+            consoleLog(styleOpts);
+
+            let styleParts = [];
+
+            styleOpts.forEach((opt) => {
+                const checkbox = opt.querySelector(".css-check");
+                const value = opt.querySelector(".css-value").value.trim();
+                if (checkbox.checked) {
+                    const key = checkbox.dataset.key;
+                    styleParts.push(`${key}: ${value};`);
+                }
+            });
+
+            const styleAttr = styleParts.length ? ` style="${styleParts.join(" ")}"` : ' style=" "';
+
+            const before = `<${tag}${styleAttr}>`;
+            const after = `</${tag}>`;
+
+            wrapSelection(before, after);
+        });
+
+        panel.querySelector("#copyRuleset").addEventListener("click", (e) => {
+            const target = e.target;
+            if (target.tagName.toLowerCase() === "span" && target.dataset.ruleset) {
+                const rule = target.dataset.ruleset + " ";
+                const start = textarea.selectionStart;
+                const val = textarea.value;
+                textarea.value = val.slice(0, start) + rule + val.slice(start);
+                textarea.selectionStart = textarea.selectionEnd = start + rule.length;
+
+                navigator.clipboard.writeText(rule);
+                textarea.focus();
+            }
+        });
+
+        panel.querySelector("#copyPreset").addEventListener("click", (e) => {
+            const target = e.target;
+            if (target.tagName.toLowerCase() === "span" && target.dataset.preset) {
+                const styleKey = target.dataset.preset;
+                const tag = htmlPreset()[styleKey];
+                wrapSelection(tag[0], tag[1]);
+            }
+        });
+    }
+    function wrapSelection(before, after) {
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+        const val = textarea.value;
+
+        textarea.value = val.slice(0, start) + before + val.slice(start, end) + after + val.slice(end);
+        textarea.selectionStart = start + before.length;
+        textarea.selectionEnd = end + before.length;
+
+        removePanel();
+    }
+    function removePanel() {
+        const panel = document.getElementById("htmlPanel");
+        panel.classList.add("hide");
+        setTimeout(() => panel.remove(), 200);
+    }
+    // Close menu if clicked outside
+    document.addEventListener("click", (e) => {
+        const panel = document.getElementById("htmlPanel");
+        if (!panel) return;
+        if (!htmlMenuBtn.contains(e.target) && !panel.contains(e.target)) removePanel();
     });
 
     //TODO:-------------Markdown viewer---------------

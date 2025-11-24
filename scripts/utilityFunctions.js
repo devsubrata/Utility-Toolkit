@@ -393,12 +393,27 @@ function loadStickyNoteShortcuts() {
 </ul>`,
         },
         {
-            "HTML-heading": `<h1 style="text-align:center; color:brown;">19</h1>
-<h1 style="text-align:center; color:blue;">The is blue heading</h1>
-<h2 style="text-align:center; padding: 5px; border-top: 3px solid tomato; border-bottom: 3px solid tomato;">Social Life</h2>`,
+            WordDefinition: `<span style='color: indigo; font-weight: bold;'>🪰 word ➜&nbsp;</span>meaning</span>`,
         },
         {
             colors: colorPalletes(),
         },
     ];
+}
+
+function htmlPreset() {
+    return {
+        BlockSpan: ["<span style='display: block;'", "</span>"],
+        list: ["<span style='display: block;'>&ensp;&ensp;➜ ", "</span>"],
+        BlueBold: ["<span style='color: blue; font-weight: bold;'>", "</span>"],
+        GreenBold: ["<span style='color: green; font-weight: bold;'>", "</span>"],
+        TextBlue: ["<span style='color: blue; '>", "</span>"],
+        TextGreen: ["<span style='color: green; '>", "</span>"],
+        Bold: ["<span style='font-weight: bold;'>", "</span>"],
+        heading: [
+            "<h2 style='text-align: center; padding: 5px; border-top: 3px solid tomato; border-bottom: 3px solid tomato; color: blue; margin: 50px;'>",
+            "</h2>",
+        ],
+        ParaHead: ["<p style='color: darkmagenta; font-weight: bold; font-size: 25px;'>", "</p>"],
+    };
 }

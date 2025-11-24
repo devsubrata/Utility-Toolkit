@@ -84,8 +84,10 @@ if (!document.getElementById("annotationToolbar")) {
                 <option value="Roboto Slab">Roboto slab</option>
                 <option value="Garamond">Garamond</option>
                 <option value="Georgia">Georgia</option>
-                <option value="Tahoma" selected>Tahoma</option>
+                <option value="Tahoma">Tahoma</option>
                 <option value="Open Sans">Open sans</option>
+                <option value="Nunito Sans" selected>Nunito Sans</option>
+                <option value="Nunito">Nunito</option>
                 <option value="Verdana">Verdana</option>
             </select>
             <div class="text-color-picker"></div>

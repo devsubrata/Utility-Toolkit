@@ -31,6 +31,7 @@ if (!document.getElementById("openYoutubePlayer")) {
                     <div id="generatePlaylist">
                         <button id="displayDevotionalSongList" class="song-list-btn">Devotional Music</button>
                         <button id="displayMantraList" class="song-list-btn">Devotional Mantras</button>
+                        <button id="provideMotivation" class="song-list-btn">Motivational</button>
                         <button id="displayDesherSongs" class="song-list-btn">Desher Gaan</button>
                         <button id="displayEnglishSongList" class="song-list-btn">English Songs</button>
                         <button id="displayModernBanglaSong" class="song-list-btn">Adunik Bangla Gaan</button>
@@ -230,6 +231,7 @@ if (!document.getElementById("openYoutubePlayer")) {
         document.getElementById("displayMantraList").onclick = () => loadSongList("Mantra Bhajan", "MantraBhajan");
         document.getElementById("displayHindiMovieSongs").onclick = () => loadSongList("Hindi Movie Songs", "HindiMovieSongs");
         document.getElementById("displayDesherSongs").onclick = () => loadSongList("Desher Gaan", "DesherGaan");
+        document.getElementById("provideMotivation").onclick = () => loadSongList("Motivational Therapy", "Motivational");
         document.getElementById("displayModernBanglaSong").onclick = () => loadSongList("Modern Bangla Song", "ModernBanglaSong");
         document.getElementById("displayBanglaRommanticSongs").onclick = () => loadSongList("Bangla Rommantic Songs", "BanglaRommanticSongs");
 
