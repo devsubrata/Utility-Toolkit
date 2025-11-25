@@ -4,6 +4,11 @@ if (!document.getElementById("stickyNote")) {
     link.href = chrome.runtime.getURL("styles/StickyNote.css");
     document.head.appendChild(link);
 
+    const colorPickerLink = document.createElement("link");
+    colorPickerLink.rel = "stylesheet";
+    colorPickerLink.href = chrome.runtime.getURL("styles/coloris.min.css");
+    document.head.appendChild(colorPickerLink);
+
     const stn = document.createElement("div");
     stn.id = "stickyNote";
     stn.className = "sticky-note";
@@ -24,11 +29,20 @@ if (!document.getElementById("stickyNote")) {
             <button class="menu-btn" title="insert html">HTML</button>
             <button id="openMarkdownViewer" title="Markdown Viewer">🪶</button>
             <button class="menu-btn" title="Options">⚙️</button>
+            <div class="example square picker-container">
+                <input title="color-picker" type="text" id="picker" class="coloris instance1" value="#6601ff">
+            </div>
         </div>
         <textarea class="note-content" placeholder="Write your note here..."></textarea>
     `;
     document.body.appendChild(stn);
     makeDraggable(stn);
+
+    //*------Color Picker-------------------
+    document.querySelector("#picker").addEventListener("input", (e) => {
+        const color = e.target.value;
+        navigator.clipboard.writeText(color);
+    });
 
     // ----- JavaScript for Emoji Menu -----
     const addEmojiBtn = document.querySelector('.menu-btn[title="Select a emoji"]');
@@ -373,7 +387,7 @@ if (!document.getElementById("stickyNote")) {
     if (saveMenuBtn) {
         saveMenuBtn.addEventListener("click", () => {
             if (textarea.value.trim() === "") return;
-            const suggested = textarea.value.trim().split("\n")[0] || existingNote?.title || "Untitled Note";
+            const suggested = existingNote?.title || textarea.value.trim().split("\n")[0] || "Untitled Note";
             const userTitle = prompt("Enter title for this note:", suggested.slice(0, 60));
             if (userTitle === null) return; // user cancelled
             saveNote(userTitle);
@@ -538,6 +552,26 @@ if (!document.getElementById("stickyNote")) {
 
         panel.innerHTML = `
             <div class="section">
+                <div class="section-header">Quick Presets</div>
+                <div id="copyPreset">
+                    ${populatePreset()}
+                </div>
+                <div class="section-header">Quick Rulesets</div>
+                <div id="copyRuleset">
+                    <span data-ruleset="background: lightgreen;">background</span>
+                    <span data-ruleset="text-align: center;">text-align</span>
+                    <span data-ruleset="color: blue;">color</span>
+                    <span data-ruleset="padding: 5px;">padding</span>
+                    <span data-ruleset="border: 1px solid grey;">border</span>
+                    <span data-ruleset="border-radius: 10px;">border-radius</span>
+                    <span data-ruleset="font-family: 'Roboto Slab';">font-family</span>
+                    <span data-ruleset="font-size: 25px;">font-size</span>
+                    <span data-ruleset="font-weight: bold;">font-weight</span>
+                    <span data-ruleset="</br>">new line</span>
+                    <span data-ruleset="nbsp;">space</span>
+                </div>
+            </div>
+            <div class="section">
                 <div class="section-header">HTML Tag</div>
                 <select id="tagSelector">
                     <option value="span">span</option>
@@ -627,26 +661,6 @@ if (!document.getElementById("stickyNote")) {
                         <option>700</option>
                         <option>900</option>
                     </select>
-                </div>
-            </div>
-            <div class="section">
-                <div class="section-header">Quick Rulesets</div>
-                <div id="copyRuleset">
-                    <span data-ruleset="background: lightgreen;">background</span>
-                    <span data-ruleset="text-align: center;">text-align</span>
-                    <span data-ruleset="color: blue;">color</span>
-                    <span data-ruleset="padding: 5px;">padding</span>
-                    <span data-ruleset="border: 1px solid grey;">border</span>
-                    <span data-ruleset="border-radius: 10px;">border-radius</span>
-                    <span data-ruleset="font-family: 'Roboto Slab';">font-family</span>
-                    <span data-ruleset="font-size: 25px;">font-size</span>
-                    <span data-ruleset="font-weight: bold;">font-weight</span>
-                    <span data-ruleset="</br>">new line</span>
-                    <span data-ruleset="nbsp;">space</span>
-                </div>
-                <div class="section-header">Quick Presets</div>
-                <div id="copyPreset">
-                    ${populatePreset()}
                 </div>
             </div>
             <button id="applyBtn">Add</button>
@@ -750,7 +764,10 @@ if (!document.getElementById("stickyNote")) {
     function removePanel() {
         const panel = document.getElementById("htmlPanel");
         panel.classList.add("hide");
-        setTimeout(() => panel.remove(), 200);
+        setTimeout(() => {
+            // panel.remove();
+            panel.style.display = "none";
+        }, 200);
     }
     // Close menu if clicked outside
     document.addEventListener("click", (e) => {
@@ -771,7 +788,20 @@ if (!document.getElementById("stickyNote")) {
         viewer.innerHTML = `
                 <div class="title-bar">
                     <div class="title">🪶 Markdown Viewer</div>
-                    <button id="closeMarkdownViewer" class="close-btn">✖</button>
+                    <div class="resize-btns-group">
+                        <button id="placeLeftBtn" title="Move left">⬅️</button>
+                        <button id="placeRightBtn" title="Move right">➡️</button>
+                        <button id="placeTopLeftBtn" title="Move top left">↖️</button>
+                        <button id="placeTopRightBtn" title="Move top right">↗️</button>
+                        <button id="placeBottomLeftBtn" title="Move bottom left">↙️</button>
+                        <button id="placeBottomRightBtn" title="Move bottom right">↘️</button>
+                    </div>
+                    <div>
+                        <button id="lineBreakBtn" class="btn" title="Break line">LB</button>
+                        <button id="maximizeMarkdownViewer" class="btn">◻</button>
+                        <button id="minimizeMarkdownViewer" class="btn">―</button>
+                        <button id="closeMarkdownViewer" class="btn">✖</button>
+                    </div>
                 </div>
                 <div id="markdownContent" class="markdown-content"></div>
             `;
@@ -786,6 +816,47 @@ if (!document.getElementById("stickyNote")) {
         });
         // Close button
         viewer.querySelector("#closeMarkdownViewer").onclick = () => viewer.remove();
+        viewer.querySelector("#maximizeMarkdownViewer").onclick = max_btn_fn;
+        viewer.querySelector("#minimizeMarkdownViewer").onclick = min_btn_fn;
+        viewer.querySelector("#lineBreakBtn").onclick = lb_btn_fn;
+        viewer.querySelector("#placeLeftBtn").onclick = () => resizeLeftHalf(viewer);
+        viewer.querySelector("#placeTopLeftBtn").onclick = () => resizeTopLeft(viewer);
+        viewer.querySelector("#placeRightBtn").onclick = () => resizeRightHalf(viewer);
+        viewer.querySelector("#placeTopRightBtn").onclick = () => resizeTopRight(viewer);
+        viewer.querySelector("#placeBottomLeftBtn").onclick = () => resizeBottomLeft(viewer);
+        viewer.querySelector("#placeBottomRightBtn").onclick = () => resizeBottomRight(viewer);
+
+        function max_btn_fn() {
+            viewer.dataset.prevLeft = viewer.style.left;
+            viewer.dataset.prevTop = viewer.style.top;
+            viewer.dataset.prevWidth = viewer.style.width;
+            viewer.dataset.prevHeight = viewer.style.height;
+
+            viewer.style.left = "0px";
+            viewer.style.top = "0px";
+            viewer.style.width = window.innerWidth + "px";
+            viewer.style.height = window.innerHeight + "px";
+        }
+        function min_btn_fn() {
+            const content = viewer.querySelector("#markdownContent");
+
+            if (viewer.classList.contains("minimized")) {
+                // Restore
+                viewer.classList.remove("minimized");
+                content.style.display = "block";
+                viewer.style.height = viewer.dataset.prevHeight || "400px";
+            } else {
+                // Minimize
+                viewer.classList.add("minimized");
+                viewer.dataset.prevHeight = viewer.style.height;
+                content.style.display = "none";
+                viewer.style.height = "43px"; // title bar height
+            }
+        }
+        function lb_btn_fn() {
+            const markdownContent = document.getElementById("markdownContent");
+            markdownContent.style.whiteSpace = markdownContent.style.whiteSpace === "pre" ? "pre-wrap" : "pre";
+        }
     };
 
     //TODO:-------------Options---------------
@@ -797,6 +868,7 @@ if (!document.getElementById("stickyNote")) {
     optionsMenu.innerHTML = `
         <button class="menu-btn" title="export">📤 Export</button>
         <button class="menu-btn" title="import">📥 Import</button>
+        <button class="menu-btn" title="wrap line">⛓️‍💥 WordWrap</button>
     `;
     document.body.appendChild(optionsMenu);
 
@@ -819,6 +891,7 @@ if (!document.getElementById("stickyNote")) {
     // Attach export/import functionality
     optionsMenu.querySelector('button[title="export"]').onclick = exportNote;
     optionsMenu.querySelector('button[title="import"]').onclick = importNote;
+    optionsMenu.querySelector('button[title="wrap line"]').onclick = wrapLine;
 
     async function importNote() {
         try {
@@ -869,4 +942,16 @@ if (!document.getElementById("stickyNote")) {
         }
         optionsMenu.style.display = "none";
     }
+
+    function wrapLine() {
+        textarea.style.whiteSpace = textarea.style.whiteSpace === "pre" ? "pre-wrap" : "pre";
+    }
+    document.addEventListener("keydown", (e) => {
+        // Detect Alt + Z
+        if (e.altKey && e.key.toLowerCase() === "z") {
+            e.preventDefault(); // stop browser behavior
+            // Toggle white-space mode
+            wrapLine();
+        }
+    });
 }

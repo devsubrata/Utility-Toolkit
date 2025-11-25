@@ -1,3 +1,42 @@
+//TODO:----------------resize & move window------------------
+function resizeLeftHalf(win) {
+    win.style.top = "0px";
+    win.style.left = "0px";
+    win.style.width = window.innerWidth / 2 + "px";
+    win.style.height = window.innerHeight - 10 + "px";
+}
+function resizeTopLeft(win) {
+    win.style.top = "0px";
+    win.style.left = "0px";
+    win.style.width = window.innerWidth / 2 + "px";
+    win.style.height = window.innerHeight / 2 + "px";
+}
+function resizeBottomLeft(win) {
+    win.style.top = window.innerHeight / 2 - 10 + "px";
+    win.style.left = "0px";
+    win.style.width = window.innerWidth / 2 + "px";
+    win.style.height = window.innerHeight / 2 + "px";
+}
+function resizeRightHalf(win) {
+    win.style.top = "0px";
+    win.style.left = window.innerWidth / 2 - 17 + "px";
+    win.style.width = window.innerWidth / 2 + "px";
+    win.style.height = window.innerHeight - 10 + "px";
+}
+function resizeTopRight(win) {
+    win.style.top = "0px";
+    win.style.left = window.innerWidth / 2 - 17 + "px";
+    win.style.width = window.innerWidth / 2 + "px";
+    win.style.height = window.innerHeight / 2 + "px";
+}
+function resizeBottomRight(win) {
+    win.style.top = window.innerHeight / 2 - 10 + "px";
+    win.style.left = window.innerWidth / 2 - 17 + "px";
+    win.style.width = window.innerWidth / 2 + "px";
+    win.style.height = window.innerHeight / 2 + "px";
+}
+
+//TODO:----------------add drag feature------------------
 function makeDraggable(el, calcNew = true) {
     let isDragging = false;
     let offsetX, offsetY;
@@ -393,7 +432,7 @@ function loadStickyNoteShortcuts() {
 </ul>`,
         },
         {
-            WordDefinition: `<span style='color: indigo; font-weight: bold;'>🪰 word ➜&nbsp;</span>meaning</span>`,
+            WordDefinition: `<span style='display:block;'><span style='font-weight:bold; color:maroon;'>🪰 word ➜ </span>definition</span>`,
         },
         {
             colors: colorPalletes(),
@@ -403,7 +442,7 @@ function loadStickyNoteShortcuts() {
 
 function htmlPreset() {
     return {
-        BlockSpan: ["<span style='display: block;'", "</span>"],
+        BlockSpan: ["<span style='display: block;'>", "</span>"],
         list: ["<span style='display: block;'>&ensp;&ensp;➜ ", "</span>"],
         BlueBold: ["<span style='color: blue; font-weight: bold;'>", "</span>"],
         GreenBold: ["<span style='color: green; font-weight: bold;'>", "</span>"],

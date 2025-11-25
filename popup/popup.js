@@ -21,4 +21,8 @@ document.getElementById("openPlayer").addEventListener("click", () => injectScri
 document.getElementById("openYoutubePlayer").addEventListener("click", () => injectScript("scripts/YoutubePlayer.js"));
 document.getElementById("openScriptScroller").addEventListener("click", () => injectScript("scripts/ScriptScroller.js"));
 document.getElementById("openToDoList").addEventListener("click", () => injectScript("scripts/ToDoList.js"));
-document.getElementById("openStickyNote").addEventListener("click", () => injectScript("scripts/StickyNote.js", "scripts/libs/marked.min.js"));
+document
+    .getElementById("openStickyNote")
+    .addEventListener("click", () =>
+        injectScript("scripts/StickyNote.js", "scripts/libs/coloris.min.js", "scripts/libs/coloris.config.js", "scripts/libs/marked.min.js")
+    );

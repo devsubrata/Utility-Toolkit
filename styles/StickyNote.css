@@ -1,5 +1,5 @@
 .sticky-note {
-    width: 480px;
+    width: 680px;
     min-width: 250px;
     height: 490px;
     background: #fffee1;
@@ -59,9 +59,13 @@
     background: linear-gradient(to bottom, #ffe066, #fff38a, #ffe066);
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     border-top: 1px solid rgba(0, 0, 0, 0.1);
-    padding: 4px 0;
+    padding: 4px 10px 4px 0;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
     position: relative;
+}
+
+.menu-bar .picker-container {
+    margin-left: auto;
 }
 
 .menu-btn {
@@ -332,16 +336,29 @@
     font-size: 15px;
 }
 
-.markdown-viewer .close-btn {
+.markdown-viewer .btn {
     background: transparent;
-    border: none;
+    border: 1px solid #f8d420;
+    height: 25px;
     font-size: 15px;
     cursor: pointer;
     padding: 0 6px;
     transition: transform 0.2s;
 }
+.resize-btns-group {
+    display: flex;
+    align-content: center;
+}
+.resize-btns-group button {
+    border: none;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    font-size: 18px;
+    cursor: pointer;
+}
 
-.markdown-viewer .close-btn:hover {
+.markdown-viewer .btn:hover {
     transform: scale(1.2);
 }
 
