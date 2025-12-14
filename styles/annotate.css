@@ -64,12 +64,13 @@
 }
 #annotationToolbar .save-menu .menu-content {
     position: absolute;
-    background-color: rgb(224, 196, 160);
+    background-color: rgb(29 38 32);
     display: none;
     grid-template-columns: repeat(3, 1fr);
     gap: 5px;
     padding: 5px;
-    border: 2px solid rgb(231, 161, 70);
+    border: 2px solid rgb(154 155 153);
+    border-radius: 5px;
 }
 #annotationToolbar .save-menu .save-menu-btn:hover {
     background-color: chocolate;
@@ -91,7 +92,9 @@
     font-size: 15px;
     padding: 8px;
     border-radius: 3px;
-    border: 1px solid gray;
+    background: #00fb68;
+    border: 1px solid #02b84d;
+    box-shadow: inset 0 3px 10px rgb(0 0 0 / 0.2);
 }
 
 #annotationToolbar button:hover,
@@ -154,7 +157,7 @@
     height: 40px;
     background-color: rgb(255, 255, 255);
     border-radius: 50%;
-    border: 1px solid rgb(0, 0, 0);
+    border: 1px solid rgba(0, 0, 0, 0.3);
 }
 
 /* Color picker button styling */
@@ -223,6 +226,10 @@
 .color-swatch:hover {
     transform: scale(1.1); /* Slightly enlarge on hover */
     border-color: #999;
+}
+
+.html-color-input {
+    cursor: pointer;
 }
 
 /* for text input */
@@ -424,7 +431,6 @@
     outline: none;
     box-shadow: 0.2rem 0.2rem 1rem #777;
     border-radius: 0 1rem 1rem 0;
-    /* clip-path: polygon(0% 0%, 85% 0%, 100% 50%, 85% 100%, 0% 100%); */
     cursor: pointer;
     float: left;
 }

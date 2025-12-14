@@ -15,6 +15,14 @@ if (!document.getElementById("stickyNote")) {
     stn.innerHTML = `
         <div class="pin-bar">
             <div class="pin title">📌StickyNote</div>
+            <div class="resize-btns-group">
+                <button id="placeStnLeftBtn" title="Move left">⬅️</button>
+                <button id="placeStnRightBtn" title="Move right">➡️</button>
+                <button id="placeStnTopLeftBtn" title="Move top left">↖️</button>
+                <button id="placeStnTopRightBtn" title="Move top right">↗️</button>
+                <button id="placeStnBottomLeftBtn" title="Move bottom left">↙️</button>
+                <button id="placeStnBottomRightBtn" title="Move bottom right">↘️</button>
+            </div>
             <div class="buttons">
                 <button id="minBtn">—</button>
                 <button id="closeBtn">❌</button>
@@ -37,6 +45,14 @@ if (!document.getElementById("stickyNote")) {
     `;
     document.body.appendChild(stn);
     makeDraggable(stn);
+
+    //** Move and resize sticky note viewer */
+    stn.querySelector("#placeStnLeftBtn").onclick = () => resizeLeftHalf(stn);
+    stn.querySelector("#placeStnTopLeftBtn").onclick = () => resizeTopLeft(stn);
+    stn.querySelector("#placeStnRightBtn").onclick = () => resizeRightHalf(stn);
+    stn.querySelector("#placeStnTopRightBtn").onclick = () => resizeTopRight(stn);
+    stn.querySelector("#placeStnBottomLeftBtn").onclick = () => resizeBottomLeft(stn);
+    stn.querySelector("#placeStnBottomRightBtn").onclick = () => resizeBottomRight(stn);
 
     //*------Color Picker-------------------
     document.querySelector("#picker").addEventListener("input", (e) => {
@@ -502,7 +518,6 @@ if (!document.getElementById("stickyNote")) {
         btn.onclick = () => {
             // Copy to clipboard
             navigator.clipboard.writeText(value).catch((err) => console.error("Clipboard copy failed:", err));
-
             // Insert at cursor in textarea
             if (textarea) {
                 const start = textarea.selectionStart;
@@ -510,14 +525,12 @@ if (!document.getElementById("stickyNote")) {
                 const textBefore = textarea.value.substring(0, start);
                 const textAfter = textarea.value.substring(end);
                 textarea.value = textBefore + value + textAfter;
-
                 // Move cursor after inserted text
                 textarea.selectionStart = textarea.selectionEnd = start + value.length;
                 textarea.focus();
             }
             shortcutMenu.style.display = "none";
         };
-
         shortcutMenu.appendChild(btn);
     });
 
@@ -529,14 +542,12 @@ if (!document.getElementById("stickyNote")) {
         shortcutMenu.style.left = `${rect.left + window.scrollX}px`;
         shortcutMenu.style.display = shortcutMenu.style.display === "grid" ? "none" : "grid";
     });
-
     // Hide shortcutMenu if clicked outside
     document.addEventListener("click", (e) => {
         if (!shortcutMenu.contains(e.target) && e.target !== shortcutBtn) {
             shortcutMenu.style.display = "none";
         }
     });
-
     //TODO:-------------Add HTML Formatting---------------
     // <button class="menu-btn" title="insert html"></></button>
     const htmlMenuBtn = document.querySelector('.menu-btn[title="insert html"]'); // 🗒️ button
@@ -544,7 +555,6 @@ if (!document.getElementById("stickyNote")) {
         // Remove existing panel if any
         const existing = document.getElementById("htmlPanel");
         if (existing) existing.remove();
-
         // Create panel
         const panel = document.createElement("div");
         panel.id = "htmlPanel";
@@ -814,7 +824,7 @@ if (!document.getElementById("stickyNote")) {
         textarea.addEventListener("input", () => {
             contentDiv.innerHTML = marked.parse(textarea.value);
         });
-        // Close button
+
         viewer.querySelector("#closeMarkdownViewer").onclick = () => viewer.remove();
         viewer.querySelector("#maximizeMarkdownViewer").onclick = max_btn_fn;
         viewer.querySelector("#minimizeMarkdownViewer").onclick = min_btn_fn;
@@ -862,16 +872,15 @@ if (!document.getElementById("stickyNote")) {
     //TODO:-------------Options---------------
     // Create options menu
     const optionsBtn = document.querySelector('.menu-btn[title="Options"]');
-
     const optionsMenu = document.createElement("div");
     optionsMenu.id = "optionsMenu";
     optionsMenu.innerHTML = `
         <button class="menu-btn" title="export">📤 Export</button>
         <button class="menu-btn" title="import">📥 Import</button>
         <button class="menu-btn" title="wrap line">⛓️‍💥 WordWrap</button>
+        <button class="menu-btn" title="take note in canvas">🎨🖌️Canvas</button>
     `;
     document.body.appendChild(optionsMenu);
-
     // Toggle dropdown
     optionsBtn.onclick = () => {
         optionsMenu.style.display = optionsMenu.style.display === "block" ? "none" : "block";
@@ -880,18 +889,17 @@ if (!document.getElementById("stickyNote")) {
         optionsMenu.style.top = `${rect.bottom + window.scrollY}px`;
         optionsMenu.style.left = `${rect.left + window.scrollX}px`;
     };
-
     // Close menu if clicked outside
     document.addEventListener("click", (e) => {
         if (!optionsBtn.contains(e.target) && !optionsMenu.contains(e.target)) {
             optionsMenu.style.display = "none";
         }
     });
-
     // Attach export/import functionality
     optionsMenu.querySelector('button[title="export"]').onclick = exportNote;
     optionsMenu.querySelector('button[title="import"]').onclick = importNote;
     optionsMenu.querySelector('button[title="wrap line"]').onclick = wrapLine;
+    optionsMenu.querySelector('button[title="take note in canvas"]').onclick = createCanvasNoteWindow;
 
     async function importNote() {
         try {
@@ -916,7 +924,6 @@ if (!document.getElementById("stickyNote")) {
     async function exportNote() {
         const content = textarea.value;
         if (!content) return alert("Note is empty!");
-
         try {
             const handle = await window.showSaveFilePicker({
                 suggestedName: getUniqueFileName(),
@@ -931,7 +938,6 @@ if (!document.getElementById("stickyNote")) {
                     },
                 ],
             });
-
             const writable = await handle.createWritable();
             await writable.write(content);
             await writable.close();
@@ -954,4 +960,314 @@ if (!document.getElementById("stickyNote")) {
             wrapLine();
         }
     });
+
+    function createCanvasNoteWindow() {
+        // Prevent duplicate windows
+        if (document.getElementById("canvasNoteWrapper")) return;
+
+        const wrapper = document.createElement("div");
+        wrapper.id = "canvasNoteWrapper";
+        wrapper.className = "canvas-wrapper";
+
+        wrapper.innerHTML = `
+        <div class="title-bar">
+            <div class="title">🪶 Draw in canvas</div>
+            <div class="window-controls">
+                <button id="minimizeCanvasViewer" class="btn">―</button>
+                <button id="closeCanvasViewer" class="btn">✖</button>
+            </div>
+        </div>
+        <div class="toolbar">
+            <div class="tool-group">
+                <button class="tool-btn active" id="brushTool" title="Pen">✏️</button>
+                <button class="tool-btn" id="hLineTool" title="Horizontal Line">―</button>
+                <button class="tool-btn" id="highlighterTool" title="Highlight">🎨</button>
+                <button class="tool-btn" id="rectangleTool" title="Rectangle">▭</button>
+                <button class="tool-btn" id="circleTool" title="circle">◯</button>
+                <button class="tool-btn" id="insertImageTool" title="insertImage">🖼️</button>
+                <div class="more-tools">
+                    <button class="tool-btn more-menu-btns" title="More options">☰</button>
+                    <div class="more-tools-menu">
+                        <button class="tool-btn" id="lineTool" title="Line">／</button>
+                        <button class="tool-btn" id="filledRectangleTool" title="filledRectangle">🟫</button>
+                        <button class="tool-btn" id="borderedRectangleTool" title="borderedRectangle">🔲</button>
+                        <button class="tool-btn" id="filledCircleTool" title="filledCircle">⚫</button>
+                        <button class="tool-btn" id="borderedCircleTool" title="borderedCircle">🔘</button>
+                        <button class="tool-btn" id="clearCanvas" title="Erase Everything">🚫</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tool-group">
+                <input id="objColor" class="tool-input color" type="color" value="#0000ff"/>
+                <input id="highlighterWidth" class="stroke-input" type="number" value=20 max="50" min="15" step="5" title="set highlighter size"/>
+                <input id="strokeWidth" class="stroke-input" type="number" value=1 max="20" min="1" title="Set line width"/>
+                <input id="opacityInput" class="stroke-input" type="number" min="0.00" max="1.00" step="0.05" value="0.4" title="Set Color Opacity"/>
+                <button class="tool-btn expand-btn" id="expandCanvas" title="Expand canvas">Expand</button>
+            </div>
+        </div>
+
+        <div class="canvas-container">
+            <canvas id="noteInCanvas"></canvas>
+        </div>
+    `;
+
+        document.body.appendChild(wrapper);
+
+        makeDraggable(wrapper);
+
+        initCanvas();
+    }
+
+    function initCanvas() {
+        let canvas = document.getElementById("noteInCanvas");
+        let ctx = canvas.getContext("2d", {
+            willReadFrequently: true,
+        });
+        let canvasObjColor = "#0000ff";
+        let colorOpacity = 0.4;
+        let currentTool = "brush";
+        let isDrawing = false;
+        let isTypingText = false;
+        let isImagePasting = false;
+        let strokeWidth = 2;
+        let highlighterWidth = 20;
+        let startX, startY;
+        let pasteHandler = null;
+
+        // Initial fixed canvas size
+        canvas.width = 800;
+        canvas.height = 600;
+
+        const toolset = {
+            brush: document.getElementById("brushTool"),
+            highlighter: document.getElementById("highlighterTool"),
+            line: document.getElementById("lineTool"),
+            horizontalLine: document.getElementById("hLineTool"),
+            rectangle: document.getElementById("rectangleTool"),
+            filledRectangle: document.getElementById("filledRectangleTool"),
+            borderedRectangle: document.getElementById("borderedRectangleTool"),
+            circle: document.getElementById("circleTool"),
+            filledCircle: document.getElementById("filledCircleTool"),
+            borderedCircle: document.getElementById("borderedCircleTool"),
+            pasteImage: document.getElementById("insertImageTool"),
+        };
+        //TODO:----------Tool Handlers-----------------------------------
+
+        toolset.brush.addEventListener("click", () => setCurrentTool("brush"));
+        toolset.highlighter.addEventListener("click", () => setCurrentTool("highlighter"));
+        toolset.line.addEventListener("click", () => setCurrentTool("line"));
+        toolset.horizontalLine.addEventListener("click", () => setCurrentTool("horizontalLine"));
+        toolset.rectangle.addEventListener("click", () => setCurrentTool("rectangle"));
+        toolset.filledRectangle.addEventListener("click", () => setCurrentTool("filledRectangle"));
+        toolset.borderedRectangle.addEventListener("click", () => setCurrentTool("borderedRectangle"));
+        toolset.circle.addEventListener("click", () => setCurrentTool("circle"));
+        toolset.filledCircle.addEventListener("click", () => setCurrentTool("filledCircle"));
+        toolset.borderedCircle.addEventListener("click", () => setCurrentTool("borderedCircle"));
+        toolset.pasteImage.addEventListener("click", () => {
+            isImagePasting = true;
+            setCurrentTool("pasteImage");
+        });
+        document.getElementById("clearCanvas").addEventListener("click", () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        });
+        document.getElementById("strokeWidth").addEventListener("input", (e) => {
+            strokeWidth = parseInt(e.target.value);
+        });
+        document.getElementById("highlighterWidth").addEventListener("input", (e) => {
+            highlighterWidth = parseInt(e.target.value);
+        });
+        document.getElementById("opacityInput").addEventListener("input", (e) => {
+            colorOpacity = parseFloat(e.target.value);
+        });
+
+        function setCurrentTool(tool) {
+            if (tool !== "pasteImage") isImagePasting = false;
+
+            currentTool = tool;
+            Object.values(toolset).forEach((btn) => btn.classList.remove("active"));
+            toolset[tool].classList.add("active");
+        }
+
+        function readyForDrawing(e) {
+            e.preventDefault();
+            if (currentTool === "pasteImage") return;
+
+            isDrawing = true;
+            ctx.lineWidth = strokeWidth;
+            ctx.lineCap = "square";
+            ctx.strokeStyle = canvasObjColor;
+            ctx.fillStyle = canvasObjColor;
+
+            let pos = { x: e.offsetX, y: e.offsetY };
+            startX = pos.x;
+            startY = pos.y;
+
+            ctx.beginPath();
+
+            switch (currentTool) {
+                case "line":
+                case "horizontalLine":
+                case "highlighter":
+                case "rectangle":
+                case "filledRectangle":
+                case "borderedRectangle":
+                case "circle":
+                case "filledCircle":
+                case "borderedCircle":
+                    snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    break;
+                default:
+                    ctx.moveTo(startX, startY);
+            }
+        }
+
+        function drawing(e) {
+            if (!isDrawing) return;
+            e.preventDefault();
+
+            let pos = { x: e.offsetX, y: e.offsetY };
+
+            switch (currentTool) {
+                case "line":
+                case "horizontalLine":
+                    ctx.putImageData(snapshot, 0, 0);
+                    ctx.beginPath();
+                    ctx.moveTo(startX, startY);
+                    if (currentTool === "line") {
+                        ctx.lineTo(pos.x, pos.y);
+                        ctx.stroke();
+                    } else if (currentTool === "horizontalLine") {
+                        ctx.lineTo(pos.x, startY);
+                        ctx.stroke();
+                    }
+                    break;
+                case "rectangle":
+                case "filledRectangle":
+                case "borderedRectangle":
+                    ctx.putImageData(snapshot, 0, 0);
+                    let width = pos.x - startX;
+                    let height = pos.y - startY;
+                    if (currentTool === "rectangle") {
+                        ctx.strokeRect(startX, startY, width, height);
+                    } else if (currentTool === "filledRectangle") {
+                        ctx.fillRect(startX, startY, width, height);
+                    } else if (currentTool === "borderedRectangle") {
+                        let { r, g, b } = hexToRgb(canvasObjColor);
+                        ctx.fillStyle = `rgba(${r},${g},${b},${colorOpacity})`;
+                        ctx.strokeRect(startX, startY, width, height);
+                        ctx.fillRect(startX, startY, width, height);
+                    } else {
+                        ctx.fillRect(startX, startY, width, height);
+                    }
+                    break;
+                case "circle":
+                case "filledCircle":
+                case "borderedCircle":
+                    ctx.putImageData(snapshot, 0, 0);
+                    const radius = Math.sqrt((startX - pos.x) ** 2 + (startY - pos.y) ** 2);
+                    ctx.beginPath();
+                    ctx.arc(startX, startY, radius, 0, Math.PI * 2);
+                    if (currentTool === "circle") {
+                        ctx.stroke();
+                    } else if (currentTool === "borderedCircle") {
+                        ctx.stroke();
+                        let { r, g, b } = hexToRgb(canvasObjColor);
+                        ctx.fillStyle = `rgba(${r},${g},${b},${colorOpacity})`;
+                        ctx.fill();
+                    } else {
+                        ctx.fill();
+                    }
+                    break;
+                case "highlighter":
+                    ctx.putImageData(snapshot, 0, 0);
+                    let w = pos.x - startX;
+                    let { r, g, b } = hexToRgb(canvasObjColor);
+                    ctx.fillStyle = `rgba(${r},${g},${b},${colorOpacity})`;
+
+                    ctx.fillRect(startX, startY, w, highlighterWidth);
+                    break;
+                default:
+                    ctx.lineTo(pos.x, pos.y);
+                    ctx.stroke();
+            }
+        }
+
+        function draw_in_canvas() {
+            canvas.addEventListener("mousedown", readyForDrawing);
+            canvas.addEventListener("mousemove", drawing);
+
+            canvas.addEventListener("mouseup", () => (isDrawing = false));
+            canvas.addEventListener("mouseleave", () => (isDrawing = false));
+            canvas.addEventListener("click", (e) => {
+                let clickPosition = { x: 0, y: 0 };
+                const rect = canvas.getBoundingClientRect();
+                clickPosition.x = e.clientX - rect.left;
+                clickPosition.y = e.clientY - rect.top;
+
+                if (currentTool === "pasteImage") {
+                    pasteHandler?.destroy(); // 🔥 remove old listener
+                    pasteHandler = enableCanvasImagePaste({
+                        canvas,
+                        ctx,
+                        isEnabled: isImagePasting,
+                        getScale: getImageScale,
+                        clickPosition,
+                    });
+                }
+            });
+        }
+        draw_in_canvas();
+
+        document.getElementById("objColor").addEventListener("input", function () {
+            canvasObjColor = this.value;
+        });
+
+        document.getElementById("expandCanvas").onclick = () => {
+            const canvasWidth = canvas.width;
+            const wrapper = document.getElementById("canvasNoteWrapper");
+            const wrapperWidth = wrapper.getBoundingClientRect().width;
+
+            let diff = wrapperWidth - canvasWidth;
+
+            if (diff > 0) expandCanvas(diff, 100);
+            else expandCanvas(0, 100);
+        };
+
+        function expandCanvas(additionalWidth = 0, additionalHeight = 0) {
+            const oldWidth = canvas.width;
+            const oldHeight = canvas.height;
+
+            const newWidth = oldWidth + additionalWidth;
+            const newHeight = oldHeight + additionalHeight;
+
+            // Snapshot pixels
+            const oldImage = ctx.getImageData(0, 0, oldWidth, oldHeight);
+
+            // Resize canvas (clears it)
+            canvas.width = newWidth;
+            canvas.height = newHeight;
+
+            // Restore pixels at top-left
+            ctx.putImageData(oldImage, 0, 0);
+        }
+
+        function bindCanvasWindowControls() {
+            const wrapper = document.getElementById("canvasNoteWrapper");
+            const toolbar = wrapper.querySelector(".toolbar");
+            const canvasContainer = wrapper.querySelector(".canvas-container");
+
+            document.getElementById("minimizeCanvasViewer").onclick = () => {
+                const isHidden = toolbar.style.display === "none";
+                toolbar.style.display = isHidden ? "flex" : "none";
+                canvasContainer.style.display = isHidden ? "block" : "none";
+            };
+
+            document.getElementById("closeCanvasViewer").onclick = () => {
+                pasteHandler?.destroy(); // 🔥 remove old listener
+                wrapper.remove();
+            };
+        }
+        bindCanvasWindowControls();
+    }
 }

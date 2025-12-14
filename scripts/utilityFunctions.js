@@ -156,40 +156,220 @@ function lookUpLinks() {
     };
 }
 
+function hexToRgb(hex) {
+    hex = hex.replace("#", "").trim();
+
+    // Handle shorthand (#abc)
+    if (hex.length === 3) {
+        hex = hex
+            .split("")
+            .map((c) => c + c)
+            .join("");
+    }
+
+    if (hex.length !== 6) {
+        throw new Error("Invalid hex color");
+    }
+
+    const num = parseInt(hex, 16);
+
+    return {
+        r: (num >> 16) & 255,
+        g: (num >> 8) & 255,
+        b: num & 255,
+    };
+}
+
+function getImageScale() {
+    const input = prompt("Enter image scale (e.g., 0.5, 1, 2):", "1");
+    const parsed = parseFloat(input);
+    let imageScale;
+    if (!isNaN(parsed) && parsed > 0) {
+        imageScale = parsed;
+    } else {
+        alert("Invalid scale value. Using default (1).");
+        imageScale = 1;
+    }
+    return imageScale;
+}
+
+function enableCanvasImagePaste({ canvas, ctx, isEnabled, getScale, clickPosition }) {
+    async function onPaste(e) {
+        if (!isEnabled) return;
+
+        const items = e.clipboardData?.items || [];
+        const scale = getScale();
+
+        for (const item of items) {
+            if (!item.type.startsWith("image")) continue;
+
+            const blob = item.getAsFile();
+            const img = new Image();
+
+            img.onload = () => {
+                const snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                startDraggablePreview({
+                    canvas,
+                    ctx,
+                    image: img,
+                    scale,
+                    startPos: { ...clickPosition },
+                    snapshot,
+                });
+            };
+
+            img.src = URL.createObjectURL(blob);
+            break;
+        }
+    }
+
+    window.addEventListener("paste", onPaste);
+
+    return {
+        destroy() {
+            window.removeEventListener("paste", onPaste);
+        },
+    };
+}
+
+function startDraggablePreview({ canvas, ctx, image, scale, startPos, snapshot }) {
+    let x = startPos.x;
+    let y = startPos.y;
+    let dragging = false;
+    let offsetX = 0;
+    let offsetY = 0;
+
+    const w = image.width * scale;
+    const h = image.height * scale;
+
+    function draw() {
+        ctx.putImageData(snapshot, 0, 0);
+        ctx.drawImage(image, x, y, w, h);
+
+        ctx.save();
+        ctx.strokeStyle = "rgba(0,0,0,0.35)";
+        ctx.setLineDash([5, 4]);
+        ctx.strokeRect(x, y, w, h);
+        ctx.restore();
+    }
+
+    function inside(px, py) {
+        return px >= x && px <= x + w && py >= y && py <= y + h;
+    }
+
+    function getMouse(ev) {
+        const r = canvas.getBoundingClientRect();
+        return {
+            x: ev.clientX - r.left,
+            y: ev.clientY - r.top,
+        };
+    }
+
+    function onDown(ev) {
+        const { x: mx, y: my } = getMouse(ev);
+        if (!inside(mx, my)) return;
+
+        dragging = true;
+        offsetX = mx - x;
+        offsetY = my - y;
+        canvas.style.cursor = "grabbing";
+    }
+
+    function onMove(ev) {
+        const { x: mx, y: my } = getMouse(ev);
+
+        if (!dragging) {
+            canvas.style.cursor = inside(mx, my) ? "grab" : "default";
+            return;
+        }
+
+        x = mx - offsetX;
+        y = my - offsetY;
+        draw();
+    }
+
+    function onUp() {
+        dragging = false;
+        canvas.style.cursor = "grab";
+    }
+
+    function onKey(ev) {
+        if (ev.key === "Enter") {
+            ctx.putImageData(snapshot, 0, 0);
+            ctx.drawImage(image, x, y, w, h);
+            cleanup();
+        }
+
+        if (ev.key === "Escape") {
+            ctx.putImageData(snapshot, 0, 0);
+            cleanup();
+        }
+    }
+
+    function cleanup() {
+        canvas.removeEventListener("mousedown", onDown);
+        canvas.removeEventListener("mousemove", onMove);
+        canvas.removeEventListener("mouseup", onUp);
+        window.removeEventListener("keydown", onKey);
+        canvas.style.cursor = "default";
+    }
+
+    draw();
+    canvas.addEventListener("mousedown", onDown);
+    canvas.addEventListener("mousemove", onMove);
+    canvas.addEventListener("mouseup", onUp);
+    window.addEventListener("keydown", onKey);
+}
+
 function colorList() {
-    return `
-        <div class="color-swatch" data-color="#ffffff" style="background-color: #ffffff"></div>
-        <div class="color-swatch" data-color="#000000" style="background-color: #000000"></div>
-        <div class="color-swatch" data-color="#ff0000" style="background-color: #ff0000"></div>
-        <div class="color-swatch" data-color="#fe3b00" style="background-color: #fe3b00"></div>
-        <div class="color-swatch" data-color="#f43f5e" style="background-color: #f43f5e"></div>
-        <div class="color-swatch" data-color="#ff0066" style="background-color: #ff0066"></div>
-        <div class="color-swatch" data-color="#9f1239" style="background-color: #9f1239"></div>
-        <div class="color-swatch" data-color="#4B0001" style="background-color: #4B0001"></div>
-        <div class="color-swatch" data-color="#964B00" style="background-color: #964B00"></div>
-        <div class="color-swatch" data-color="#BE5103" style="background-color: #BE5103"></div>
-        <div class="color-swatch" data-color="#ffa500" style="background-color: #ffa500"></div>
-        <div class="color-swatch" data-color="#ffff00" style="background-color: #ffff00"></div>
-        <div class="color-swatch" data-color="#00ff00" style="background-color: #00ff00"></div>
-        <div class="color-swatch" data-color="#009c1a" style="background-color: #009c1a"></div>
-        <div class="color-swatch" data-color="#429A31" style="background-color: #429A31"></div>
-        <div class="color-swatch" data-color="#84cc16" style="background-color: #84cc16"></div>
-        <div class="color-swatch" data-color="#365314" style="background-color: #365314"></div>
-        <div class="color-swatch" data-color="#134e4a" style="background-color: #134e4a"></div>
-        <div class="color-swatch" data-color="#12c1ed" style="background-color: #12c1ed"></div>
-        <div class="color-swatch" data-color="#00ffff" style="background-color: #00ffff"></div>
-        <div class="color-swatch" data-color="#050372" style="background-color: #050372"></div>
-        <div class="color-swatch" data-color="#0000ff" style="background-color: #0000ff"></div>
-        <div class="color-swatch" data-color="#0047ab" style="background-color: #0047ab"></div>
-        <div class="color-swatch" data-color="#2B0057" style="background-color: #2B0057"></div>
-        <div class="color-swatch" data-color="#51158C" style="background-color: #51158C"></div>
-        <div class="color-swatch" data-color="#7F00FF" style="background-color: #7F00FF"></div>
-        <div class="color-swatch" data-color="#6601ff" style="background-color: #6601ff"></div>
-        <div class="color-swatch" data-color="#B163FF" style="background-color: #B163FF"></div>
-        <div class="color-swatch" data-color="#cb00cc" style="background-color: #cb00cc"></div>
-        <div class="color-swatch" data-color="#ff00ff" style="background-color: #ff00ff"></div>
-        <div class="color-swatch" data-color="#cc00ff" style="background-color: #cc00ff"></div>
-    `;
+    const colors = [
+        "#ffa500",
+        "#dcb909",
+        "#cbd902",
+        "#84cc16",
+        "#b7fa00",
+        "#00faaf",
+        "#12c1ed",
+        "#00ffff",
+        "#ffffff",
+        "#000000",
+        "#ff0000",
+        "#fe3b00",
+        "#f43f5e",
+        "#ff0066",
+        "#9f1239",
+        "#4B0001",
+        "#B163FF",
+        "#ffff00",
+        "#964B00",
+        "#BE5103",
+        "#00ff00",
+        "#009c1a",
+        "#365314",
+        "#134e4a",
+        "#050372",
+        "#0000ff",
+        "#0047ab",
+        "#2B0057",
+        "#51158C",
+        "#7F00FF",
+        "#6601ff",
+        "#cb00cc",
+        "#ff00ff",
+        "#cc00ff",
+    ];
+    let colorGrid = "";
+    colors.forEach((color) => {
+        colorGrid += `<div class="color-swatch" data-color="${color}" style="background-color: ${color}"></div>`;
+    });
+    return (
+        colorGrid +
+        `
+        <div style="display:flex; justify-content:center; align-items:center;">
+            <input type="color" class="html-color-input" value="#ff0000">
+        </div>
+        `
+    );
 }
 
 function consoleLog(log) {
@@ -443,12 +623,14 @@ function loadStickyNoteShortcuts() {
 function htmlPreset() {
     return {
         BlockSpan: ["<span style='display: block;'>", "</span>"],
+        ListHead: ["<span style='color: darkmagenta; font-weight: bold; font-size: 23px; display: block;'>", "</span>"],
         list: ["<span style='display: block;'>&ensp;&ensp;➜ ", "</span>"],
         BlueBold: ["<span style='color: blue; font-weight: bold;'>", "</span>"],
         GreenBold: ["<span style='color: green; font-weight: bold;'>", "</span>"],
         TextBlue: ["<span style='color: blue; '>", "</span>"],
         TextGreen: ["<span style='color: green; '>", "</span>"],
         Bold: ["<span style='font-weight: bold;'>", "</span>"],
+        Link: [`<a style="text-decoration:none; color:teal;" href="#" target="_blank">`, `</a>`],
         heading: [
             "<h2 style='text-align: center; padding: 5px; border-top: 3px solid tomato; border-bottom: 3px solid tomato; color: blue; margin: 50px;'>",
             "</h2>",

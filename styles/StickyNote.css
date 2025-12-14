@@ -582,3 +582,193 @@ input[type="color"].preset {
     border-color: #005a9e;
     transform: translateY(-1px);
 }
+
+/**TODO:--------html canvas--------------*/
+.canvas-wrapper {
+    position: fixed;
+    top: 100px;
+    left: 150px;
+    width: 800px;
+    background: #f6f5c9;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    resize: both;
+    overflow: hidden;
+    z-index: 15000;
+}
+
+.canvas-wrapper .title-bar {
+    height: 36px;
+    background: #000dff;
+    color: white;
+    padding: 0 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    user-select: none;
+}
+
+.canvas-wrapper .title-bar .title {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.window-controls .btn {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    margin-left: 6px;
+}
+
+.canvas-wrapper .toolbar {
+    padding: 6px 8px;
+    background: linear-gradient(#f7f7f7, #ededed);
+    border-bottom: 1px solid #ccc;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    font-family: system-ui, sans-serif;
+}
+
+.canvas-container {
+    flex: 1;
+    position: relative;
+    overflow: auto;
+}
+
+#noteInCanvas {
+    display: block;
+    background: #fff;
+}
+/* Group tools on left */
+.tool-group {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+/* Unified button style */
+.tool-btn {
+    height: 32px;
+    min-width: 32px;
+    padding: 0 10px;
+    border-radius: 6px;
+    border: 1px solid #bbb;
+    background: #fff;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    transition: all 0.15s ease;
+}
+
+/* Hover */
+.tool-btn:hover {
+    background: #e9f0ff;
+    border-color: #7aa2ff;
+}
+
+/* Active / pressed */
+.tool-btn:active {
+    background: #dbe7ff;
+    transform: translateY(1px);
+}
+
+/* Selected tool (JS toggles .active) */
+.tool-btn.active {
+    background: #d0ddff;
+    border-color: #4a6cff;
+    box-shadow: inset 0 0 0 1px #4a6cff;
+}
+
+/* Inputs aligned with buttons */
+.tool-input {
+    height: 32px;
+    border-radius: 6px;
+    border: 1px solid #bbb;
+    padding: 0 6px;
+    background: #fff;
+    cursor: pointer;
+}
+
+/* Color picker fix */
+.tool-input.color {
+    width: 60px;
+    border: none;
+    padding: 0;
+}
+
+.stroke-input {
+    display: inline-block;
+    font-size: 16px;
+    width: 35px;
+    height: 25px;
+    outline: none;
+    border: 1px solid grey;
+    border-radius: 3px;
+    padding: 2px 5px;
+}
+
+.tool-group input:nth-child(4) {
+    width: 45px;
+}
+
+/* Expand button emphasis */
+.expand-btn {
+    font-weight: 600;
+    background: #fff8e1;
+}
+
+.expand-btn:hover {
+    background: #ffe9a8;
+    border-color: #e6b800;
+}
+.more-tools {
+    position: relative;
+}
+
+.more-tools-menu {
+    position: absolute;
+    top: 32px;
+    left: 0;
+    display: none;
+
+    grid-template-columns: repeat(5, auto);
+    gap: 4px;
+
+    width: max-content;
+
+    background: #dddbc5;
+    border: 1px solid #ccc;
+    padding: 6px;
+    border-radius: 4px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    z-index: 12000;
+}
+
+.more-tools:hover .more-tools-menu {
+    display: grid;
+}
+
+.more-tools-menu button {
+    height: 32px;
+    min-width: 32px;
+    padding: 0 8px;
+    border-radius: 6px;
+    border: 1px solid #bbb;
+    background: #f9f9f9;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.more-tools-menu button:hover {
+    background: #e9f0ff;
+}

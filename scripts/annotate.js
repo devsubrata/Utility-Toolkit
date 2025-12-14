@@ -34,32 +34,30 @@ if (!document.getElementById("annotationToolbar")) {
             </select>
         </div>
         <button id="rectangle" title="Rectangle">▭</button>
-        <button id="circle" title="Circle">◯</button>
-        <button id="brush" title="Brush">🖌️</button>
+        <button id="eraser" title="Erase" class="active">𝐄</button>
+        <button id="borderedRectangle" title="Bordered Rectangle">🔲</button>
+        <button id="borderedCircle" title="Bordered Circle">🔘</button>
         <select id="line-type" class="line-type" title="Select line type"></select>
         <input type="number" id="brushSize" title="Adjust line, rect, brush, circle, stroke-width" min="1" max="50" value="2" />
         <button id="typeText" title="Add text">T</button>
         <button id="insertImage" title="Insert Image">🖼️</button>
-        <div class="undo_redo">
-            <button id="undo" title="undo">↪️</button>
-            <button id="redo" title="redo">↩️</button>
-        </div>
+        <button id="undo" title="undo">↪️</button>
         <div class="opacity_control">
             <label for="opacity">🌓</label>
             <input type="number" title="Adjust opacity" id="opacity" min="0.00" max="1.00" step="0.05" value="1" />
         </div>
-        <button id="miniTextTool" title="Mini text tool">𝐓</button>
-        <button id="filledCircle" title="Filled circle">⚫</button>
-        <button id="eraser" title="Erase" class="active">𝐄</button>
+        <button id="miniTextTool" title="Mini text tool">𝐓</button>      
+        <button id="saveLayer" title="Save layers">💾</button>
+        <button id="restoreLayer" title="Restore layers">📂</button>
         <div class="save-menu">
             <button class="save-menu-btn" title="More options">☰</button>
             <div class="menu-content">
-                <button id="borderedRectangle" title="Bordered Rectangle">▭</button>
-                <button id="borderedCircle" title="Bordered Circle">◯</button>
+                <button id="redo" title="redo">↩️</button>
+                <button id="circle" title="Circle">◯</button>
+                <button id="filledCircle" title="Filled circle">⚫</button>
                 <button id="color_detector" title="Pick color from canvas">🔥</button>
                 <button id="save" title="Take Snapshot">📸</button>
-                <button id="saveLayer" title="Save layers">💾</button>
-                <button id="restoreLayer" title="Restore layers">📂</button>
+                <button id="brush" title="Brush">🖌️</button>
                 <button id="clear" title="Erase everything">🆑</button>
                 <button id="placeBottom" title="place bottom">🗕</button>
                 <button id="exit">❌</button>
@@ -289,11 +287,12 @@ function injectCanvas() {
     let highlighterSize = 20;
     let opacity = 1.0;
     let color1 = `rgba(255,255,255,${opacity})`;
-    let color2 = `rgba(255, 165, 0, 0.3)`;
+    let color2 = `rgba(255, 165, 0, 0.2)`;
     let textColor = `#000000`;
     let currentTool = "eraser";
     let startX, startY;
     let snapshot; // Store canvas state before drawing a rectangle
+    let pasteHandler = null;
     const undoStack = [];
     const redoStack = [];
 
@@ -331,6 +330,7 @@ function injectCanvas() {
         currentTool = tool;
 
         Object.values(tools).forEach((btn) => btn.classList.remove("active"));
+
         const isLine = ["horizontalLine", "verticalLine", "inclinedLine"].includes(currentTool);
         if (isLine) tools["lines"].classList.add("active");
         else tools[tool].classList.add("active");
@@ -492,7 +492,19 @@ function injectCanvas() {
                 colorPicker1.children[0].style.backgroundColor = color1;
             }
         } else if (currentTool === "pasteImage") {
-            handlePasteImage(e);
+            pasteHandler?.destroy(); // 🔥 remove old listener
+
+            let clickPosition = { x: 0, y: 0 };
+            const rect = canvas.getBoundingClientRect();
+            clickPosition.x = e.clientX - rect.left;
+            clickPosition.y = e.clientY - rect.top;
+            pasteHandler = enableCanvasImagePaste({
+                canvas,
+                ctx,
+                isEnabled: isPasting,
+                getScale: getImageScale,
+                clickPosition,
+            });
         } else if (currentTool === "miniTextTool") {
             addMiniTextModal(e);
         } else {
@@ -508,14 +520,6 @@ function injectCanvas() {
             return "None";
         }
     });
-
-    // Event Listeners for touch
-    canvas.addEventListener("touchstart", startPainting);
-    canvas.addEventListener("touchmove", draw);
-    canvas.addEventListener("touchend", stopPainting);
-
-    // Disable scrolling while drawing
-    document.body.style.touchAction = "none";
 
     function lineToolsHandler() {
         const lineType = document.getElementById("line-select").value;
@@ -578,10 +582,15 @@ function injectCanvas() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
     });
 
-    document.querySelector(".save-menu-btn").onclick = () => {
-        const saveMenu = document.querySelector(".menu-content");
-        saveMenu.style.display = saveMenu.style.display === "none" || saveMenu.style.display === "" ? "grid" : "none";
+    document.querySelector(".save-menu-btn").onclick = (e) => {
+        e.stopPropagation();
+        const opsMenu = document.querySelector(".menu-content");
+        opsMenu.style.display = opsMenu.style.display === "none" || opsMenu.style.display === "" ? "grid" : "none";
     };
+    document.addEventListener("click", (e) => {
+        const opsMenu = document.querySelector(".menu-content");
+        if (opsMenu) opsMenu.style.display = "none";
+    });
     document.getElementById("save").onclick = () => {
         startFullPageCapture();
         document.querySelector(".menu-content").style.display = "none";
@@ -665,6 +674,7 @@ function injectCanvas() {
         // Code for predifined color
         const colorPickerButton = colorPicker.querySelector(".color-picker-button");
         const colorSwatches = colorPicker.querySelector(".color-swatches");
+        const HtmlColorInput = colorPicker.querySelector(".html-color-input");
 
         // Toggle color swatches visibility on button click
         colorPickerButton.addEventListener("click", function (event) {
@@ -681,15 +691,24 @@ function injectCanvas() {
                 colorPickerButton.style.backgroundColor = selectedColor;
                 // Hide swatches after selection
                 colorSwatches.classList.remove("visible");
-
-                if (colorVariable === 1) color1 = createRGBA(selectedColor, opacity);
-                else color2 = createRGBA(selectedColor, 0.4);
-
-                if (currentTool === "highlighter" || currentTool === "filledRectangle")
-                    document.getElementById("activeColor").style.backgroundColor = color2;
-                else document.getElementById("activeColor").style.backgroundColor = color1;
+                resolveActiveColor(selectedColor, opacity);
             });
         });
+
+        HtmlColorInput.addEventListener("input", function () {
+            const selectedColor = this.value;
+            colorPickerButton.style.backgroundColor = selectedColor;
+            resolveActiveColor(selectedColor, opacity);
+        });
+
+        function resolveActiveColor(selectedColor, opacity) {
+            if (colorVariable === 1) color1 = createRGBA(selectedColor, opacity);
+            else color2 = createRGBA(selectedColor, 0.4);
+
+            if (currentTool === "highlighter" || currentTool === "filledRectangle")
+                document.getElementById("activeColor").style.backgroundColor = color2;
+            else document.getElementById("activeColor").style.backgroundColor = color1;
+        }
 
         // Close swatches when clicking outside
         document.addEventListener("click", function (event) {
@@ -938,11 +957,6 @@ function injectCanvas() {
                 addText();
             }
             if (event.key === "Enter" && !event.shiftKey) {
-                // setTimeout(() => {
-                //     textarea.style.height = "auto";
-                //     textarea.style.height = textarea.scrollHeight + "px";
-                // }, 0);
-
                 textarea.style.height = "auto";
                 textarea.style.height = textarea.scrollHeight + "px";
             }
@@ -953,138 +967,6 @@ function injectCanvas() {
             measure.remove();
         }
     }
-
-    //TODO: Handing inserting image from clipboard
-    let clickPosition = { x: 0, y: 0 };
-
-    function handlePasteImage(e) {
-        const rect = canvas.getBoundingClientRect();
-        clickPosition.x = e.clientX - rect.left;
-        clickPosition.y = e.clientY - rect.top;
-    }
-
-    function getImageScale() {
-        const input = prompt("Enter image scale (e.g., 0.5, 1, 2):", "1");
-        const parsed = parseFloat(input);
-        let imageScale;
-        if (!isNaN(parsed) && parsed > 0) {
-            imageScale = parsed;
-        } else {
-            alert("Invalid scale value. Using default (1).");
-            imageScale = 1;
-        }
-        return imageScale;
-    }
-
-    window.addEventListener("paste", async function (e) {
-        if (!isPasting) return;
-
-        const items = e.clipboardData.items;
-        const scale = getImageScale();
-
-        for (const item of items) {
-            if (item.type.indexOf("image") !== -1) {
-                const blob = item.getAsFile();
-                const img = new Image();
-
-                img.onload = function () {
-                    // Take a snapshot of the canvas so previous drawings remain intact
-                    const canvasSnapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                    // Initialize draggable mode only when pasting is active
-                    if (isPasting) {
-                        makeImageDraggable(img, scale, { x: clickPosition.x, y: clickPosition.y }, canvasSnapshot);
-                    }
-
-                    // --- Helper for draggable pasted image ---
-                    function makeImageDraggable(image, scaleFactor, startPos, snapshot) {
-                        let tempX = startPos.x;
-                        let tempY = startPos.y;
-                        let isDragging = false;
-                        let offsetX = 0;
-                        let offsetY = 0;
-                        // Draw preview on top of existing canvas
-                        function drawTemp() {
-                            ctx.putImageData(snapshot, 0, 0);
-                            ctx.drawImage(image, tempX, tempY, image.width * scaleFactor, image.height * scaleFactor);
-                            ctx.save();
-                            ctx.strokeStyle = "rgba(0,0,0,0.35)";
-                            ctx.lineWidth = 1;
-                            ctx.strokeRect(tempX, tempY, image.width * scaleFactor, image.height * scaleFactor);
-                            ctx.restore();
-                        }
-                        drawTemp();
-
-                        function isInsideImage(x, y) {
-                            return x >= tempX && x <= tempX + image.width * scaleFactor && y >= tempY && y <= tempY + image.height * scaleFactor;
-                        }
-
-                        // Mouse down → start drag
-                        function onMouseDown(ev) {
-                            const rect = canvas.getBoundingClientRect();
-                            const x = ev.clientX - rect.left;
-                            const y = ev.clientY - rect.top;
-                            if (isInsideImage(x, y)) {
-                                isDragging = true;
-                                offsetX = x - tempX;
-                                offsetY = y - tempY;
-                                canvas.style.cursor = "grabbing";
-                            }
-                        }
-                        // Mouse move → update drag or cursor
-                        function onMouseMove(ev) {
-                            const rect = canvas.getBoundingClientRect();
-                            const x = ev.clientX - rect.left;
-                            const y = ev.clientY - rect.top;
-                            // Change cursor only when hovering over image
-                            if (!isDragging) {
-                                canvas.style.cursor = isInsideImage(x, y) ? "grab" : "default";
-                            } else {
-                                // Update position while dragging
-                                tempX = x - offsetX;
-                                tempY = y - offsetY;
-                                drawTemp();
-                            }
-                        }
-                        // Mouse up → stop drag
-                        function onMouseUp() {
-                            if (isDragging) {
-                                isDragging = false;
-                                canvas.style.cursor = "grab";
-                            }
-                        }
-                        // Keyboard: Enter = fix, Esc = cancel
-                        function onKeyDown(ev) {
-                            if (ev.key === "Enter") {
-                                // Fix image permanently
-                                ctx.putImageData(snapshot, 0, 0);
-                                ctx.drawImage(image, tempX, tempY, image.width * scaleFactor, image.height * scaleFactor);
-                                cleanup();
-                            } else if (ev.key === "Escape") {
-                                // Cancel placement
-                                ctx.putImageData(snapshot, 0, 0);
-                                cleanup();
-                            }
-                        }
-                        // Cleanup
-                        function cleanup() {
-                            canvas.removeEventListener("mousedown", onMouseDown);
-                            canvas.removeEventListener("mousemove", onMouseMove);
-                            canvas.removeEventListener("mouseup", onMouseUp);
-                            window.removeEventListener("keydown", onKeyDown);
-                            canvas.style.cursor = "default";
-                        }
-                        // Attach listeners
-                        canvas.addEventListener("mousedown", onMouseDown);
-                        canvas.addEventListener("mousemove", onMouseMove);
-                        canvas.addEventListener("mouseup", onMouseUp);
-                        window.addEventListener("keydown", onKeyDown);
-                    }
-                };
-                img.src = URL.createObjectURL(blob);
-                break; // Handle only first image item
-            }
-        }
-    });
 
     //* resize/positon tool bar
     changeToolbarSize();
@@ -1118,20 +1000,17 @@ function injectCanvas() {
             color_opacity_control();
             setActiveTool("eraser");
         };
-        const preset2 = (setOpacity, setBrushSize, lineTool = true) => {
+        const preset2 = (setOpacity, setBrushSize, rgb) => {
             opacity = setOpacity;
             brushSize = setBrushSize;
 
             document.getElementById("opacity").value = opacity;
             document.getElementById("brushSize").value = brushSize;
 
-            if (lineTool) {
-                lineToolsHandler();
-                colorSettings(0, 0, 255, opacity, 1);
-            } else {
-                setActiveTool("rectangle");
-                colorSettings(18, 193, 235, opacity, 1);
-            }
+            lineToolsHandler();
+
+            const { r, g, b } = rgb;
+            colorSettings(r, g, b, opacity, 1);
         };
         const preset3 = (setOpacity, isborderedRectangle = true) => {
             opacity = setOpacity;
@@ -1139,18 +1018,21 @@ function injectCanvas() {
             color_opacity_control();
             if (isborderedRectangle) {
                 setActiveTool("borderedRectangle");
-                colorSettings(18, 193, 235, opacity, 1);
-                colorSettings(18, 193, 235, opacity, 2);
+                colorSettings(254, 59, 0, opacity, 1);
+                colorSettings(254, 59, 0, opacity, 2);
+                brushSize = 2;
+                document.getElementById("brushSize").value = brushSize;
             } else {
                 setActiveTool("eraser");
+                colorSettings(255, 165, 0, opacity, 1);
             }
         };
 
         if (presetNumber === 0) preset1();
-        if (presetNumber === 1) preset2(0.5, 3);
-        if (presetNumber === 2) preset2(1, 2, false);
-        if (presetNumber === 3) preset3(0.06, false);
-        if (presetNumber === 4) preset3(0.2);
+        if (presetNumber === 1) preset2(1, 1, { r: 102, g: 1, b: 255 });
+        if (presetNumber === 2) preset2(0.5, 3, { r: 142, g: 1, b: 193 });
+        if (presetNumber === 3) preset3(0.2);
+        if (presetNumber === 4) preset3(0.067, false);
     }
     let presetNumber = 1;
     document.getElementById("togglePreset").addEventListener("click", () => {

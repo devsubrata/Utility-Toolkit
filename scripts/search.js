@@ -19,7 +19,7 @@ if (!document.getElementById("searchBar")) {
             <button id="closeSearchModal">❌</button>
         </div>
     `;
-
+    // <textarea type="text" id="searchInput" placeholder="Enter a word..."></textarea>
     document.body.appendChild(searchDiv);
 
     // Populate the select element
