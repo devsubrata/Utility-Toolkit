@@ -983,7 +983,7 @@ if (!document.getElementById("stickyNote")) {
                 <button class="tool-btn" id="hLineTool" title="Horizontal Line">―</button>
                 <button class="tool-btn" id="highlighterTool" title="Highlight">🎨</button>
                 <button class="tool-btn" id="rectangleTool" title="Rectangle">▭</button>
-                <button class="tool-btn" id="circleTool" title="circle">◯</button>
+                <button class="tool-btn" id="textTool" title="add text">T</button>
                 <button class="tool-btn" id="insertImageTool" title="insertImage">🖼️</button>
                 <div class="more-tools">
                     <button class="tool-btn more-menu-btns" title="More options">☰</button>
@@ -992,6 +992,7 @@ if (!document.getElementById("stickyNote")) {
                         <button class="tool-btn" id="filledRectangleTool" title="filledRectangle">🟫</button>
                         <button class="tool-btn" id="borderedRectangleTool" title="borderedRectangle">🔲</button>
                         <button class="tool-btn" id="filledCircleTool" title="filledCircle">⚫</button>
+                        <button class="tool-btn" id="circleTool" title="circle">◯</button>
                         <button class="tool-btn" id="borderedCircleTool" title="borderedCircle">🔘</button>
                         <button class="tool-btn" id="clearCanvas" title="Erase Everything">🚫</button>
                     </div>
@@ -1051,6 +1052,7 @@ if (!document.getElementById("stickyNote")) {
             filledCircle: document.getElementById("filledCircleTool"),
             borderedCircle: document.getElementById("borderedCircleTool"),
             pasteImage: document.getElementById("insertImageTool"),
+            texting: document.getElementById("textTool"),
         };
         //TODO:----------Tool Handlers-----------------------------------
 
@@ -1068,6 +1070,10 @@ if (!document.getElementById("stickyNote")) {
             isImagePasting = true;
             setCurrentTool("pasteImage");
         });
+        toolset.texting.addEventListener("click", () => {
+            isTypingText = true;
+            setCurrentTool("texting");
+        });
         document.getElementById("clearCanvas").addEventListener("click", () => {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
         });
@@ -1082,7 +1088,14 @@ if (!document.getElementById("stickyNote")) {
         });
 
         function setCurrentTool(tool) {
-            if (tool !== "pasteImage") isImagePasting = false;
+            if (tool !== "pasteImage") {
+                isImagePasting = false;
+                if (pasteHandler) pasteHandler.destroy();
+            }
+            if (tool !== "texting") {
+                isTypingText = false;
+                stopCaret();
+            }
 
             currentTool = tool;
             Object.values(toolset).forEach((btn) => btn.classList.remove("active"));
@@ -1092,6 +1105,7 @@ if (!document.getElementById("stickyNote")) {
         function readyForDrawing(e) {
             e.preventDefault();
             if (currentTool === "pasteImage") return;
+            if (currentTool === "texting") return;
 
             isDrawing = true;
             ctx.lineWidth = strokeWidth;
@@ -1211,9 +1225,12 @@ if (!document.getElementById("stickyNote")) {
                         canvas,
                         ctx,
                         isEnabled: isImagePasting,
-                        getScale: getImageScale,
                         clickPosition,
                     });
+                }
+
+                if (currentTool === "texting") {
+                    addTextInStickyNoteCanvas(clickPosition);
                 }
             });
         }
@@ -1261,13 +1278,139 @@ if (!document.getElementById("stickyNote")) {
                 const isHidden = toolbar.style.display === "none";
                 toolbar.style.display = isHidden ? "flex" : "none";
                 canvasContainer.style.display = isHidden ? "block" : "none";
+                wrapper.style.height = "fit-content";
             };
 
             document.getElementById("closeCanvasViewer").onclick = () => {
+                isImagePasting = false;
                 pasteHandler?.destroy(); // 🔥 remove old listener
                 wrapper.remove();
             };
         }
         bindCanvasWindowControls();
+
+        let activeTextListener = null;
+        let activePasteListener = null;
+        let caretTimer = null;
+
+        // caret rendering control
+        let caret = {
+            active: false,
+            visible: true,
+            redraw: null,
+        };
+
+        function stopCaret() {
+            if (!caret.active) return;
+
+            caret.active = false;
+
+            if (caret.redraw) {
+                caret.redraw(false);
+                caret.redraw = null;
+            }
+
+            if (caretTimer) {
+                clearInterval(caretTimer);
+                caretTimer = null;
+            }
+
+            if (activeTextListener) {
+                document.removeEventListener("keydown", activeTextListener);
+                activeTextListener = null;
+            }
+
+            if (activePasteListener) {
+                document.removeEventListener("paste", activePasteListener);
+                activePasteListener = null;
+            }
+        }
+
+        function addTextInStickyNoteCanvas({ x, y }) {
+            if (!isTypingText) return;
+
+            stopCaret();
+
+            const fontSize = parseInt(document.getElementById("highlighterWidth").value);
+            const color = document.getElementById("objColor").value;
+
+            let text = "";
+            const lineHeight = fontSize * 1.2;
+
+            ctx.font = `${fontSize}px Arial`;
+            ctx.fillStyle = color;
+            ctx.textBaseline = "top";
+
+            caret.active = true;
+            caret.visible = true;
+
+            caret.redraw = function (withCaret = true) {
+                ctx.clearRect(x, y, canvas.width - x, lineHeight);
+                ctx.fillText(text, x, y);
+
+                if (withCaret && caret.active && caret.visible) {
+                    const w = ctx.measureText(text).width;
+                    ctx.fillText("|", x + w + 2, y);
+                }
+            };
+
+            caret.redraw();
+
+            caretTimer = setInterval(() => {
+                caret.visible = !caret.visible;
+                caret.redraw();
+            }, 500);
+
+            /* ---------- KEYBOARD INPUT ---------- */
+            activeTextListener = function (e) {
+                if (!caret.active) return;
+
+                if (e.key === "Escape") {
+                    caret.redraw(false);
+                    stopCaret();
+                    isTypingText = false;
+                    return;
+                }
+                if (e.key === "Enter") {
+                    caret.redraw(false);
+                    y += lineHeight;
+                    text = "";
+                    caret.redraw();
+                    return;
+                }
+                if (e.key === "Backspace") {
+                    text = text.slice(0, -1);
+                    caret.redraw();
+                    return;
+                }
+                // ✅ only insert printable chars WITHOUT modifiers
+                if (e.key.length === 1 && !e.ctrlKey && !e.metaKey) {
+                    text += e.key;
+                    caret.redraw();
+                }
+            };
+            /* ---------- PASTE SUPPORT ---------- */
+            activePasteListener = function (e) {
+                if (!caret.active) return;
+
+                e.preventDefault();
+
+                const pastedText = e.clipboardData.getData("text");
+                const lines = pastedText.split(/\r?\n/);
+
+                lines.forEach((line, i) => {
+                    if (i > 0) {
+                        caret.redraw(false);
+                        y += lineHeight;
+                        text = "";
+                    }
+                    text += line;
+                    caret.redraw();
+                });
+            };
+
+            document.addEventListener("keydown", activeTextListener);
+            document.addEventListener("paste", activePasteListener);
+        }
     }
 }

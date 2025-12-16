@@ -26,9 +26,9 @@ if (!document.getElementById("openPlayer")) {
 
             <!-- Custom progress bar -->
             <div class="progress-container" style="display:flex; align-items:center; margin:5px 0;">
-                <span id="currentTime">0:00</span>
-                <input type="range" id="progressBar" value="0" min="0" max="100" step="0.1" style="flex:1; margin:0 5px;">
-                <span id="duration">0:00</span>
+                <span id="currentTime" style="cursor:pointer;" title="Copy Timestamp">0:00</span>
+                <input type="range" id="progressBar" value="0" min="0" max="100" step="0.1" style="flex:1; margin:0 5px;">–&nbsp;
+                <span id="leftTime">0:00</span>&nbsp;/&nbsp;<span id="duration">0:00</span>
             </div>
 
             <!-- Control panel -->
@@ -56,6 +56,7 @@ if (!document.getElementById("openPlayer")) {
     const forwardBtn = document.getElementById("forwardBtn");
     const progressBar = document.getElementById("progressBar");
     const currentTimeSpan = document.getElementById("currentTime");
+    const leftTime = document.getElementById("leftTime");
     const durationSpan = document.getElementById("duration");
 
     function formatTime(sec) {
@@ -63,6 +64,8 @@ if (!document.getElementById("openPlayer")) {
         const seconds = Math.floor(sec % 60);
         return `${minutes}:${seconds.toString().padStart(2, "0")}`;
     }
+
+    currentTimeSpan.onclick = () => copyId(currentTimeSpan.textContent, currentTimeSpan);
 
     volumeSlider.addEventListener("input", () => {
         audioPlayer.volume = volumeSlider.value;
@@ -115,7 +118,10 @@ if (!document.getElementById("openPlayer")) {
     audioPlayer.addEventListener("timeupdate", () => {
         const value = (audioPlayer.currentTime / audioPlayer.duration) * 100;
         progressBar.value = value || 0;
+
         currentTimeSpan.textContent = formatTime(audioPlayer.currentTime);
+        leftTime.textContent = formatTime(audioPlayer.duration - audioPlayer.currentTime);
+
         durationSpan.textContent = formatTime(audioPlayer.duration || 0);
     });
 
@@ -197,11 +203,14 @@ if (!document.getElementById("openPlayer")) {
             li.classList.add("list-group-item");
 
             li.onclick = async () => {
+                const listItems = document.querySelectorAll(".list-group-item");
+                listItems.forEach((item) => item.classList.remove("playing"));
+
+                li.classList.add("playing");
                 const reversedQueue = metadata.slice(index); // From clicked to the first song
                 let current = 0;
                 const playSong = async () => {
                     if (current >= reversedQueue.length) return;
-
                     const currentSong = reversedQueue[current];
                     const result = await getSong(currentSong.id);
                     const url = URL.createObjectURL(result.file);

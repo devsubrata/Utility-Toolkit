@@ -7,10 +7,10 @@
 
 #openPlayer {
     position: fixed;
-    width: 400px;
+    width: 440px;
     top: 50px;
     left: 50px;
-    background: #e9e0f5;
+    background: #c5f3f3;
     border: 1px solid #ccc;
     padding: 0;
     z-index: 25000;
@@ -18,11 +18,11 @@
     user-select: none;
     font-family: "Shippori Mincho", serif;
     font-weight: 600;
-    border-radius: 12px;
+    border-radius: 10px;
 }
 
 #openPlayer .content {
-    padding: 20px;
+    padding: 15px;
 }
 #playlist {
     max-height: 600px;
@@ -42,10 +42,10 @@
     margin-bottom: 10px;
     outline: none;
     border: none;
-    border-radius: 8px;
-    padding: 10px 15px;
-    font-size: 20px;
-    background-color: rgb(1, 103, 103);
+    border-radius: 5px;
+    padding: 8px;
+    font-size: 17px;
+    background-color: rgb(1 38 103);
     color: #fff;
     cursor: pointer;
 }
@@ -54,8 +54,8 @@
     background: #9650f1;
     color: #fff;
     padding: 8px 10px;
-    border-top-left-radius: 12px;
-    border-top-right-radius: 12px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
 
     display: flex;
     justify-content: center;
@@ -76,8 +76,8 @@
 }
 
 .floating-window.minimized .title-bar {
-    border-bottom-left-radius: 12px;
-    border-bottom-right-radius: 12px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
 }
 .floating-window .title-bar {
     transition: border-radius 0.3s;
@@ -138,6 +138,12 @@
     margin: 4px;
     border-radius: 3px;
     padding: 5px;
+}
+
+#playlist .playing {
+    border: 1px solid #f66504;
+    background: aquamarine;
+    transition: all 0.4s ease;
 }
 
 .list-item {

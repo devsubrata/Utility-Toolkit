@@ -459,3 +459,38 @@
     margin: 0;
     padding: 0;
 }
+
+/*TODO:------------infinite cursor--------------*/
+/* Body-level infinite crosshair */
+#crosshair {
+    position: fixed; /* NOT absolute */
+    inset: 0;
+    pointer-events: none;
+    display: none;
+    z-index: 15000;
+}
+
+/* lines */
+#crosshair .vline,
+#crosshair .hline {
+    position: absolute;
+    background: red;
+}
+
+/* infinite illusion */
+#crosshair .vline {
+    top: -100vh;
+    height: 300vh;
+    width: 1px;
+}
+
+#crosshair .hline {
+    left: -100vw;
+    width: 300vw;
+    height: 1px;
+}
+
+/* hide system cursor */
+.crosshair-active {
+    cursor: none;
+}

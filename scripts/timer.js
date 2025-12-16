@@ -17,7 +17,10 @@ if (!document.getElementById("timerWindow")) {
         </div>
         <div class="content">
             <input type="number" id="minutesInput" placeholder="Minutes" />
-            <button id="startTimerBtn">Start</button>
+            <div>
+                <button id="startTimerBtn">Start</button>
+                <button id="pauseTimerBtn">Pause</button>
+            </div>
             <div id="timerDisplay">00:00</div>
         </div>
     `;

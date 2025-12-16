@@ -55,6 +55,7 @@ if (!document.getElementById("annotationToolbar")) {
                 <button id="redo" title="redo">↩️</button>
                 <button id="circle" title="Circle">◯</button>
                 <button id="filledCircle" title="Filled circle">⚫</button>
+                <button id="drawNumber" title="Draw Number Sequencially">🔢</button>
                 <button id="color_detector" title="Pick color from canvas">🔥</button>
                 <button id="save" title="Take Snapshot">📸</button>
                 <button id="brush" title="Brush">🖌️</button>
@@ -161,13 +162,13 @@ function create_bullet_menu() {
                     <span class="option" data-value="⬇️">⬇️</span>
                 </div>
                 <div class="category-row">
-                    <span class="option" data-value="✿">✿</span>
-                    <span class="option" data-value="❀">❀</span>
-                    <span class="option" data-value="✷">✷</span>
-                    <span class="option" data-value="𖤐">𖤐</span>
-                    <span class="option" data-value="𖤓">𖤓</span>
-                    <span class="option" data-value="✩">✩</span>
-                    <span class="option" data-value="✦">✦</span>
+                    <span class="option" data-value="✿ ">✿</span>
+                    <span class="option" data-value="❀ ">❀</span>
+                    <span class="option" data-value="✷ ">✷</span>
+                    <span class="option" data-value="𖤐 ">𖤐</span>
+                    <span class="option" data-value="𖤓 ">𖤓</span>
+                    <span class="option" data-value="✩ ">✩</span>
+                    <span class="option" data-value="✦ ">✦</span>
                 </div>
                 <div class="category-row">
                     <span class="option" data-value="🟣">🟣</span>
@@ -178,10 +179,10 @@ function create_bullet_menu() {
                     <span class="option" data-value="🔵">🔵</span>
                 </div>
                 <div class="category-row">
-                    <span class="option" data-value=" ⇒ ">⇒</span>
-                    <span class="option" data-value=" ➜ ">➜</span>
-                    <span class="option" data-value=" ★ ">★</span>
-                    <span class="option" data-value=" — ">—</span>
+                    <span class="option" data-value="⇒ ">⇒</span>
+                    <span class="option" data-value="➜ ">➜</span>
+                    <span class="option" data-value="★ ">★</span>
+                    <span class="option" data-value="— ">—</span>
                     <span class="option" data-value="🔹">🔹</span>
                 </div>
                 <div class="category-row">
@@ -278,6 +279,7 @@ function injectCanvas() {
         circle: document.getElementById("circle"),
         filledCircle: document.getElementById("filledCircle"),
         borderedCircle: document.getElementById("borderedCircle"),
+        drawNumber: document.getElementById("drawNumber"),
     };
 
     let painting = false;
@@ -285,14 +287,20 @@ function injectCanvas() {
     let isPasting = false;
     let brushSize = 2;
     let highlighterSize = 20;
+    let highlighterColorOpacity = 0.4;
     let opacity = 1.0;
     let color1 = `rgba(255,255,255,${opacity})`;
-    let color2 = `rgba(255, 165, 0, 0.2)`;
+    let color2 = `rgba(255,165,0,${highlighterColorOpacity})`;
     let textColor = `#000000`;
     let currentTool = "eraser";
     let startX, startY;
     let snapshot; // Store canvas state before drawing a rectangle
     let pasteHandler = null;
+    let drawCount = null;
+    const circleConfig = {
+        enabled: false, // no circle by default
+        style: null, // "stroke" | "fill" | "both"
+    };
     const undoStack = [];
     const redoStack = [];
 
@@ -321,11 +329,59 @@ function injectCanvas() {
     }
     populateLineType();
 
+    //** Set Respective cursor
+    function setCursor(tool) {
+        let crossCursorNeeded = ["Rectangle", "filledRectangle", "borderedRectangle", "eraser"].includes(tool);
+        if (!crossCursorNeeded) {
+            canvas.style.cursor = "default";
+            document.getElementById("crosshair")?.remove();
+        }
+        let { r: r2, g: g2, b: b2 } = extractRGB(color2);
+        let color2RGB = `rgb(${r2},${g2},${b2})`;
+        switch (tool) {
+            case "highlighter":
+                const size = Number(document.getElementById("highlighterSize").value);
+                canvas.style.cursor = highlighterCursor(size, color2RGB);
+                break;
+            case "horizontalLine":
+            case "verticalLine":
+            case "inclinedLine":
+                canvas.style.cursor = lineCursor(brushSize, color1);
+                break;
+            case "rectangle":
+                canvas.style.cursor = rectCursor(`rgba(255,255,255,0)`, color1, +document.getElementById("brushSize").value);
+                infiniteCrossCursor(canvas, "cyan", 1);
+                break;
+            case "filledRectangle":
+                canvas.style.cursor = solidRectCursor(`rgba(${r2},${g2},${b2},0.8)`);
+                infiniteCrossCursor(canvas, "cyan", 1);
+                break;
+            case "borderedRectangle":
+                canvas.style.cursor = rectCursor(color1, color2RGB, +document.getElementById("brushSize").value);
+                infiniteCrossCursor(canvas, "cyan", 1);
+                break;
+            case "eraser":
+                let isWhite = color1 === "rgba(255,255,255,1)";
+                if (isWhite) canvas.style.cursor = solidRectCursor("rgba(255,255,255,0.93)");
+                else canvas.style.cursor = solidRectCursor(color1);
+                infiniteCrossCursor(canvas, "cyan", 1);
+                break;
+            default:
+                canvas.style.cursor = "default";
+        }
+    }
+
     // Set active tool
     function setActiveTool(tool) {
+        setCursor(tool);
+
         if (tool !== "typeText") isTyping = false;
         if (tool !== "miniTextTool") isTyping = false;
-        if (tool !== "pasteImage") isPasting = false;
+        if (tool !== "pasteImage") {
+            isPasting = false;
+            if (pasteHandler) pasteHandler.destroy();
+        }
+        if (tool !== "drawNumber") drawCount = null;
 
         currentTool = tool;
 
@@ -349,6 +405,7 @@ function injectCanvas() {
         }
         if (currentTool === "eyeDropperTool") return;
         if (currentTool === "pasteImage") return;
+        if (currentTool === "drawNumber") return;
 
         painting = true;
 
@@ -492,7 +549,7 @@ function injectCanvas() {
                 colorPicker1.children[0].style.backgroundColor = color1;
             }
         } else if (currentTool === "pasteImage") {
-            pasteHandler?.destroy(); // 🔥 remove old listener
+            if (pasteHandler) pasteHandler.destroy(); // 🔥 remove old listener
 
             let clickPosition = { x: 0, y: 0 };
             const rect = canvas.getBoundingClientRect();
@@ -502,11 +559,12 @@ function injectCanvas() {
                 canvas,
                 ctx,
                 isEnabled: isPasting,
-                getScale: getImageScale,
                 clickPosition,
             });
         } else if (currentTool === "miniTextTool") {
             addMiniTextModal(e);
+        } else if (currentTool === "drawNumber") {
+            drawNumberInSequence(e);
         } else {
             showModal(e);
         }
@@ -566,15 +624,18 @@ function injectCanvas() {
     tools.circle.addEventListener("click", () => setActiveTool("circle"));
     tools.filledCircle.addEventListener("click", () => setActiveTool("filledCircle"));
     tools.borderedCircle.addEventListener("click", () => setActiveTool("borderedCircle"));
+    tools.drawNumber.addEventListener("click", () => setActiveTool("drawNumber"));
 
     // highlighter Size
     document.getElementById("highlighterSize").addEventListener("input", (e) => {
         highlighterSize = parseInt(e.target.value);
+        setCursor(currentTool);
     });
 
     // Brush Size
     brushSizeInput.addEventListener("input", (e) => {
         brushSize = e.target.value;
+        setCursor(currentTool);
     });
 
     // Clear Canvas
@@ -612,14 +673,17 @@ function injectCanvas() {
         opacity = opacity_input.value;
 
         const { r, g, b } = extractRGB(color1);
-        color1 = `rgba(${r}, ${g}, ${b}, ${opacity})`;
+        color1 = `rgba(${r},${g},${b},${opacity})`;
         document.getElementById("activeColor").style.backgroundColor = color1;
+        setCursor(currentTool);
     }
     document.getElementById("opacity").addEventListener("input", color_opacity_control);
+    let opacityIndex = 0;
+    let opacities = [1, 0.2, 0.5, 0.8];
     document.querySelector(".opacity_control label").onclick = () => {
         let opacityInput = document.getElementById("opacity");
-        let opacityValue = parseFloat(opacityInput.value);
-        opacityInput.value = opacityValue === 1 ? 0.2 : 1;
+        opacityInput.value = opacities[opacityIndex++];
+        opacityIndex %= opacities.length;
         color_opacity_control();
     };
 
@@ -659,7 +723,11 @@ function injectCanvas() {
         const r = parseInt(hex.substring(0, 2), 16);
         const g = parseInt(hex.substring(2, 4), 16);
         const b = parseInt(hex.substring(4, 6), 16);
-        return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+
+        const rgba = `rgba(${r},${g},${b},${opacity})`;
+        consoleLog(rgba);
+
+        return rgba;
     }
 
     function extractRGB(rgbaString) {
@@ -692,6 +760,7 @@ function injectCanvas() {
                 // Hide swatches after selection
                 colorSwatches.classList.remove("visible");
                 resolveActiveColor(selectedColor, opacity);
+                setCursor(currentTool);
             });
         });
 
@@ -703,7 +772,7 @@ function injectCanvas() {
 
         function resolveActiveColor(selectedColor, opacity) {
             if (colorVariable === 1) color1 = createRGBA(selectedColor, opacity);
-            else color2 = createRGBA(selectedColor, 0.4);
+            else color2 = createRGBA(selectedColor, highlighterColorOpacity);
 
             if (currentTool === "highlighter" || currentTool === "filledRectangle")
                 document.getElementById("activeColor").style.backgroundColor = color2;
@@ -968,6 +1037,53 @@ function injectCanvas() {
         }
     }
 
+    //**TODO:---Add Number sequence automatically---- */
+    function drawNumberInSequence(e) {
+        const [x, y] = [e.offsetX, e.offsetY];
+
+        // One-time setup
+        if (drawCount === null) {
+            drawCount = parseInt(prompt("Enter starting number:", "1"), 10);
+            if (isNaN(drawCount)) drawCount = 1;
+
+            circleConfig.enabled = confirm("Do you want a circle around the number?");
+
+            if (circleConfig.enabled) {
+                const style = prompt("Circle style:\n" + "1 = stroked\n" + "2 = filled\n" + "3 = stroked & filled", "1");
+                if (style === "2") circleConfig.style = "fill";
+                else if (style === "3") circleConfig.style = "both";
+                else circleConfig.style = "stroke"; // default
+            }
+        }
+        const fontSize = highlighterSize;
+        const radius = fontSize * 0.9;
+        // Draw circle first
+        if (circleConfig.enabled) {
+            ctx.beginPath();
+            ctx.arc(x, y, radius, 0, Math.PI * 2);
+            if (circleConfig.style === "fill" || circleConfig.style === "both") {
+                ctx.fillStyle = color1;
+                ctx.fill();
+            }
+            if (circleConfig.style === "stroke" || circleConfig.style === "both") {
+                let { r, g, b } = extractRGB(color1);
+                ctx.strokeStyle = `rgb(${r},${g},${b})`;
+                ctx.lineWidth = brushSize;
+                const dashArray = JSON.parse(document.getElementById("line-type").value);
+                ctx.setLineDash(dashArray);
+                ctx.stroke();
+            }
+        }
+        // Draw number
+        ctx.font = `${fontSize}px Tahoma`;
+        let { r, g, b } = extractRGB(color2);
+        ctx.fillStyle = `rgb(${r},${g},${b})`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(drawCount.toString(), x, y);
+        drawCount++;
+    }
+
     //* resize/positon tool bar
     changeToolbarSize();
     document.getElementById("placeBottom").addEventListener("click", () => {
@@ -987,6 +1103,7 @@ function injectCanvas() {
                 color1 = `rgba(${r},${g},${b},${opacity})`;
                 document.querySelector(".color-picker-button").style.backgroundColor = `rgba(${r},${g},${b},1)`;
                 color_opacity_control();
+                setCursor(currentTool);
             } else {
                 color2 = `rgba(${r},${g},${b},${opacity})`;
                 document.querySelectorAll(".color-picker-button")[1].style.backgroundColor = `rgba(${r},${g},${b},1)`;

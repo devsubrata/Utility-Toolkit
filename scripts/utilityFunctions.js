@@ -1,3 +1,121 @@
+//TODO:----------------Different Cursor------------------
+function highlighterCursor(height, color = "rgba(255,255,0,0.7)") {
+    const width = 16;
+    const padding = 2;
+    const strokeWidth = 4;
+
+    const svgHeight = height + padding * 2;
+    const rectX = width / 2 - strokeWidth / 2;
+    const rectY = padding;
+
+    const svg = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${svgHeight}">
+            <rect x="${rectX}"
+                    y="${rectY}"
+                    width="${strokeWidth}"
+                    height="${height}"
+                    rx="2" ry="2"
+                    fill="${color}" />
+        </svg>
+    `.trim();
+
+    const encoded = encodeURIComponent(svg);
+    return `url("data:image/svg+xml;utf8,${encoded}") ${width / 2} ${rectY}, text`;
+}
+function lineCursor(strokeWidth = 2, color = "#000") {
+    const size = 32;
+
+    const svg = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="${size * 3}" height="${size}" viewBox="0 0 ${size * 3} ${size}">
+            <path d="
+                M ${strokeWidth / 2} ${strokeWidth / 2} 
+                V ${size * (1 / 2) - strokeWidth / 2} 
+                M ${strokeWidth / 2} ${strokeWidth / 2} 
+                H ${size * 1.5 - strokeWidth / 2}
+            " 
+                fill="none" 
+                stroke="${color}" 
+                stroke-width="${strokeWidth}" 
+                stroke-linecap="square" 
+                stroke-linejoin="miter"/>
+        </svg>`.trim();
+
+    return 'url("data:image/svg+xml;utf8,' + encodeURIComponent(svg) + '") 0 0, crosshair';
+}
+function rectCursor(fillColor, strokeColor, strokeWidth) {
+    const size = 24; // fixed fill size
+    const total = size + strokeWidth;
+
+    const offset = strokeWidth / 2;
+
+    const svg = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="${total}" height="${total}" viewBox="0 0 ${total} ${total}">
+            <rect
+                x="${offset}"
+                y="${offset}"
+                width="${(size * 2) / 3}"
+                height="${(size * 1) / 2}"
+                fill="${fillColor}"
+                stroke="${strokeColor}"
+                stroke-width="${strokeWidth * 0.6}"
+                shape-rendering="crispEdges"
+            />
+        </svg>`.trim();
+    return `url("data:image/svg+xml;utf8,${encodeURIComponent(svg)}") 0 0, crosshair`;
+}
+function solidRectCursor(color = "#ffd54f") {
+    const width = 24;
+    const height = 16;
+
+    const svg = `
+        <svg xmlns="http://www.w3.org/2000/svg"
+            width="${width}"
+            height="${height}"
+            viewBox="0 0 ${width} ${height}">
+        <rect x="0" y="0"
+                width="${width}"
+                height="${height}"
+                fill="${color}" />
+        </svg>
+        `.trim();
+    return `url("data:image/svg+xml;utf8,${encodeURIComponent(svg)}") 0 0, crosshair`;
+}
+function infiniteCrossCursor(canvas, color = "red", stroke = 1) {
+    // prevent duplicates
+    if (document.getElementById("crosshair")) return;
+
+    const crosshair = document.createElement("div");
+    crosshair.id = "crosshair";
+    crosshair.innerHTML = `
+        <div class="vline"></div>
+        <div class="hline"></div>
+    `;
+    document.body.appendChild(crosshair);
+
+    const vline = crosshair.querySelector(".vline");
+    const hline = crosshair.querySelector(".hline");
+
+    vline.style.background = hline.style.background = color;
+    vline.style.width = stroke + "px";
+    hline.style.height = stroke + "px";
+
+    canvas.addEventListener("mouseenter", () => {
+        crosshair.style.display = "block";
+        canvas.classList.add("crosshair-active");
+    });
+
+    canvas.addEventListener("mouseleave", () => {
+        crosshair.style.display = "none";
+        canvas.classList.remove("crosshair-active");
+    });
+
+    canvas.addEventListener("mousemove", (e) => {
+        // viewport coordinates (IMPORTANT)
+        vline.style.left = e.clientX + "px";
+        hline.style.top = e.clientY + "px";
+    });
+}
+
 //TODO:----------------resize & move window------------------
 function resizeLeftHalf(win) {
     win.style.top = "0px";
@@ -193,12 +311,12 @@ function getImageScale() {
     return imageScale;
 }
 
-function enableCanvasImagePaste({ canvas, ctx, isEnabled, getScale, clickPosition }) {
+function enableCanvasImagePaste({ canvas, ctx, isEnabled, clickPosition }) {
     async function onPaste(e) {
         if (!isEnabled) return;
 
         const items = e.clipboardData?.items || [];
-        const scale = getScale();
+        const scale = getImageScale();
 
         for (const item of items) {
             if (!item.type.startsWith("image")) continue;
