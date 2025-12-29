@@ -55,6 +55,7 @@ if (!document.getElementById("openYoutubePlayer")) {
     `;
     document.body.appendChild(ytp);
     makeDraggable(ytp);
+    // makeResizable(document.querySelector("#openYoutubePlayer .content"));
 
     const input = document.getElementById("videoInput");
     const scriptInput = document.getElementById("scriptInput");

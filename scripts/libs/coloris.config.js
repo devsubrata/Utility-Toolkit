@@ -1,6 +1,5 @@
 /** Default configuration **/
-
-const swatches = [
+var swatches = [
     "#ffffff",
     "#000000",
     "#ff0000",
@@ -32,6 +31,7 @@ const swatches = [
     "#cb00cc",
     "#ff00ff",
     "#cc00ff",
+    "#fffee1",
 ];
 
 Coloris({

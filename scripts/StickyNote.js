@@ -35,17 +35,28 @@ if (!document.getElementById("stickyNote")) {
             <button class="menu-btn" title="Select a emoji">🤪</button>
             <button class="menu-btn" title="insert objects">🔗</button>
             <button class="menu-btn" title="insert html">HTML</button>
-            <button id="openMarkdownViewer" title="Markdown Viewer">🪶</button>
             <button class="menu-btn" title="Options">⚙️</button>
+            <button class="menu-btn" id="openMarkdownViewer" title="Markdown Viewer">🪶</button>
+            <div class="editor-setup">
+                <select id="changeNoteFont">
+                    <option value="Arial">Arial</option>
+                    <option value="Roboto Slab">Roboto slab</option>
+                    <option value="Georgia">Georgia</option>
+                    <option value="Tahoma">Tahoma</option>
+                    <option value="Open Sans">Open sans</option>
+                    <option value="Nunito Sans">Nunito Sans</option>
+                    <option value="Nunito" selected>Nunito</option>
+                </select>
+            </div>
             <div class="example square picker-container">
-                <input title="color-picker" type="text" id="picker" class="coloris instance1" value="#6601ff">
+                <input title="Change note background" type="text" id="picker" class="coloris instance1" value="#6601ff">
             </div>
         </div>
         <textarea class="note-content" placeholder="Write your note here..."></textarea>
     `;
     document.body.appendChild(stn);
     makeDraggable(stn);
-
+    makeResizable(stn);
     //** Move and resize sticky note viewer */
     stn.querySelector("#placeStnLeftBtn").onclick = () => resizeLeftHalf(stn);
     stn.querySelector("#placeStnTopLeftBtn").onclick = () => resizeTopLeft(stn);
@@ -57,6 +68,7 @@ if (!document.getElementById("stickyNote")) {
     //*------Color Picker-------------------
     document.querySelector("#picker").addEventListener("input", (e) => {
         const color = e.target.value;
+        document.querySelector(".note-content").style.background = color;
         navigator.clipboard.writeText(color);
     });
 
@@ -116,6 +128,11 @@ if (!document.getElementById("stickyNote")) {
     const saveMenuBtn = document.querySelector('.menu-btn[title="Save"]'); // 💾 button
     const addMenuBtn = document.querySelector('.menu-btn[title="Add new notes"]'); // ➕ button
     const listMenuBtn = document.querySelector('.menu-btn[title="Display list of notes"]'); // 🗒️ button
+    const selectNoteFont = document.getElementById("changeNoteFont");
+
+    selectNoteFont.addEventListener("input", (e) => {
+        textarea.style.fontFamily = e.target.value;
+    });
 
     /* Track expanded height for minimize/restore */
     let prevHeight = note.offsetHeight || 490;
@@ -446,6 +463,12 @@ if (!document.getElementById("stickyNote")) {
 
     /* Close main note (optional save then remove) */
     closeBtn.addEventListener("click", () => {
+        document.getElementById("clr-picker")?.remove();
+        document.getElementById("htmlPanel")?.remove();
+        document.getElementById("emojiContainer")?.remove();
+        document.getElementById("shortcutMenu")?.remove();
+        document.getElementById("optionsMenu")?.remove();
+
         const close = () => {
             const list = document.getElementById("notesListWindow");
             if (list) list.remove();
@@ -549,17 +572,15 @@ if (!document.getElementById("stickyNote")) {
         }
     });
     //TODO:-------------Add HTML Formatting---------------
-    // <button class="menu-btn" title="insert html"></></button>
     const htmlMenuBtn = document.querySelector('.menu-btn[title="insert html"]'); // 🗒️ button
-    htmlMenuBtn.addEventListener("click", () => {
-        // Remove existing panel if any
-        const existing = document.getElementById("htmlPanel");
-        if (existing) existing.remove();
-        // Create panel
-        const panel = document.createElement("div");
-        panel.id = "htmlPanel";
-        panel.classList.add("floating-panel"); // add class for styling
+    const panel = document.createElement("div");
+    panel.id = "htmlPanel";
+    panel.classList.add("html-panel"); // add class for styling
 
+    document.body.appendChild(panel);
+
+    htmlMenuBtn.addEventListener("click", () => {
+        panel.innerHTML = "";
         panel.innerHTML = `
             <div class="section">
                 <div class="section-header">Quick Presets</div>
@@ -675,15 +696,14 @@ if (!document.getElementById("stickyNote")) {
             </div>
             <button id="applyBtn">Add</button>
         `;
-        document.body.appendChild(panel);
-
         // Position panel
         const rect = htmlMenuBtn.getBoundingClientRect();
-        panel.style.left = rect.left + window.scrollX + "px";
         panel.style.top = rect.bottom + window.scrollY + "px";
+        panel.style.left = rect.left + window.scrollX + "px";
         panel.style.minWidth = rect.width + "px";
+        panel.style.display = panel.style.display === "none" ? "block" : "none";
 
-        attachHtmlPanelLogic(panel);
+        attachHtmlPanelLogic();
     });
 
     function populatePreset() {
@@ -695,7 +715,7 @@ if (!document.getElementById("stickyNote")) {
         return presets;
     }
 
-    function attachHtmlPanelLogic(panel) {
+    function attachHtmlPanelLogic() {
         document.querySelectorAll(".style-option").forEach((option) => {
             const input = option.querySelector(".css-value");
             // for selects
@@ -716,7 +736,6 @@ if (!document.getElementById("stickyNote")) {
             const tag = panel.querySelector("#tagSelector").value;
 
             const styleOpts = panel.querySelectorAll(".style-option");
-            consoleLog(styleOpts);
 
             let styleParts = [];
 
@@ -769,21 +788,12 @@ if (!document.getElementById("stickyNote")) {
         textarea.selectionStart = start + before.length;
         textarea.selectionEnd = end + before.length;
 
-        removePanel();
+        panel.style.display = "none";
     }
-    function removePanel() {
-        const panel = document.getElementById("htmlPanel");
-        panel.classList.add("hide");
-        setTimeout(() => {
-            // panel.remove();
-            panel.style.display = "none";
-        }, 200);
-    }
+
     // Close menu if clicked outside
     document.addEventListener("click", (e) => {
-        const panel = document.getElementById("htmlPanel");
-        if (!panel) return;
-        if (!htmlMenuBtn.contains(e.target) && !panel.contains(e.target)) removePanel();
+        if (!panel.contains(e.target) && e.target !== htmlMenuBtn) panel.style.display = "none";
     });
 
     //TODO:-------------Markdown viewer---------------
@@ -817,6 +827,8 @@ if (!document.getElementById("stickyNote")) {
             `;
         document.body.appendChild(viewer);
         makeDraggable(viewer);
+        // makeResizable(viewer);
+
         // Render markdown using global `marked` object
         const contentDiv = viewer.querySelector("#markdownContent");
         contentDiv.innerHTML = marked.parse(textarea.value);
@@ -877,6 +889,12 @@ if (!document.getElementById("stickyNote")) {
     optionsMenu.innerHTML = `
         <button class="menu-btn" title="export">📤 Export</button>
         <button class="menu-btn" title="import">📥 Import</button>
+        <button class="menu-btn" title="Zoom In">➕ Zoom In</button>
+        <button class="menu-btn" title="Zoom Out">➖ Zoom Out</button>
+        <div class="menu-btn text-color-div">
+            <span>color</span>
+            <input id="textColor" title="text color" type="color" value="#000000">
+        </div>
         <button class="menu-btn" title="wrap line">⛓️‍💥 WordWrap</button>
         <button class="menu-btn" title="take note in canvas">🎨🖌️Canvas</button>
     `;
@@ -898,8 +916,16 @@ if (!document.getElementById("stickyNote")) {
     // Attach export/import functionality
     optionsMenu.querySelector('button[title="export"]').onclick = exportNote;
     optionsMenu.querySelector('button[title="import"]').onclick = importNote;
+    optionsMenu.querySelector('button[title="Zoom In"]').onclick = increaseFontSize;
+    optionsMenu.querySelector('button[title="Zoom Out"]').onclick = decreaseFontSize;
     optionsMenu.querySelector('button[title="wrap line"]').onclick = wrapLine;
     optionsMenu.querySelector('button[title="take note in canvas"]').onclick = createCanvasNoteWindow;
+
+    document.querySelector("#textColor").addEventListener("input", (e) => {
+        const color = e.target.value;
+        document.querySelector(".note-content").style.color = color;
+        navigator.clipboard.writeText(color);
+    });
 
     async function importNote() {
         try {
@@ -949,6 +975,18 @@ if (!document.getElementById("stickyNote")) {
         optionsMenu.style.display = "none";
     }
 
+    function getFontSize(el) {
+        return parseFloat(window.getComputedStyle(el).fontSize);
+    }
+    function increaseFontSize() {
+        const currentSize = getFontSize(textarea);
+        textarea.style.fontSize = currentSize + 2 + "px";
+    }
+    function decreaseFontSize() {
+        const currentSize = getFontSize(textarea);
+        textarea.style.fontSize = currentSize - 2 + "px";
+    }
+
     function wrapLine() {
         textarea.style.whiteSpace = textarea.style.whiteSpace === "pre" ? "pre-wrap" : "pre";
     }
@@ -970,54 +1008,80 @@ if (!document.getElementById("stickyNote")) {
         wrapper.className = "canvas-wrapper";
 
         wrapper.innerHTML = `
-        <div class="title-bar">
-            <div class="title">🪶 Draw in canvas</div>
-            <div class="window-controls">
-                <button id="minimizeCanvasViewer" class="btn">―</button>
-                <button id="closeCanvasViewer" class="btn">✖</button>
+            <div class="title-bar">
+                <div class="title">🪶 Draw in canvas</div>
+                <div class="window-controls">
+                    <button id="minimizeCanvasViewer" class="btn">―</button>
+                    <button id="closeCanvasViewer" class="btn">✖</button>
+                </div>
             </div>
-        </div>
-        <div class="toolbar">
-            <div class="tool-group">
-                <button class="tool-btn active" id="brushTool" title="Pen">✏️</button>
-                <button class="tool-btn" id="hLineTool" title="Horizontal Line">―</button>
-                <button class="tool-btn" id="highlighterTool" title="Highlight">🎨</button>
-                <button class="tool-btn" id="rectangleTool" title="Rectangle">▭</button>
-                <button class="tool-btn" id="textTool" title="add text">T</button>
-                <button class="tool-btn" id="insertImageTool" title="insertImage">🖼️</button>
-                <div class="more-tools">
-                    <button class="tool-btn more-menu-btns" title="More options">☰</button>
-                    <div class="more-tools-menu">
-                        <button class="tool-btn" id="lineTool" title="Line">／</button>
-                        <button class="tool-btn" id="filledRectangleTool" title="filledRectangle">🟫</button>
-                        <button class="tool-btn" id="borderedRectangleTool" title="borderedRectangle">🔲</button>
-                        <button class="tool-btn" id="filledCircleTool" title="filledCircle">⚫</button>
-                        <button class="tool-btn" id="circleTool" title="circle">◯</button>
-                        <button class="tool-btn" id="borderedCircleTool" title="borderedCircle">🔘</button>
-                        <button class="tool-btn" id="clearCanvas" title="Erase Everything">🚫</button>
+            <div class="toolbar">
+                <div class="tool-group">
+                    <button class="tool-btn active" id="brushTool" title="Pen">✏️</button>
+                    <button class="tool-btn" id="hLineTool" title="Horizontal Line">―</button>
+                    <button class="tool-btn" id="highlighterTool" title="Highlight">🎨</button>
+                    <button class="tool-btn" id="textTool" title="add text">T</button>
+                    <button class="tool-btn" id="rectangleTool" title="Rectangle">▭</button>
+                    <button class="tool-btn" id="insertImageTool" title="insertImage">🖼️</button>
+                    <button class="tool-btn" id="undoStickyCanvas" title="undo">↪️</button>
+                    <div class="more-tools">
+                        <button class="tool-btn more-menu-btns" title="More options">☰</button>
+                        <div class="more-tools-menu">
+                            <button class="tool-btn" id="lineTool" title="Line">／</button>
+                            <button class="tool-btn" id="filledRectangleTool" title="filledRectangle">🟫</button>
+                            <button class="tool-btn" id="borderedRectangleTool" title="borderedRectangle">🔲</button>
+                            <button class="tool-btn" id="filledCircleTool" title="filledCircle">⚫</button>
+                            <button class="tool-btn" id="circleTool" title="circle">◯</button>
+                            <button class="tool-btn" id="borderedCircleTool" title="borderedCircle">🔘</button>
+                            <button class="tool-btn" id="clearCanvas" title="Erase Everything">🚫</button>
+                            <input type="file" id="imageBackgroundInput" style="display: none;" accept="image/*">
+                            <button id="setBgBtn" title="set image background">🌄</button>
+                            <button id="saveDrawingCanvas" title="Export Canvas As Image">📥</button>
+                        </div>
                     </div>
+                </div>
+
+                <div class="tool-group">
+                    <input id="strokeColorPicker" class="tool-input color" type="color" value="#0000ff" title="text & stroke color"/>
+                    <input id="objColor" class="tool-input color" type="color" value="#c5f80b" title="fill color"/>
+                    <input id="highlighterWidth" class="stroke-input" type="number" value=20 max="50" min="15" step="5" title="set highlighter size"/>
+                    <input id="strokeWidth" class="stroke-input" type="number" value=1 max="20" min="1" title="Set line width"/>
+                    <input id="opacityInput" class="stroke-input" type="number" min="0.00" max="1.00" step="0.05" value="0.4" title="Set Color Opacity"/>
+                    <button class="tool-btn expand-btn" id="expandCanvas" title="Expand canvas">Expand</button>
                 </div>
             </div>
 
-            <div class="tool-group">
-                <input id="objColor" class="tool-input color" type="color" value="#0000ff"/>
-                <input id="highlighterWidth" class="stroke-input" type="number" value=20 max="50" min="15" step="5" title="set highlighter size"/>
-                <input id="strokeWidth" class="stroke-input" type="number" value=1 max="20" min="1" title="Set line width"/>
-                <input id="opacityInput" class="stroke-input" type="number" min="0.00" max="1.00" step="0.05" value="0.4" title="Set Color Opacity"/>
-                <button class="tool-btn expand-btn" id="expandCanvas" title="Expand canvas">Expand</button>
+            <div class="canvas-container">
+                <canvas id="noteInCanvas"></canvas>
             </div>
-        </div>
-
-        <div class="canvas-container">
-            <canvas id="noteInCanvas"></canvas>
-        </div>
-    `;
+        `;
 
         document.body.appendChild(wrapper);
 
         makeDraggable(wrapper);
 
         initCanvas();
+
+        const bgInput = document.getElementById("imageBackgroundInput");
+        const setBgBtn = document.getElementById("setBgBtn");
+
+        setBgBtn.onclick = () => {
+            bgInput.click();
+        };
+
+        bgInput.onchange = async () => {
+            const file = bgInput.files[0];
+            if (!file) return;
+
+            await setImageAsBackground({
+                canvasId: "noteInCanvas",
+                imageFile: file,
+            });
+            // reset so same file can be selected again
+            bgInput.value = "";
+        };
+
+        document.getElementById("saveDrawingCanvas").onclick = async () => saveCanvasImage("noteInCanvas");
     }
 
     function initCanvas() {
@@ -1025,7 +1089,8 @@ if (!document.getElementById("stickyNote")) {
         let ctx = canvas.getContext("2d", {
             willReadFrequently: true,
         });
-        let canvasObjColor = "#0000ff";
+        let canvasObjColor = "#c5f80b";
+        let strokeColor = "#0000ff";
         let colorOpacity = 0.4;
         let currentTool = "brush";
         let isDrawing = false;
@@ -1035,6 +1100,8 @@ if (!document.getElementById("stickyNote")) {
         let highlighterWidth = 20;
         let startX, startY;
         let pasteHandler = null;
+
+        const undoStack = [];
 
         // Initial fixed canvas size
         canvas.width = 800;
@@ -1094,7 +1161,6 @@ if (!document.getElementById("stickyNote")) {
             }
             if (tool !== "texting") {
                 isTypingText = false;
-                stopCaret();
             }
 
             currentTool = tool;
@@ -1110,7 +1176,7 @@ if (!document.getElementById("stickyNote")) {
             isDrawing = true;
             ctx.lineWidth = strokeWidth;
             ctx.lineCap = "square";
-            ctx.strokeStyle = canvasObjColor;
+            ctx.strokeStyle = strokeColor;
             ctx.fillStyle = canvasObjColor;
 
             let pos = { x: e.offsetX, y: e.offsetY };
@@ -1207,12 +1273,29 @@ if (!document.getElementById("stickyNote")) {
             }
         }
 
+        // Stop drawing
+        function stopDrawing() {
+            isDrawing = false;
+            ctx.closePath();
+
+            const state = canvas.toDataURL();
+            undoStack.push(state);
+        }
+        // Undo functionality
+        document.getElementById("undoStickyCanvas").addEventListener("click", () => {
+            if (undoStack.length >= 1) {
+                undoStack.pop();
+                const prevState = undoStack[undoStack.length - 1]; // Get previous state
+                restoreCanvas(prevState, canvas, ctx); // Restore canvas
+            }
+        });
+
         function draw_in_canvas() {
             canvas.addEventListener("mousedown", readyForDrawing);
             canvas.addEventListener("mousemove", drawing);
 
-            canvas.addEventListener("mouseup", () => (isDrawing = false));
-            canvas.addEventListener("mouseleave", () => (isDrawing = false));
+            canvas.addEventListener("mouseup", stopDrawing);
+            canvas.addEventListener("mouseleave", stopDrawing);
             canvas.addEventListener("click", (e) => {
                 let clickPosition = { x: 0, y: 0 };
                 const rect = canvas.getBoundingClientRect();
@@ -1230,7 +1313,10 @@ if (!document.getElementById("stickyNote")) {
                 }
 
                 if (currentTool === "texting") {
-                    addTextInStickyNoteCanvas(clickPosition);
+                    let { r, g, b } = hexToRgb(strokeColor);
+                    const canvasWrapper = document.querySelector(".canvas-container");
+                    let txtColor = `rgb(${r},${g},${b})` === `rgb(255,255,255)` ? `rgb(3, 16, 126)` : `rgb(${r},${g},${b})`;
+                    addTextToCanvas(ctx, clickPosition, canvasWrapper, highlighterWidth, "Open Sans", txtColor);
                 }
             });
         }
@@ -1238,6 +1324,9 @@ if (!document.getElementById("stickyNote")) {
 
         document.getElementById("objColor").addEventListener("input", function () {
             canvasObjColor = this.value;
+        });
+        document.getElementById("strokeColorPicker").addEventListener("input", function () {
+            strokeColor = this.value;
         });
 
         document.getElementById("expandCanvas").onclick = () => {
@@ -1271,16 +1360,24 @@ if (!document.getElementById("stickyNote")) {
 
         function bindCanvasWindowControls() {
             const wrapper = document.getElementById("canvasNoteWrapper");
-            const toolbar = wrapper.querySelector(".toolbar");
             const canvasContainer = wrapper.querySelector(".canvas-container");
 
-            document.getElementById("minimizeCanvasViewer").onclick = () => {
-                const isHidden = toolbar.style.display === "none";
-                toolbar.style.display = isHidden ? "flex" : "none";
-                canvasContainer.style.display = isHidden ? "block" : "none";
-                wrapper.style.height = "fit-content";
-            };
+            let originalHeight = null;
 
+            document.getElementById("minimizeCanvasViewer").onclick = () => {
+                const isMinimized = canvasContainer.style.display === "none";
+
+                if (!isMinimized) {
+                    // 🔽 MINIMIZE
+                    originalHeight = wrapper.offsetHeight;
+                    canvasContainer.style.display = "none";
+                    wrapper.style.height = "82px";
+                } else {
+                    // 🔼 RESTORE
+                    canvasContainer.style.display = "block";
+                    wrapper.style.height = originalHeight + "px";
+                }
+            };
             document.getElementById("closeCanvasViewer").onclick = () => {
                 isImagePasting = false;
                 pasteHandler?.destroy(); // 🔥 remove old listener
@@ -1288,129 +1385,5 @@ if (!document.getElementById("stickyNote")) {
             };
         }
         bindCanvasWindowControls();
-
-        let activeTextListener = null;
-        let activePasteListener = null;
-        let caretTimer = null;
-
-        // caret rendering control
-        let caret = {
-            active: false,
-            visible: true,
-            redraw: null,
-        };
-
-        function stopCaret() {
-            if (!caret.active) return;
-
-            caret.active = false;
-
-            if (caret.redraw) {
-                caret.redraw(false);
-                caret.redraw = null;
-            }
-
-            if (caretTimer) {
-                clearInterval(caretTimer);
-                caretTimer = null;
-            }
-
-            if (activeTextListener) {
-                document.removeEventListener("keydown", activeTextListener);
-                activeTextListener = null;
-            }
-
-            if (activePasteListener) {
-                document.removeEventListener("paste", activePasteListener);
-                activePasteListener = null;
-            }
-        }
-
-        function addTextInStickyNoteCanvas({ x, y }) {
-            if (!isTypingText) return;
-
-            stopCaret();
-
-            const fontSize = parseInt(document.getElementById("highlighterWidth").value);
-            const color = document.getElementById("objColor").value;
-
-            let text = "";
-            const lineHeight = fontSize * 1.2;
-
-            ctx.font = `${fontSize}px Arial`;
-            ctx.fillStyle = color;
-            ctx.textBaseline = "top";
-
-            caret.active = true;
-            caret.visible = true;
-
-            caret.redraw = function (withCaret = true) {
-                ctx.clearRect(x, y, canvas.width - x, lineHeight);
-                ctx.fillText(text, x, y);
-
-                if (withCaret && caret.active && caret.visible) {
-                    const w = ctx.measureText(text).width;
-                    ctx.fillText("|", x + w + 2, y);
-                }
-            };
-
-            caret.redraw();
-
-            caretTimer = setInterval(() => {
-                caret.visible = !caret.visible;
-                caret.redraw();
-            }, 500);
-
-            /* ---------- KEYBOARD INPUT ---------- */
-            activeTextListener = function (e) {
-                if (!caret.active) return;
-
-                if (e.key === "Escape") {
-                    caret.redraw(false);
-                    stopCaret();
-                    isTypingText = false;
-                    return;
-                }
-                if (e.key === "Enter") {
-                    caret.redraw(false);
-                    y += lineHeight;
-                    text = "";
-                    caret.redraw();
-                    return;
-                }
-                if (e.key === "Backspace") {
-                    text = text.slice(0, -1);
-                    caret.redraw();
-                    return;
-                }
-                // ✅ only insert printable chars WITHOUT modifiers
-                if (e.key.length === 1 && !e.ctrlKey && !e.metaKey) {
-                    text += e.key;
-                    caret.redraw();
-                }
-            };
-            /* ---------- PASTE SUPPORT ---------- */
-            activePasteListener = function (e) {
-                if (!caret.active) return;
-
-                e.preventDefault();
-
-                const pastedText = e.clipboardData.getData("text");
-                const lines = pastedText.split(/\r?\n/);
-
-                lines.forEach((line, i) => {
-                    if (i > 0) {
-                        caret.redraw(false);
-                        y += lineHeight;
-                        text = "";
-                    }
-                    text += line;
-                    caret.redraw();
-                });
-            };
-
-            document.addEventListener("keydown", activeTextListener);
-            document.addEventListener("paste", activePasteListener);
-        }
     }
 }

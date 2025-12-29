@@ -55,17 +55,27 @@
     display: flex;
     flex-wrap: wrap;
     align-items: center;
+    justify-content: center;
+    gap: 2px;
     height: fit-content;
     background: linear-gradient(to bottom, #ffe066, #fff38a, #ffe066);
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     border-top: 1px solid rgba(0, 0, 0, 0.1);
-    padding: 4px 10px 4px 0;
+    padding: 4px;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
     position: relative;
 }
 
-.menu-bar .picker-container {
-    margin-left: auto;
+.menu-bar .editor-setup {
+    margin-right: auto;
+}
+
+.menu-bar .editor-setup select {
+    border-radius: 4px;
+    font-size: 12px;
+    padding: 4px 2px;
+    outline: none;
+    border: 1px solid rgba(0, 0, 0, 0.3);
 }
 
 .menu-btn {
@@ -437,14 +447,22 @@
     text-overflow: ellipsis;
 }
 
+#optionsMenu .text-color-div {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    width: 88%;
+}
+
 #optionsMenu .menu-btn:hover {
     background: #fff38a;
 }
 /**TODO:--------------html formatting-------------
-/* floating panel styles */
-/* ==================== Floating Panel ==================== */
-.floating-panel {
+/* html panel styles */
+/* ==================== Html Panel ==================== */
+.html-panel {
     position: absolute;
+    display: none;
     background: #ffffff; /* brighter background */
     border: 1px solid #ccc;
     padding: 12px 14px;
@@ -457,14 +475,8 @@
     min-width: 240px;
 }
 
-/* Smooth hide animation */
-.floating-panel.hide {
-    opacity: 0;
-    transform: translateY(-8px);
-}
-
 /* ==================== Section Separation ==================== */
-.floating-panel hr {
+.html-panel hr {
     margin: 10px 0;
     border: none;
     border-top: 1px solid #ddd;
@@ -472,12 +484,12 @@
 
 /* ==================== Style Options ==================== */
 /* Section container */
-.floating-panel .section {
+.html-panel .section {
     margin-bottom: 14px;
 }
 
 /* Section header styling */
-.floating-panel .section-header {
+.html-panel .section-header {
     font-weight: 600;
     font-size: 13px;
     margin: 15px 0 6px 0;
@@ -489,7 +501,7 @@
 }
 
 /* Tag selector styling */
-.floating-panel select#tagSelector {
+.html-panel select#tagSelector {
     width: 100%;
     padding: 4px 6px;
     border-radius: 4px;
@@ -498,7 +510,7 @@
     outline: none;
 }
 
-.floating-panel .style-option {
+.html-panel .style-option {
     display: grid;
     grid-template-columns: 120px 1fr 80px;
     align-items: center;
@@ -520,7 +532,7 @@ input[type="color"].preset {
     cursor: pointer;
 }
 
-.floating-panel .style-option input[type="text"] {
+.html-panel .style-option input[type="text"] {
     padding: 3px 6px;
     border: 1px solid #ccc;
     border-radius: 4px;
@@ -528,14 +540,14 @@ input[type="color"].preset {
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.floating-panel .style-option input[type="text"]:focus {
+.html-panel .style-option input[type="text"]:focus {
     outline: none;
     border-color: #0078d7;
     box-shadow: 0 0 4px rgba(0, 120, 215, 0.4);
 }
 
 /* ==================== Apply Button ==================== */
-.floating-panel button#applyBtn {
+.html-panel button#applyBtn {
     padding: 6px 12px;
     cursor: pointer;
     background-color: #0078d7;
@@ -546,12 +558,12 @@ input[type="color"].preset {
     transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
-.floating-panel button#applyBtn:hover {
+.html-panel button#applyBtn:hover {
     background-color: #005a9e;
     transform: translateY(-1px);
 }
 
-.floating-panel button#applyBtn:active {
+.html-panel button#applyBtn:active {
     transform: translateY(1px);
 }
 
@@ -584,18 +596,22 @@ input[type="color"].preset {
 }
 
 /**TODO:--------html canvas--------------*/
+.hidden {
+    display: none;
+}
+
 .canvas-wrapper {
     position: fixed;
     top: 100px;
     left: 150px;
-    width: 800px;
+    min-width: 800px;
     background: #f6f5c9;
     border-radius: 10px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
     display: flex;
     flex-direction: column;
     resize: both;
-    overflow: hidden;
+    overflow: auto;
     z-index: 15000;
 }
 

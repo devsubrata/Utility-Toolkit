@@ -40,27 +40,31 @@ if (!document.getElementById("annotationToolbar")) {
         <select id="line-type" class="line-type" title="Select line type"></select>
         <input type="number" id="brushSize" title="Adjust line, rect, brush, circle, stroke-width" min="1" max="50" value="2" />
         <button id="typeText" title="Add text">T</button>
+        <button id="miniTextTool" title="Mini text tool">📝</button> 
         <button id="insertImage" title="Insert Image">🖼️</button>
         <button id="undo" title="undo">↪️</button>
         <div class="opacity_control">
             <label for="opacity">🌓</label>
             <input type="number" title="Adjust opacity" id="opacity" min="0.00" max="1.00" step="0.05" value="1" />
-        </div>
-        <button id="miniTextTool" title="Mini text tool">𝐓</button>      
-        <button id="saveLayer" title="Save layers">💾</button>
-        <button id="restoreLayer" title="Restore layers">📂</button>
+        </div>     
+        <button id="saveWholeCanvas" title="Export Canvas As Image">📥</button>
+        <button id="setBackgroundBtn" title="set image background">🌄</button>
         <div class="save-menu">
             <button class="save-menu-btn" title="More options">☰</button>
             <div class="menu-content">
+                <button id="brush" title="Brush">🖌️</button>
                 <button id="redo" title="redo">↩️</button>
                 <button id="circle" title="Circle">◯</button>
                 <button id="filledCircle" title="Filled circle">⚫</button>
+                <input type="number" title="Adjust highlighter opacity" id="highlightOpacity" min="0.00" max="1.00" step="0.05" value="0.4" />
                 <button id="drawNumber" title="Draw Number Sequencially">🔢</button>
                 <button id="color_detector" title="Pick color from canvas">🔥</button>
-                <button id="save" title="Take Snapshot">📸</button>
-                <button id="brush" title="Brush">🖌️</button>
                 <button id="clear" title="Erase everything">🆑</button>
+                <button id="save" title="Take Snapshot">📸</button>
+                <button id="saveLayer" title="Save all layers">💾</button>
                 <button id="placeBottom" title="place bottom">🗕</button>
+                <input type="file" id="inputBackgroundImage" style="display: none;" accept="image/*">
+                <button id="restoreLayer" title="Restore layers">📂</button>
                 <button id="exit">❌</button>
             </div>
         </div>
@@ -142,6 +146,29 @@ if (!document.getElementById("annotationToolbar")) {
             document.getElementById(id)?.remove();
         });
     });
+
+    let imgName = "";
+    const bgInput = document.getElementById("inputBackgroundImage");
+    const setBgBtn = document.getElementById("setBackgroundBtn");
+    setBgBtn.onclick = () => {
+        bgInput.click();
+    };
+    bgInput.onchange = async () => {
+        const file = bgInput.files[0];
+        if (!file) return;
+        imgName = file.name.replace(/\.[^/.]+$/, "");
+
+        await setImageAsBackground({
+            canvasId: "drawingCanvas",
+            imageFile: file,
+        });
+        // reset so same file can be selected again
+        bgInput.value = "";
+    };
+
+    document.getElementById("saveWholeCanvas").onclick = async () => {
+        saveCanvasImage("drawingCanvas", imgName);
+    };
 }
 
 function create_bullet_menu() {
@@ -539,6 +566,11 @@ function injectCanvas() {
     canvas.addEventListener("mouseup", stopPainting);
     canvas.addEventListener("mouseout", stopPainting);
     canvas.addEventListener("click", (e) => {
+        let clickPosition = { x: 0, y: 0 };
+        const rect = canvas.getBoundingClientRect();
+        clickPosition.x = e.clientX - rect.left;
+        clickPosition.y = e.clientY - rect.top;
+
         if (currentTool === "eyeDropperTool") {
             canvas.style.pointerEvents = "none";
             const element = document.elementFromPoint(e.clientX, e.clientY);
@@ -550,11 +582,6 @@ function injectCanvas() {
             }
         } else if (currentTool === "pasteImage") {
             if (pasteHandler) pasteHandler.destroy(); // 🔥 remove old listener
-
-            let clickPosition = { x: 0, y: 0 };
-            const rect = canvas.getBoundingClientRect();
-            clickPosition.x = e.clientX - rect.left;
-            clickPosition.y = e.clientY - rect.top;
             pasteHandler = enableCanvasImagePaste({
                 canvas,
                 ctx,
@@ -562,7 +589,9 @@ function injectCanvas() {
                 clickPosition,
             });
         } else if (currentTool === "miniTextTool") {
-            addMiniTextModal(e);
+            const { r, g, b } = extractRGB(color1);
+            let txtColor = `rgb(${r},${g},${b})` === `rgb(255,255,255)` ? `rgb(3, 16, 126)` : `rgb(${r},${g},${b})`;
+            addTextToCanvas(ctx, clickPosition, null, highlighterSize, "Open Sans", txtColor);
         } else if (currentTool === "drawNumber") {
             drawNumberInSequence(e);
         } else {
@@ -643,26 +672,14 @@ function injectCanvas() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
     });
 
-    document.querySelector(".save-menu-btn").onclick = (e) => {
-        e.stopPropagation();
-        const opsMenu = document.querySelector(".menu-content");
-        opsMenu.style.display = opsMenu.style.display === "none" || opsMenu.style.display === "" ? "grid" : "none";
-    };
-    document.addEventListener("click", (e) => {
-        const opsMenu = document.querySelector(".menu-content");
-        if (opsMenu) opsMenu.style.display = "none";
-    });
     document.getElementById("save").onclick = () => {
         startFullPageCapture();
-        document.querySelector(".menu-content").style.display = "none";
     };
     document.getElementById("saveLayer").onclick = () => {
         saveAllLayers();
-        document.querySelector(".menu-content").style.display = "none";
     };
     document.getElementById("restoreLayer").onclick = () => {
         restoreAllLayers();
-        document.querySelector(".menu-content").style.display = "none";
     };
 
     // Opacity Control
@@ -674,7 +691,7 @@ function injectCanvas() {
 
         const { r, g, b } = extractRGB(color1);
         color1 = `rgba(${r},${g},${b},${opacity})`;
-        document.getElementById("activeColor").style.backgroundColor = color1;
+        if (currentTool !== "highlighter") document.getElementById("activeColor").style.backgroundColor = color1;
         setCursor(currentTool);
     }
     document.getElementById("opacity").addEventListener("input", color_opacity_control);
@@ -687,6 +704,16 @@ function injectCanvas() {
         color_opacity_control();
     };
 
+    document.getElementById("highlightOpacity").addEventListener("input", (e) => {
+        if (e.target.value === "") return;
+        highlighterColorOpacity = e.target.value;
+
+        const { r, g, b } = extractRGB(color2);
+        color2 = `rgba(${r},${g},${b},${highlighterColorOpacity})`;
+        if (currentTool === "highlighter") document.getElementById("activeColor").style.backgroundColor = color2;
+        setCursor(currentTool);
+    });
+
     // Undo functionality
     document.getElementById("undo").addEventListener("click", () => {
         if (undoStack.length >= 1) {
@@ -694,7 +721,7 @@ function injectCanvas() {
             const currentState = undoStack.pop(); // Pop current state
             redoStack.push(currentState); // Push to redo stack
             const prevState = undoStack[undoStack.length - 1]; // Get previous state
-            restoreCanvas(prevState); // Restore canvas
+            restoreCanvas(prevState, canvas, ctx); // Restore canvas
         }
     });
 
@@ -704,29 +731,16 @@ function injectCanvas() {
             // Ensure there's a state to redo to
             const nextState = redoStack.pop(); // Pop next state
             undoStack.push(nextState); // Push to undo stack
-            restoreCanvas(nextState); // Restore canvas
+            restoreCanvas(nextState, canvas, ctx); // Restore canvas
         }
     });
-
-    // Function to restore canvas from a state
-    function restoreCanvas(state) {
-        const img = new Image();
-        img.src = state;
-        img.onload = () => {
-            ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
-            ctx.drawImage(img, 0, 0); // Draw the saved state
-        };
-    }
 
     function createRGBA(hex, opacity) {
         hex = hex.replace("#", "");
         const r = parseInt(hex.substring(0, 2), 16);
         const g = parseInt(hex.substring(2, 4), 16);
         const b = parseInt(hex.substring(4, 6), 16);
-
         const rgba = `rgba(${r},${g},${b},${opacity})`;
-        consoleLog(rgba);
-
         return rgba;
     }
 
@@ -917,7 +931,7 @@ function injectCanvas() {
             modal.style.display = "none";
             textInput.value = "";
             document.getElementById("wc").textContent = "0";
-            document.getElementById("bold-check").checked = false;
+            // document.getElementById("bold-check").checked = false;
             document.getElementById("italic-check").checked = false;
             document.getElementById("rotation-input").value = 0;
             enableScroll();
@@ -956,84 +970,6 @@ function injectCanvas() {
         function enableScroll() {
             document.body.style.overflow = "";
             document.body.style.paddingRight = ""; // Reset padding
-        }
-    }
-
-    function addMiniTextModal(e) {
-        if (!isTyping) return;
-
-        const existingModal = document.getElementById("miniTextModal");
-        if (existingModal) existingModal.remove();
-        const textarea = document.createElement("textarea");
-        textarea.id = "miniTextModal";
-        textarea.classList.add("mini-textarea");
-
-        // Dynamic size and position
-        textarea.style.left = `${e.offsetX}px`;
-        textarea.style.top = `${e.offsetY}px`;
-        textarea.style.fontSize = `${highlighterSize}px`;
-        textarea.style.height = `${highlighterSize + 5}px`;
-
-        document.body.appendChild(textarea);
-        textarea.focus();
-
-        // --- Hidden span to measure width ---
-        const measure = document.createElement("span");
-        measure.style.position = "absolute";
-        measure.style.visibility = "hidden";
-        measure.style.whiteSpace = "pre";
-        measure.style.font = `${highlighterSize}px Arial`;
-        document.body.appendChild(measure);
-
-        // --- Adjust width dynamically ---
-        function adjustWidth() {
-            // Find longest line among all lines
-            const lines = textarea.value.split("\n");
-            let longest = "";
-            for (const line of lines) if (line.length > longest.length) longest = line;
-
-            measure.textContent = longest || " ";
-            const newWidth = measure.offsetWidth + 20; // padding
-            textarea.style.width = `${newWidth}px`;
-        }
-
-        textarea.addEventListener("input", adjustWidth);
-        adjustWidth(); // initialize
-
-        // --- Add text to canvas ---
-        function addText() {
-            const text = textarea.value.trim();
-            if (text) {
-                ctx.font = `${highlighterSize}px Arial`;
-                const { r, g, b } = extractRGB(color1);
-                ctx.fillStyle = `rgb(${r},${g},${b})`;
-
-                const lines = text.split("\n");
-                const lineHeight = highlighterSize + 2;
-
-                lines.forEach((line, index) => {
-                    ctx.fillText(line, e.offsetX, e.offsetY + highlighterSize + lineHeight * index);
-                });
-
-                navigator.clipboard.writeText(text);
-            }
-            reset();
-        }
-
-        textarea.onkeydown = (event) => {
-            if (event.key === "Enter" && event.shiftKey) {
-                event.preventDefault();
-                addText();
-            }
-            if (event.key === "Enter" && !event.shiftKey) {
-                textarea.style.height = "auto";
-                textarea.style.height = textarea.scrollHeight + "px";
-            }
-            if (event.key === "Escape") reset();
-        };
-        function reset() {
-            textarea.remove();
-            measure.remove();
         }
     }
 
@@ -1093,19 +1029,19 @@ function injectCanvas() {
         toolbar.style.top = "96%";
         toolbar.style.left = "50%";
         toolbar.style.transform = "translate(-50%, -50%)";
-        document.querySelector(".save-menu .menu-content").style.display = "none";
+        // document.querySelector(".save-menu .menu-content").style.display = "none";
     });
 
     //* setting presets
     function tooglePreset(presetNumber) {
-        function colorSettings(r, g, b, opacity, picker) {
+        function colorSettings(r, g, b, a, picker) {
             if (picker === 1) {
-                color1 = `rgba(${r},${g},${b},${opacity})`;
+                color1 = `rgba(${r},${g},${b},${a})`;
                 document.querySelector(".color-picker-button").style.backgroundColor = `rgba(${r},${g},${b},1)`;
                 color_opacity_control();
                 setCursor(currentTool);
             } else {
-                color2 = `rgba(${r},${g},${b},${opacity})`;
+                color2 = `rgba(${r},${g},${b},${a})`;
                 document.querySelectorAll(".color-picker-button")[1].style.backgroundColor = `rgba(${r},${g},${b},1)`;
             }
         }
@@ -1259,7 +1195,6 @@ async function startFullPageCapture() {
     a.href = finalImage;
     a.download = `fullpage-${Date.now()}.png`;
     a.click();
-    consoleLog("Screenshot taken successfully!");
 }
 
 function expandCanvasArea() {
@@ -1312,8 +1247,8 @@ function changeToolbarSize() {
                     break;
                 case "2":
                     positionToolbar();
-                    toolbar.style.width = "425px";
-                    toolbar.style.height = "150px";
+                    toolbar.style.width = "405px";
+                    toolbar.style.height = "148px";
                     break;
                 case "3":
                     positionToolbar();
