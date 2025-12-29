@@ -46,9 +46,9 @@ if (!document.getElementById("annotationToolbar")) {
             <label for="opacity">🌓</label>
             <input type="number" title="Adjust opacity" id="opacity" min="0.00" max="1.00" step="0.05" value="1" />
         </div>
-        <button id="miniTextTool" title="Mini text tool">𝐓</button>      
-        <button id="saveLayer" title="Save layers">💾</button>
-        <button id="restoreLayer" title="Restore layers">📂</button>
+        <button id="miniTextTool" title="Mini text tool">📝</button>      
+        <button id="saveWholeCanvas" title="Export Canvas As Image">📥</button>
+        <button id="setBackgroundBtn" title="set image background">🌄</button>
         <div class="save-menu">
             <button class="save-menu-btn" title="More options">☰</button>
             <div class="menu-content">
@@ -58,9 +58,12 @@ if (!document.getElementById("annotationToolbar")) {
                 <button id="drawNumber" title="Draw Number Sequencially">🔢</button>
                 <button id="color_detector" title="Pick color from canvas">🔥</button>
                 <button id="save" title="Take Snapshot">📸</button>
+                <button id="saveLayer" title="Save all layers">💾</button>
                 <button id="brush" title="Brush">🖌️</button>
                 <button id="clear" title="Erase everything">🆑</button>
                 <button id="placeBottom" title="place bottom">🗕</button>
+                <input type="file" id="inputBackgroundImage" style="display: none;" accept="image/*">
+                <button id="restoreLayer" title="Restore layers">📂</button>
                 <button id="exit">❌</button>
             </div>
         </div>
@@ -142,6 +145,29 @@ if (!document.getElementById("annotationToolbar")) {
             document.getElementById(id)?.remove();
         });
     });
+
+    let imgName = "";
+    const bgInput = document.getElementById("inputBackgroundImage");
+    const setBgBtn = document.getElementById("setBackgroundBtn");
+    setBgBtn.onclick = () => {
+        bgInput.click();
+    };
+    bgInput.onchange = async () => {
+        const file = bgInput.files[0];
+        if (!file) return;
+        imgName = file.name.replace(/\.[^/.]+$/, "");
+
+        await setImageAsBackground({
+            canvasId: "drawingCanvas",
+            imageFile: file,
+        });
+        // reset so same file can be selected again
+        bgInput.value = "";
+    };
+
+    document.getElementById("saveWholeCanvas").onclick = async () => {
+        saveCanvasImage("drawingCanvas", imgName);
+    };
 }
 
 function create_bullet_menu() {
@@ -539,6 +565,11 @@ function injectCanvas() {
     canvas.addEventListener("mouseup", stopPainting);
     canvas.addEventListener("mouseout", stopPainting);
     canvas.addEventListener("click", (e) => {
+        let clickPosition = { x: 0, y: 0 };
+        const rect = canvas.getBoundingClientRect();
+        clickPosition.x = e.clientX - rect.left;
+        clickPosition.y = e.clientY - rect.top;
+
         if (currentTool === "eyeDropperTool") {
             canvas.style.pointerEvents = "none";
             const element = document.elementFromPoint(e.clientX, e.clientY);
@@ -550,11 +581,6 @@ function injectCanvas() {
             }
         } else if (currentTool === "pasteImage") {
             if (pasteHandler) pasteHandler.destroy(); // 🔥 remove old listener
-
-            let clickPosition = { x: 0, y: 0 };
-            const rect = canvas.getBoundingClientRect();
-            clickPosition.x = e.clientX - rect.left;
-            clickPosition.y = e.clientY - rect.top;
             pasteHandler = enableCanvasImagePaste({
                 canvas,
                 ctx,
@@ -562,7 +588,9 @@ function injectCanvas() {
                 clickPosition,
             });
         } else if (currentTool === "miniTextTool") {
-            addMiniTextModal(e);
+            const { r, g, b } = extractRGB(color1);
+            let txtColor = `rgb(${r},${g},${b})` === `rgb(255,255,255)` ? `rgb(3, 16, 126)` : `rgb(${r},${g},${b})`;
+            addTextToCanvas(ctx, clickPosition, null, highlighterSize, "Open Sans", txtColor);
         } else if (currentTool === "drawNumber") {
             drawNumberInSequence(e);
         } else {
@@ -723,10 +751,7 @@ function injectCanvas() {
         const r = parseInt(hex.substring(0, 2), 16);
         const g = parseInt(hex.substring(2, 4), 16);
         const b = parseInt(hex.substring(4, 6), 16);
-
         const rgba = `rgba(${r},${g},${b},${opacity})`;
-        consoleLog(rgba);
-
         return rgba;
     }
 
@@ -959,84 +984,6 @@ function injectCanvas() {
         }
     }
 
-    function addMiniTextModal(e) {
-        if (!isTyping) return;
-
-        const existingModal = document.getElementById("miniTextModal");
-        if (existingModal) existingModal.remove();
-        const textarea = document.createElement("textarea");
-        textarea.id = "miniTextModal";
-        textarea.classList.add("mini-textarea");
-
-        // Dynamic size and position
-        textarea.style.left = `${e.offsetX}px`;
-        textarea.style.top = `${e.offsetY}px`;
-        textarea.style.fontSize = `${highlighterSize}px`;
-        textarea.style.height = `${highlighterSize + 5}px`;
-
-        document.body.appendChild(textarea);
-        textarea.focus();
-
-        // --- Hidden span to measure width ---
-        const measure = document.createElement("span");
-        measure.style.position = "absolute";
-        measure.style.visibility = "hidden";
-        measure.style.whiteSpace = "pre";
-        measure.style.font = `${highlighterSize}px Arial`;
-        document.body.appendChild(measure);
-
-        // --- Adjust width dynamically ---
-        function adjustWidth() {
-            // Find longest line among all lines
-            const lines = textarea.value.split("\n");
-            let longest = "";
-            for (const line of lines) if (line.length > longest.length) longest = line;
-
-            measure.textContent = longest || " ";
-            const newWidth = measure.offsetWidth + 20; // padding
-            textarea.style.width = `${newWidth}px`;
-        }
-
-        textarea.addEventListener("input", adjustWidth);
-        adjustWidth(); // initialize
-
-        // --- Add text to canvas ---
-        function addText() {
-            const text = textarea.value.trim();
-            if (text) {
-                ctx.font = `${highlighterSize}px Arial`;
-                const { r, g, b } = extractRGB(color1);
-                ctx.fillStyle = `rgb(${r},${g},${b})`;
-
-                const lines = text.split("\n");
-                const lineHeight = highlighterSize + 2;
-
-                lines.forEach((line, index) => {
-                    ctx.fillText(line, e.offsetX, e.offsetY + highlighterSize + lineHeight * index);
-                });
-
-                navigator.clipboard.writeText(text);
-            }
-            reset();
-        }
-
-        textarea.onkeydown = (event) => {
-            if (event.key === "Enter" && event.shiftKey) {
-                event.preventDefault();
-                addText();
-            }
-            if (event.key === "Enter" && !event.shiftKey) {
-                textarea.style.height = "auto";
-                textarea.style.height = textarea.scrollHeight + "px";
-            }
-            if (event.key === "Escape") reset();
-        };
-        function reset() {
-            textarea.remove();
-            measure.remove();
-        }
-    }
-
     //**TODO:---Add Number sequence automatically---- */
     function drawNumberInSequence(e) {
         const [x, y] = [e.offsetX, e.offsetY];
@@ -1259,7 +1206,6 @@ async function startFullPageCapture() {
     a.href = finalImage;
     a.download = `fullpage-${Date.now()}.png`;
     a.click();
-    consoleLog("Screenshot taken successfully!");
 }
 
 function expandCanvasArea() {
