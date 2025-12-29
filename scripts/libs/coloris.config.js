@@ -1,6 +1,5 @@
 /** Default configuration **/
-
-const swatches = [
+var swatches = [
     "#ffffff",
     "#000000",
     "#ff0000",

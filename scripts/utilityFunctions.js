@@ -164,6 +164,7 @@ function makeDraggable(el, calcNew = true) {
 
     titleBar.addEventListener("mousedown", (e) => {
         if (e.target !== titleBar) return;
+        if (e.target.classList.contains("resizer")) return;
 
         isDragging = true;
         offsetX = e.clientX - el.offsetLeft;
@@ -298,6 +299,236 @@ function hexToRgb(hex) {
     };
 }
 
+//**TODO:-------- Undo and Redo feature in canvas ----------- */
+// Function to restore canvas from a state
+function restoreCanvas(state, canvas, ctx) {
+    const img = new Image();
+    img.src = state;
+    img.onload = () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
+        ctx.drawImage(img, 0, 0); // Draw the saved state
+    };
+}
+//**TODO:-------- Set Image Background on canvas ----------- */
+async function setImageAsBackground({ canvasId, imageFile }) {
+    const canvas = document.getElementById(canvasId);
+    const ctx = canvas.getContext("2d");
+
+    // Load image
+    const img = await loadImage(imageFile);
+
+    // Save current drawing
+    const snapshot = document.createElement("canvas");
+    snapshot.width = canvas.width;
+    snapshot.height = canvas.height;
+    snapshot.getContext("2d").drawImage(canvas, 0, 0);
+
+    //* Resize existing canvas
+    canvas.width = img.width;
+    canvas.height = img.height;
+
+    // Restore background image
+    ctx.drawImage(img, 0, 0);
+
+    // Restore drawings
+    ctx.drawImage(snapshot, 0, 0);
+}
+
+function loadImage(source) {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+
+        if (source instanceof Blob) {
+            img.src = URL.createObjectURL(source);
+        } else {
+            img.src = source;
+        }
+    });
+}
+
+//**TODO-----------Add pdf-style text box------------ */
+function addTextToCanvas(
+    ctx,
+    clickPosition,
+    canvasWrapper,
+    fontSize = 16,
+    fontFamily = "Open Sans",
+    color = "#000",
+    padding = { x: 6, y: 4 },
+    commitKey = "shift+enter",
+    cancelKey = "escape"
+) {
+    const { x, y } = clickPosition;
+
+    const textarea = document.createElement("textarea");
+    const lineHeight = fontSize * 1.3;
+    // ===============================
+    // Styling
+    // ===============================
+    textarea.style.position = "absolute";
+    textarea.style.left = `${x}px`;
+    textarea.style.top = `${y}px`;
+    textarea.style.padding = `${padding.y}px ${padding.x}px`;
+    textarea.style.boxSizing = "border-box";
+    textarea.style.font = `${fontSize}px ${fontFamily}`;
+    textarea.style.lineHeight = `${lineHeight}px`;
+    textarea.style.color = color;
+    textarea.style.border = "1px solid #555";
+    textarea.style.background = "rgba(255,255,255,0.95)";
+    textarea.style.outline = "none";
+    textarea.style.resize = "none";
+    textarea.style.overflow = "hidden";
+    textarea.style.whiteSpace = "pre";
+    textarea.style.wrap = "off";
+    textarea.style.zIndex = 20000;
+    textarea.style.borderRadius = "5px";
+
+    const baseSize = fontSize + padding.y * 2;
+    textarea.style.width = baseSize + "px";
+    textarea.style.height = baseSize + "px";
+
+    if (canvasWrapper) canvasWrapper.appendChild(textarea);
+    else document.body.appendChild(textarea);
+
+    textarea.focus();
+    // ===============================
+    // Helpers
+    // ===============================
+    function getPadding(el) {
+        const cs = getComputedStyle(el);
+        return {
+            x: parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight),
+            y: parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom),
+        };
+    }
+    let resizing = false;
+    function syncSize() {
+        if (resizing) return;
+        resizing = true;
+
+        const lines = textarea.value.split("\n");
+        const pad = getPadding(textarea);
+        let maxWidth = baseSize;
+
+        const span = document.createElement("span");
+        span.style.position = "absolute";
+        span.style.visibility = "hidden";
+        span.style.whiteSpace = "pre";
+        span.style.font = textarea.style.font;
+        document.body.appendChild(span);
+
+        for (const line of lines) {
+            span.textContent = line || " ";
+            maxWidth = Math.max(maxWidth, span.offsetWidth);
+        }
+        textarea.style.width = Math.ceil(maxWidth + pad.x + 6) + "px";
+        textarea.style.height = Math.ceil(lines.length * lineHeight + pad.y) + "px";
+
+        span.remove();
+        requestAnimationFrame(() => (resizing = false));
+    }
+
+    textarea.addEventListener("input", syncSize);
+
+    const resizeObserver = new ResizeObserver(syncSize);
+    resizeObserver.observe(textarea);
+
+    // ===============================
+    // Key handling
+    // ===============================
+    textarea.addEventListener("keydown", (e) => {
+        const keyCombo = (e.shiftKey ? "shift+" : "") + (e.ctrlKey ? "ctrl+" : "") + e.key.toLowerCase();
+        if (keyCombo === commitKey) {
+            e.preventDefault();
+            drawText();
+            cleanup();
+        }
+        if (e.key.toLowerCase() === cancelKey) {
+            cleanup();
+        }
+    });
+    function cleanup() {
+        resizeObserver.disconnect();
+        textarea.remove();
+    }
+    // ===============================
+    // Draw on canvas
+    // ===============================
+    function drawText() {
+        navigator.clipboard.writeText(textarea.value.trim());
+        ctx.save();
+        ctx.font = `${fontSize}px ${fontFamily}`;
+        ctx.fillStyle = color;
+        ctx.textBaseline = "top";
+        textarea.value.split("\n").forEach((line, i) => {
+            ctx.fillText(line, x, y + i * lineHeight);
+        });
+        ctx.restore();
+    }
+    syncSize();
+}
+
+//**TODO:----- Save convas with white background -------*/
+async function saveCanvasImage(canvasId, defaultName = "canvas", background = "#ffffff", defaultFormat = "png", quality = 1) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) throw new Error("Canvas not found");
+
+    // 1️⃣ Create offscreen canvas
+    const exportCanvas = document.createElement("canvas");
+    exportCanvas.width = canvas.width;
+    exportCanvas.height = canvas.height;
+
+    const ctx = exportCanvas.getContext("2d");
+
+    // 2️⃣ Fill solid background
+    ctx.fillStyle = background;
+    ctx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+
+    // 3️⃣ Draw original canvas
+    ctx.drawImage(canvas, 0, 0);
+
+    // 4️⃣ File picker
+    const handle = await window.showSaveFilePicker({
+        suggestedName: `${defaultName}.${defaultFormat}`,
+        types: [
+            {
+                description: "PNG Image",
+                accept: { "image/png": [".png"] },
+            },
+            {
+                description: "JPEG Image",
+                accept: { "image/jpeg": [".jpg", ".jpeg"] },
+            },
+            {
+                description: "WEBP Image",
+                accept: { "image/webp": [".webp"] },
+            },
+        ],
+    });
+
+    // 5️⃣ Detect chosen extension
+    const ext = handle.name.split(".").pop().toLowerCase();
+    const mimeMap = {
+        png: "image/png",
+        jpg: "image/jpeg",
+        jpeg: "image/jpeg",
+        webp: "image/webp",
+    };
+
+    const mime = mimeMap[ext] || "image/png";
+
+    // 6️⃣ Encode image in selected format
+    const blob = await new Promise((res) => exportCanvas.toBlob(res, mime, quality));
+
+    // 7️⃣ Write file
+    const writable = await handle.createWritable();
+    await writable.write(blob);
+    await writable.close();
+}
+
+//**TODO:-------- Paste Image on canvas ----------- */
 function getImageScale() {
     const input = prompt("Enter image scale (e.g., 0.5, 1, 2):", "1");
     const parsed = parseFloat(input);
@@ -755,4 +986,122 @@ function htmlPreset() {
         ],
         ParaHead: ["<p style='color: darkmagenta; font-weight: bold; font-size: 25px;'>", "</p>"],
     };
+}
+
+//TODO:------------resize by four sides-----------------
+function makeResizable(el, options = {}) {
+    const MIN_WIDTH = options.minWidth || 200;
+    const MIN_HEIGHT = options.minHeight || 150;
+
+    // 1️⃣ Create resizers dynamically
+    const resizerDefs = [
+        // Corners
+        { class: "corner top-left", dir: "tl", cursor: "nwse-resize" },
+        { class: "corner top-right", dir: "tr", cursor: "nesw-resize" },
+        { class: "corner bottom-left", dir: "bl", cursor: "nesw-resize" },
+        { class: "corner bottom-right", dir: "br", cursor: "nwse-resize" },
+        // Edges
+        { class: "edge top", dir: "t", cursor: "ns-resize" },
+        { class: "edge bottom", dir: "b", cursor: "ns-resize" },
+        { class: "edge left", dir: "l", cursor: "ew-resize" },
+        { class: "edge right", dir: "r", cursor: "ew-resize" },
+    ];
+
+    resizerDefs.forEach((def) => {
+        const div = document.createElement("div");
+        div.className = "resizer " + def.class;
+        div.dataset.direction = def.dir;
+        div.style.position = "absolute";
+        div.style.background = "transparent";
+        div.style.zIndex = 10;
+        div.style.cursor = def.cursor;
+
+        // Size and positioning for corners
+        if (def.class.startsWith("corner")) {
+            div.style.width = "20px";
+            div.style.height = "20px";
+            if (def.dir.includes("t")) div.style.top = "-10px";
+            if (def.dir.includes("b")) div.style.bottom = "-10px";
+            if (def.dir.includes("l")) div.style.left = "-10px";
+            if (def.dir.includes("r")) div.style.right = "-10px";
+        } else {
+            // Edges
+            if (def.dir === "t" || def.dir === "b") {
+                div.style.height = "10px";
+                div.style.left = "10px";
+                div.style.right = "10px";
+                if (def.dir === "t") div.style.top = "-5px";
+                else div.style.bottom = "-5px";
+            } else {
+                div.style.width = "10px";
+                div.style.top = "10px";
+                div.style.bottom = "10px";
+                if (def.dir === "l") div.style.left = "-5px";
+                else div.style.right = "-5px";
+            }
+        }
+
+        el.appendChild(div);
+    });
+
+    // 2️⃣ Resizing logic
+    let startX, startY, startWidth, startHeight, startLeft, startTop;
+    let currentDirection = "";
+
+    const resizers = el.querySelectorAll(".resizer");
+    resizers.forEach((resizer) => resizer.addEventListener("mousedown", resizeMouseDown));
+
+    function resizeMouseDown(e) {
+        e.preventDefault();
+        currentDirection = e.target.dataset.direction;
+
+        const rect = el.getBoundingClientRect();
+        startX = e.clientX;
+        startY = e.clientY;
+        startWidth = rect.width;
+        startHeight = rect.height;
+        startLeft = rect.left;
+        startTop = rect.top;
+
+        document.addEventListener("mousemove", elementResize);
+        document.addEventListener("mouseup", closeResizeElement);
+    }
+    function elementResize(e) {
+        let dx = e.clientX - startX;
+        let dy = e.clientY - startY;
+        let newWidth = startWidth;
+        let newHeight = startHeight;
+        let newLeft = startLeft;
+        let newTop = startTop;
+
+        const dir = currentDirection;
+
+        if (dir.includes("r")) newWidth = startWidth + dx;
+        if (dir.includes("l")) {
+            newWidth = startWidth - dx;
+            newLeft = startLeft + dx;
+        }
+        if (dir.includes("b")) newHeight = startHeight + dy;
+        if (dir.includes("t")) {
+            newHeight = startHeight - dy;
+            newTop = startTop + dy;
+        }
+
+        if (newWidth < MIN_WIDTH) {
+            newWidth = MIN_WIDTH;
+            if (dir.includes("l")) newLeft = startLeft + startWidth - MIN_WIDTH;
+        }
+        if (newHeight < MIN_HEIGHT) {
+            newHeight = MIN_HEIGHT;
+            if (dir.includes("t")) newTop = startTop + startHeight - MIN_HEIGHT;
+        }
+        el.style.width = newWidth + "px";
+        el.style.height = newHeight + "px";
+        el.style.left = newLeft + "px";
+        el.style.top = newTop + "px";
+    }
+    function closeResizeElement() {
+        document.removeEventListener("mousemove", elementResize);
+        document.removeEventListener("mouseup", closeResizeElement);
+    }
 }
