@@ -56,7 +56,10 @@ if (!document.getElementById("annotationToolbar")) {
                 <button id="redo" title="redo">↩️</button>
                 <button id="circle" title="Circle">◯</button>
                 <button id="filledCircle" title="Filled circle">⚫</button>
-                <input type="number" title="Adjust highlighter opacity" id="highlightOpacity" min="0.00" max="1.00" step="0.05" value="0.4" />
+                <div class="highlightOpacityContainer">
+                    <label for="highlightOpacity">🌞</label>
+                    <input type="number" title="Adjust highlighter opacity" id="highlightOpacity" min="0.00" max="1.00" step="0.05" value="0.4" />
+                </div>
                 <button id="drawNumber" title="Draw Number Sequencially">🔢</button>
                 <button id="color_detector" title="Pick color from canvas">🔥</button>
                 <button id="clear" title="Erase everything">🆑</button>
@@ -704,15 +707,23 @@ function injectCanvas() {
         color_opacity_control();
     };
 
-    document.getElementById("highlightOpacity").addEventListener("input", (e) => {
-        if (e.target.value === "") return;
-        highlighterColorOpacity = e.target.value;
-
+    function highlighterColorOpacityControl() {
         const { r, g, b } = extractRGB(color2);
         color2 = `rgba(${r},${g},${b},${highlighterColorOpacity})`;
         if (currentTool === "highlighter") document.getElementById("activeColor").style.backgroundColor = color2;
         setCursor(currentTool);
+    }
+    document.getElementById("highlightOpacity").addEventListener("input", (e) => {
+        if (e.target.value === "") return;
+        highlighterColorOpacity = e.target.value;
+        highlighterColorOpacityControl();
     });
+    document.querySelector(".highlightOpacityContainer label").onclick = () => {
+        const highlightOpacityInput = document.getElementById("highlightOpacity");
+        highlighterColorOpacity = parseFloat(highlightOpacityInput.value) === 0.2 ? 0.4 : 0.2;
+        document.getElementById("highlightOpacity").value = highlighterColorOpacity;
+        highlighterColorOpacityControl();
+    };
 
     // Undo functionality
     document.getElementById("undo").addEventListener("click", () => {
@@ -1247,7 +1258,7 @@ function changeToolbarSize() {
                     break;
                 case "2":
                     positionToolbar();
-                    toolbar.style.width = "405px";
+                    toolbar.style.width = "408px";
                     toolbar.style.height = "148px";
                     break;
                 case "3":

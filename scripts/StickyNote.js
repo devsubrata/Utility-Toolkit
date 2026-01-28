@@ -9,6 +9,8 @@ if (!document.getElementById("stickyNote")) {
     colorPickerLink.href = chrome.runtime.getURL("styles/coloris.min.css");
     document.head.appendChild(colorPickerLink);
 
+    // pdfjsLib.GlobalWorkerOptions.workerSrc = chrome.runtime.getURL("pdfjs/pdf.worker.min.js");
+
     const stn = document.createElement("div");
     stn.id = "stickyNote";
     stn.className = "sticky-note";
@@ -53,6 +55,10 @@ if (!document.getElementById("stickyNote")) {
             </div>
         </div>
         <textarea class="note-content" placeholder="Write your note here..."></textarea>
+        <div id="status-bar">
+            <span id="totalWords">0 words</span>
+            <span id="selectedWords"></span>
+        </div>
     `;
     document.body.appendChild(stn);
     makeDraggable(stn);
@@ -133,6 +139,46 @@ if (!document.getElementById("stickyNote")) {
     selectNoteFont.addEventListener("input", (e) => {
         textarea.style.fontFamily = e.target.value;
     });
+
+    //TODO:---------- status bar------------------
+    const totalWordsEl = document.getElementById("totalWords");
+    const selectedWordsEl = document.getElementById("selectedWords");
+
+    function countWords(text) {
+        return text.trim() ? text.trim().split(/\s+/).length : 0;
+    }
+
+    function updateTotalWords() {
+        const total = countWords(textarea.value);
+        totalWordsEl.textContent = `Total Words: ${total}`;
+    }
+
+    function updateSelectedWords() {
+        const start = textarea.selectionStart;
+        const end = textarea.selectionEnd;
+
+        if (start === end) {
+            selectedWordsEl.textContent = "";
+            return;
+        }
+
+        const selectedText = textarea.value.slice(start, end);
+        const selectedCount = countWords(selectedText);
+
+        selectedWordsEl.textContent = ` | Selected words: ${selectedCount}`;
+    }
+
+    // text changes
+    textarea.addEventListener("input", () => {
+        updateTotalWords();
+        updateSelectedWords(); // selection may change due to typing
+    });
+
+    // selection changes
+    ["select", "mouseup", "keyup"].forEach((event) => textarea.addEventListener(event, updateSelectedWords));
+
+    // initial state
+    updateTotalWords();
 
     /* Track expanded height for minimize/restore */
     let prevHeight = note.offsetHeight || 490;
@@ -251,6 +297,7 @@ if (!document.getElementById("stickyNote")) {
             textarea.value = data.content || "";
             note.style.width = (data.width || 480) + "px";
             prevHeight = data.prevHeight || prevHeight;
+            updateTotalWords();
 
             if (data.minimized) {
                 textarea.style.display = "none";
@@ -827,7 +874,7 @@ if (!document.getElementById("stickyNote")) {
             `;
         document.body.appendChild(viewer);
         makeDraggable(viewer);
-        // makeResizable(viewer);
+        makeResizable(viewer);
 
         // Render markdown using global `marked` object
         const contentDiv = viewer.querySelector("#markdownContent");
@@ -933,16 +980,39 @@ if (!document.getElementById("stickyNote")) {
                 types: [
                     { description: "Text File", accept: { "text/plain": [".txt"] } },
                     { description: "Markdown File", accept: { "text/markdown": [".md"] } },
+                    { description: "PDF File", accept: { "application/pdf": [".pdf", ".PDF"] } },
                 ],
                 multiple: false,
             });
+
             const file = await fileHandle.getFile();
-            const text = await file.text();
-            textarea.value = text;
-            textarea.dispatchEvent(new Event("input")); // trigger any live updates
+
+            // ---------- PDF handling ----------
+            if (file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf")) {
+                const buffer = await file.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument(new Uint8Array(buffer)).promise;
+
+                let extractedText = "";
+
+                for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                    const page = await pdf.getPage(pageNum);
+                    const content = await page.getTextContent();
+
+                    extractedText += `--- Page ${pageNum} ---\n`;
+                    extractedText += content.items.map((item) => item.str).join(" ");
+                    extractedText += "\n\n";
+                }
+
+                textarea.value = extractedText;
+            }
+            // ---------- TXT / MD handling ----------
+            else {
+                const text = await file.text();
+                textarea.value = text;
+            }
+            textarea.dispatchEvent(new Event("input")); // trigger live updates
         } catch (err) {
-            if (err.name !== "AbortError") console.error(err);
-            // User canceled
+            if (err.name !== "AbortError") console.error(err); // User canceled
         }
         optionsMenu.style.display = "none";
     }
@@ -1059,6 +1129,7 @@ if (!document.getElementById("stickyNote")) {
         document.body.appendChild(wrapper);
 
         makeDraggable(wrapper);
+        makeResizable(wrapper);
 
         initCanvas();
 

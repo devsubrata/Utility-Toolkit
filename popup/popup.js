@@ -24,5 +24,12 @@ document.getElementById("openToDoList").addEventListener("click", () => injectSc
 document
     .getElementById("openStickyNote")
     .addEventListener("click", () =>
-        injectScript("scripts/StickyNote.js", "scripts/libs/coloris.min.js", "scripts/libs/coloris.config.js", "scripts/libs/marked.min.js")
+        injectScript(
+            "scripts/StickyNote.js",
+            "scripts/libs/coloris.min.js",
+            "scripts/libs/coloris.config.js",
+            "scripts/libs/marked.min.js",
+            "scripts/libs/pdf.min.js",
+            "scripts/libs/pdf.worker.min.js",
+        ),
     );
