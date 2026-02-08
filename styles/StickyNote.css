@@ -56,13 +56,13 @@
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
     gap: 2px;
     height: fit-content;
     background: linear-gradient(to bottom, #ffe066, #fff38a, #ffe066);
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     border-top: 1px solid rgba(0, 0, 0, 0.1);
-    padding: 4px;
+    padding: 4px 10px;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
     position: relative;
 }
@@ -70,6 +70,28 @@
 #status-bar span {
     font-size: 15px;
     font-family: "Roboto slab";
+}
+
+#status-bar .text-size-controls {
+    display: flex;
+    gap: 5px;
+}
+
+#status-bar .text-size-controls button {
+    background: transparent;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    border: 1px solid #613db4be;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+#status-bar .text-size-controls button:hover {
+    transform: scale(1.1);
+    transition: all 0.1s;
 }
 
 .menu-bar .editor-setup {
@@ -115,10 +137,12 @@
     background: transparent;
     resize: none;
     outline: none;
-    font-family: Tahoma;
+    font-family: "Nunito Sans";
     font-size: 20px;
     padding: 10px;
     box-sizing: border-box;
+    border-left: 3px solid #ffe066;
+    border-right: 3px solid #ffe066;
 }
 
 /** Style for Notes List Window */
@@ -368,6 +392,16 @@
     display: flex;
     align-content: center;
 }
+
+.sticky-note .nav,
+.resize-btns-group .nav {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0;
+}
+
+.sticky-note .nav button,
 .resize-btns-group button {
     border: none;
     margin: 0;

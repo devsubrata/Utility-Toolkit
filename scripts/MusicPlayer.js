@@ -10,8 +10,20 @@ if (!document.getElementById("openPlayer")) {
     player.innerHTML = `
         <div class="title-bar">
             <span class="title">▶ MusicPlayer</span>
-            <span class="minimize-btn ctrl" title="minimize">—</span>
-            <span class="close-btn ctrl" title="Close">❌</span>
+            <div class="player-ctrls">
+                <span class="current-time" style="cursor:pointer;" title="Copy Timestamp">0:00</span>
+                <div class='title-play-controls'>
+                    <button id="titleRewindBtn">⏪</button>
+                    <button id="titlePlayPauseBtn">⏯️</button>
+                    <button id="titleForwardBtn">⏩</button>
+                    <button id="titlePlayStopBtn">⏹️</button>
+                </div>
+                <span class="left-time">0:00</span>
+            </div>
+            <div>
+                <span class="minimize-btn ctrl" title="minimize">—</span>
+                <span class="close-btn ctrl" title="Close">❌</span>
+            </div>
         </div>
         <div class="content drop-area">
             <input type="file" id="fileInput" accept="audio/mpeg" multiple style="display: none" />
@@ -39,6 +51,7 @@ if (!document.getElementById("openPlayer")) {
                 <button id="rewindBtn">⏪</button>
                 <button id="playPauseBtn">⏯️</button>
                 <button id="forwardBtn">⏩</button>
+                <button id="loopToggle" title="repeat playlist">⇄</button>
             </div>
             <ul id="playlist" class="list-group"></ul>
         </div>
@@ -66,6 +79,7 @@ if (!document.getElementById("openPlayer")) {
     }
 
     currentTimeSpan.onclick = () => copyId(currentTimeSpan.textContent, currentTimeSpan);
+    document.querySelector(".current-time").onclick = () => copyId(currentTimeSpan.textContent, currentTimeSpan);
 
     volumeSlider.addEventListener("input", () => {
         audioPlayer.volume = volumeSlider.value;
@@ -99,20 +113,32 @@ if (!document.getElementById("openPlayer")) {
         }
     });
 
-    playPauseBtn.addEventListener("click", () => {
+    function togglePlayPause() {
         if (audioPlayer.paused) audioPlayer.play();
         else audioPlayer.pause();
-    });
-
-    rewindBtn.addEventListener("click", () => {
+    }
+    function rewindPlay() {
         const seconds = parseInt(timeInput.value) || 5;
         audioPlayer.currentTime = Math.max(0, audioPlayer.currentTime - seconds);
-    });
-
-    forwardBtn.addEventListener("click", () => {
+    }
+    function forwardPlay() {
         const seconds = parseInt(timeInput.value) || 5;
         audioPlayer.currentTime = Math.min(audioPlayer.duration, audioPlayer.currentTime + seconds);
-    });
+    }
+    function stopResetPlay() {
+        audioPlayer.pause();
+        audioPlayer.currentTime = 0;
+    }
+    document.getElementById("titlePlayStopBtn").onclick = stopResetPlay;
+
+    playPauseBtn.onclick = togglePlayPause;
+    document.getElementById("titlePlayPauseBtn").onclick = togglePlayPause;
+
+    rewindBtn.onclick = rewindPlay;
+    document.getElementById("titleRewindBtn").onclick = rewindPlay;
+
+    forwardBtn.onclick = forwardPlay;
+    document.getElementById("titleForwardBtn").onclick = forwardPlay;
 
     // Update progress bar while playing
     audioPlayer.addEventListener("timeupdate", () => {
@@ -120,7 +146,10 @@ if (!document.getElementById("openPlayer")) {
         progressBar.value = value || 0;
 
         currentTimeSpan.textContent = formatTime(audioPlayer.currentTime);
+        document.querySelector(".current-time").textContent = formatTime(audioPlayer.currentTime);
+
         leftTime.textContent = formatTime(audioPlayer.duration - audioPlayer.currentTime);
+        document.querySelector(".left-time").textContent = formatTime(audioPlayer.duration - audioPlayer.currentTime);
 
         durationSpan.textContent = formatTime(audioPlayer.duration || 0);
     });
@@ -140,8 +169,13 @@ if (!document.getElementById("openPlayer")) {
     const playlistEl = document.getElementById("playlist");
     const loadSongs = document.getElementById("loadBtn");
     const dropZone = document.querySelector(".content");
+    const loopToggle = document.getElementById("loopToggle");
+
     let files;
     let db;
+    let currentIndex = null;
+    let loopPlaylist = JSON.parse(localStorage.getItem("loopPlaylist") || "false");
+    if (loopPlaylist) loopToggle.classList.add("active-loop");
 
     // Open IndexedDB
     const openDB = () => {
@@ -188,56 +222,86 @@ if (!document.getElementById("openPlayer")) {
         });
     };
 
+    loopToggle.addEventListener("click", () => {
+        loopPlaylist = !loopPlaylist;
+        localStorage.setItem("loopPlaylist", loopPlaylist);
+        loopToggle.classList.toggle("active-loop");
+    });
+
+    const updatePlayingUI = (index) => {
+        const listItems = document.querySelectorAll(".list-group-item");
+        listItems.forEach((item) => item.classList.remove("playing"));
+
+        if (listItems[index]) listItems[index].classList.add("playing");
+    };
+
     const renderPlaylist = async () => {
         playlistEl.innerHTML = "";
         const metadata = JSON.parse(localStorage.getItem("playlist") || "[]");
+
         metadata.forEach((song, index) => {
             const li = document.createElement("li");
             let name = `${song.name}`.slice(0, -4);
+
             li.innerHTML = `
                 <div class="list-item">
                     <span>${index + 1}.&nbsp;</span>
                     <span>${name}</span>
                 </div>
             `;
+
             li.classList.add("list-group-item");
 
             li.onclick = async () => {
-                const listItems = document.querySelectorAll(".list-group-item");
-                listItems.forEach((item) => item.classList.remove("playing"));
-
-                li.classList.add("playing");
-                const reversedQueue = metadata.slice(index); // From clicked to the first song
-                let current = 0;
-                const playSong = async () => {
-                    if (current >= reversedQueue.length) return;
-                    const currentSong = reversedQueue[current];
-                    const result = await getSong(currentSong.id);
-                    const url = URL.createObjectURL(result.file);
-                    audioPlayer.src = url;
-                    audioPlayer.play();
-
-                    current++;
-
-                    audioPlayer.onended = playSong; // Chain to next song in reverse order
-                };
-                playSong();
+                currentIndex = index;
+                playSongFromIndex(currentIndex);
             };
 
             const remove = document.createElement("span");
             remove.textContent = "❌";
             remove.className = "remove-btn";
+
             remove.onclick = async (e) => {
                 e.stopPropagation();
+
                 await deleteSong(song.id);
+
                 const newList = metadata.filter((s) => s.id !== song.id);
                 localStorage.setItem("playlist", JSON.stringify(newList));
+
                 renderPlaylist();
             };
 
             li.appendChild(remove);
             playlistEl.appendChild(li);
         });
+    };
+
+    const playSongFromIndex = async (index) => {
+        const metadata = JSON.parse(localStorage.getItem("playlist") || "[]");
+
+        if (metadata.length === 0) return;
+        // Stop if reached end and loop disabled
+        if (index >= metadata.length) {
+            if (!loopPlaylist) return;
+            index = 0; // Loop back to first song
+        }
+        currentIndex = index;
+        updatePlayingUI(currentIndex);
+        const song = metadata[currentIndex];
+        // Clean previous URL
+        if (audioPlayer.src) {
+            URL.revokeObjectURL(audioPlayer.src);
+        }
+        const result = await getSong(song.id);
+        const url = URL.createObjectURL(result.file);
+
+        audioPlayer.src = url;
+        audioPlayer.play();
+
+        audioPlayer.onended = () => {
+            playSongFromIndex(currentIndex + 1);
+        };
     };
 
     loadSongs.onclick = () => {

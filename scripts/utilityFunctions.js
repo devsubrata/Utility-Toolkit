@@ -218,6 +218,7 @@ function minimizeWindow(elm, ui) {
     });
 }
 
+//TODO:-------------------Scroll Navigation-------------------------------
 function handleNavigation(ui) {
     if (!ui) return consoleLog("No scrollable UI passed to handleNavigation");
 
@@ -243,6 +244,38 @@ function handleNavigation(ui) {
     if (scrollUpBtn) {
         scrollUpBtn.onclick = () => ui.scrollBy({ top: -vh, behavior: "smooth" });
     }
+}
+
+function attachScrollNavigation(ui, options = {}) {
+    if (!ui) return;
+
+    const { multiplier = 1.5, contentSelector = ".content", navSelector = ".nav" } = options;
+    // Detect scrollable content
+    const scrollable = ui.querySelector(contentSelector) || ui;
+    // Detect navigation container
+    const nav = ui.querySelector(navSelector);
+    if (!nav) return;
+
+    const getVH = () => scrollable.clientHeight * multiplier;
+
+    nav.addEventListener("click", (e) => {
+        const btn = e.target.closest("[data-nav]");
+        if (!btn) return;
+
+        const action = btn.dataset.nav;
+
+        if (action === "top") scrollable.scrollTo({ top: 0, behavior: "smooth" });
+        if (action === "bottom") scrollable.scrollTo({ top: scrollable.scrollHeight, behavior: "smooth" });
+        if (action === "down") scrollable.scrollBy({ top: getVH(), behavior: "smooth" });
+        if (action === "up") scrollable.scrollBy({ top: -getVH(), behavior: "smooth" });
+    });
+
+    // <div class="nav">
+    //     <button data-nav="top">⏫</button>
+    //     <button data-nav="up">🔼</button>
+    //     <button data-nav="down">🔽</button>
+    //     <button data-nav="bottom">⏬</button>
+    // </div>;
 }
 
 function lookUpLinks() {
@@ -358,7 +391,7 @@ function addTextToCanvas(
     color = "#000",
     padding = { x: 6, y: 4 },
     commitKey = "shift+enter",
-    cancelKey = "escape"
+    cancelKey = "escape",
 ) {
     const { x, y } = clickPosition;
 
@@ -1104,4 +1137,33 @@ function makeResizable(el, options = {}) {
         document.removeEventListener("mousemove", elementResize);
         document.removeEventListener("mouseup", closeResizeElement);
     }
+}
+
+//TODO:-----------Text Editor Utility------------------------
+function joinSelectedLines(textarea) {
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+
+    // Nothing selected → do nothing
+    if (start === end) return;
+
+    const value = textarea.value;
+
+    const before = value.slice(0, start);
+    const selected = value.slice(start, end);
+    const after = value.slice(end);
+
+    // Normalize line breaks and collapse into single spaces
+    const joined = selected
+        .replace(/\r?\n+/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+
+    textarea.value = before + joined + after;
+
+    // Restore selection around modified text
+    textarea.selectionStart = start;
+    textarea.selectionEnd = start + joined.length;
+
+    textarea.focus();
 }

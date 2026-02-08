@@ -58,11 +58,45 @@
     border-top-right-radius: 10px;
 
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
     gap: 10px;
 }
 
+#openPlayer .title-bar .title {
+    color: #001043;
+    font-size: 20px;
+}
+
+.current-time,
+.left-time {
+    color: #0329c3;
+}
+
+#openPlayer .title-bar .player-ctrls {
+    display: none;
+    justify-content: center;
+    align-items: center;
+}
+
+#openPlayer .title-bar .title-play-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0px;
+}
+
+#openPlayer .title-bar .title-play-controls button {
+    background: none;
+    cursor: pointer;
+    outline: none;
+    border: none;
+    font-size: 16px;
+}
+#openPlayer .title-bar .title-play-controls button:hover {
+    transform: scale(1.2);
+    transition: transform 0.2s;
+}
 #openPlayer .title-bar .ctrl {
     cursor: pointer;
 }
@@ -73,6 +107,10 @@
 
 .floating-window.minimized .content {
     display: none;
+}
+
+#openPlayer.minimized .title-bar .player-ctrls {
+    display: flex;
 }
 
 .floating-window.minimized .title-bar {
@@ -110,6 +148,15 @@
     color: white;
     cursor: pointer;
     transition: background-color 0.2s ease;
+}
+
+.player-controls .active-loop {
+    background-color: #8025f8;
+    transition: none;
+}
+
+.player-controls .active-loop:hover {
+    background-color: #8025f8;
 }
 
 .player-controls button:hover {

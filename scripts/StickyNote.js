@@ -46,8 +46,8 @@ if (!document.getElementById("stickyNote")) {
                     <option value="Georgia">Georgia</option>
                     <option value="Tahoma">Tahoma</option>
                     <option value="Open Sans">Open sans</option>
-                    <option value="Nunito Sans">Nunito Sans</option>
-                    <option value="Nunito" selected>Nunito</option>
+                    <option value="Nunito Sans" selected>Nunito Sans</option>
+                    <option value="Nunito">Nunito</option>
                 </select>
             </div>
             <div class="example square picker-container">
@@ -56,13 +56,25 @@ if (!document.getElementById("stickyNote")) {
         </div>
         <textarea class="note-content" placeholder="Write your note here..."></textarea>
         <div id="status-bar">
-            <span id="totalWords">0 words</span>
-            <span id="selectedWords"></span>
+            <div>
+                <span id="totalWords">0 words</span>
+                <span id="selectedWords"></span>
+            </div>
+            <div class="text-size-controls">
+                <button id="increaseTextSize" title="Increase font size">➕</button>
+                <button id="decreaseTextSize" title="Decrease font size">➖</button>
+            </div>
+            <div class="nav">
+                <button data-nav="top">⏫</button>
+                <button data-nav="bottom">⏬</button>
+            </div>
         </div>
     `;
     document.body.appendChild(stn);
     makeDraggable(stn);
     makeResizable(stn);
+    attachScrollNavigation(stn, { contentSelector: ".note-content" });
+
     //** Move and resize sticky note viewer */
     stn.querySelector("#placeStnLeftBtn").onclick = () => resizeLeftHalf(stn);
     stn.querySelector("#placeStnTopLeftBtn").onclick = () => resizeTopLeft(stn);
@@ -856,6 +868,10 @@ if (!document.getElementById("stickyNote")) {
                 <div class="title-bar">
                     <div class="title">🪶 Markdown Viewer</div>
                     <div class="resize-btns-group">
+                        <div class="nav">
+                            <button data-nav="top">⏫</button>
+                            <button data-nav="bottom">⏬</button>
+                        </div>
                         <button id="placeLeftBtn" title="Move left">⬅️</button>
                         <button id="placeRightBtn" title="Move right">➡️</button>
                         <button id="placeTopLeftBtn" title="Move top left">↖️</button>
@@ -875,7 +891,7 @@ if (!document.getElementById("stickyNote")) {
         document.body.appendChild(viewer);
         makeDraggable(viewer);
         makeResizable(viewer);
-
+        attachScrollNavigation(viewer, { contentSelector: "#markdownContent" });
         // Render markdown using global `marked` object
         const contentDiv = viewer.querySelector("#markdownContent");
         contentDiv.innerHTML = marked.parse(textarea.value);
@@ -943,6 +959,7 @@ if (!document.getElementById("stickyNote")) {
             <input id="textColor" title="text color" type="color" value="#000000">
         </div>
         <button class="menu-btn" title="wrap line">⛓️‍💥 WordWrap</button>
+        <button class="menu-btn" title="join line">⚟ JoinLines</button>
         <button class="menu-btn" title="take note in canvas">🎨🖌️Canvas</button>
     `;
     document.body.appendChild(optionsMenu);
@@ -963,9 +980,14 @@ if (!document.getElementById("stickyNote")) {
     // Attach export/import functionality
     optionsMenu.querySelector('button[title="export"]').onclick = exportNote;
     optionsMenu.querySelector('button[title="import"]').onclick = importNote;
+
     optionsMenu.querySelector('button[title="Zoom In"]').onclick = increaseFontSize;
+    document.getElementById("increaseTextSize").onclick = increaseFontSize;
     optionsMenu.querySelector('button[title="Zoom Out"]').onclick = decreaseFontSize;
+    document.getElementById("decreaseTextSize").onclick = decreaseFontSize;
+
     optionsMenu.querySelector('button[title="wrap line"]').onclick = wrapLine;
+    optionsMenu.querySelector('button[title="join line"]').onclick = () => joinSelectedLines(textarea);
     optionsMenu.querySelector('button[title="take note in canvas"]').onclick = createCanvasNoteWindow;
 
     document.querySelector("#textColor").addEventListener("input", (e) => {
