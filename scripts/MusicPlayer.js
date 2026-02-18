@@ -26,7 +26,7 @@ if (!document.getElementById("openPlayer")) {
             </div>
         </div>
         <div class="content drop-area">
-            <input type="file" id="fileInput" accept="audio/mpeg" multiple style="display: none" />
+            <input type="file" id="musicFileInput" accept="audio/mpeg" multiple style="display: none" />
             <input type="file" id="imageFileInput" accept="image/*" style="display: none" />
             <div class="load-div">
                 <button id="loadBtn">Load Musics</button>
@@ -41,6 +41,19 @@ if (!document.getElementById("openPlayer")) {
                 <span id="currentTime" style="cursor:pointer;" title="Copy Timestamp">0:00</span>
                 <input type="range" id="progressBar" value="0" min="0" max="100" step="0.1" style="flex:1; margin:0 5px;">–&nbsp;
                 <span id="leftTime">0:00</span>&nbsp;/&nbsp;<span id="duration">0:00</span>
+            </div>
+
+            <div class="ab-controls">
+                <div class="ab-control-ctrls">
+                    <button id="setStart">StartTime</button>
+                    <span id="startDisplay" contenteditable="true"> 00:00 </span>
+                </div>
+                <div class="ab-control-ctrls endtime">
+                    <button id="setEnd">EndTime</button>
+                    <span id="endDisplay" contenteditable="true"> 00:00 </span>
+                </div>
+                <button id="toggleRepeat">⟳</button>
+                <button id="resetRepeat">R</button>
             </div>
 
             <!-- Control panel -->
@@ -72,11 +85,91 @@ if (!document.getElementById("openPlayer")) {
     const leftTime = document.getElementById("leftTime");
     const durationSpan = document.getElementById("duration");
 
-    function formatTime(sec) {
-        const minutes = Math.floor(sec / 60);
-        const seconds = Math.floor(sec % 60);
-        return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+    let startTime = null;
+    let endTime = null;
+    let isRepeating = false;
+    const startDisplay = document.getElementById("startDisplay");
+    const endDisplay = document.getElementById("endDisplay");
+    const toggleBtn = document.getElementById("toggleRepeat");
+
+    function formatTime(seconds) {
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
     }
+
+    function parseTimeToSeconds(timeString) {
+        const match = timeString.trim().match(/^(\d+):(\d+)$/);
+        if (!match) return null;
+
+        const mins = parseInt(match[1]);
+        const secs = parseInt(match[2]);
+
+        return mins * 60 + secs;
+    }
+
+    function setRepeatingStyle() {
+        if (isRepeating) {
+            toggleBtn.style.background = "#8025f8";
+            toggleBtn.style.color = "#fff";
+        } else {
+            toggleBtn.style.background = "#90d0e4";
+            toggleBtn.style.color = "#00f";
+        }
+    }
+
+    function resetRepeat() {
+        startTime = null;
+        endTime = null;
+        startDisplay.textContent = " 00:00 ";
+        endDisplay.textContent = " 00:00 ";
+        isRepeating = false;
+        setRepeatingStyle();
+    }
+
+    document.getElementById("resetRepeat").onclick = () => resetRepeat;
+
+    document.getElementById("setStart").onclick = () => {
+        startTime = audioPlayer.currentTime;
+        startDisplay.textContent = formatTime(startTime);
+    };
+
+    document.getElementById("setEnd").onclick = () => {
+        endTime = audioPlayer.currentTime;
+        endDisplay.textContent = formatTime(endTime);
+    };
+
+    startDisplay.addEventListener("blur", () => {
+        const val = parseTimeToSeconds(startDisplay.textContent);
+        if (val !== null && val >= 0 && val < audioPlayer.duration) {
+            startTime = val;
+            startDisplay.textContent = formatTime(val);
+        } else {
+            startDisplay.textContent = formatTime(startTime || 0);
+        }
+    });
+
+    endDisplay.addEventListener("blur", () => {
+        const val = parseTimeToSeconds(endDisplay.textContent);
+        if (val !== null && val > startTime && val <= audioPlayer.duration) {
+            endTime = val;
+            endDisplay.textContent = formatTime(val);
+        } else {
+            endDisplay.textContent = formatTime(endTime || 0);
+        }
+    });
+
+    toggleBtn.onclick = function () {
+        if (startTime == null || endTime == null) return;
+        isRepeating = !isRepeating;
+        setRepeatingStyle();
+    };
+
+    audioPlayer.addEventListener("timeupdate", () => {
+        if (isRepeating && endTime !== null && (audioPlayer.currentTime >= endTime || audioPlayer.currentTime <= startTime)) {
+            audioPlayer.currentTime = startTime;
+        }
+    });
 
     currentTimeSpan.onclick = () => copyId(currentTimeSpan.textContent, currentTimeSpan);
     document.querySelector(".current-time").onclick = () => copyId(currentTimeSpan.textContent, currentTimeSpan);
@@ -165,7 +258,7 @@ if (!document.getElementById("openPlayer")) {
     const DB_NAME = "MP3PlayerDB";
     const DB_VERSION = 1;
     const STORE_NAME = "songs";
-    const fileInput = document.getElementById("fileInput");
+    const musicFileInput = document.getElementById("musicFileInput");
     const playlistEl = document.getElementById("playlist");
     const loadSongs = document.getElementById("loadBtn");
     const dropZone = document.querySelector(".content");
@@ -305,10 +398,10 @@ if (!document.getElementById("openPlayer")) {
     };
 
     loadSongs.onclick = () => {
-        fileInput.click();
+        musicFileInput.click();
     };
 
-    fileInput.onchange = async (e) => {
+    musicFileInput.onchange = async (e) => {
         files = Array.from(e.target.files);
         handleFiles(files);
     };

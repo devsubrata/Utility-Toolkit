@@ -122,11 +122,38 @@
 }
 
 /*TODO:-----------------player controls----------------*/
+.ab-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    font-family: monospace;
+    padding: 8px 12px;
+    border-radius: 6px;
+    width: 100%;
+}
+
+.ab-control-ctrls {
+    border: 1px solid #aaa;
+    width: 142px;
+    border-radius: 5px;
+    padding-right: 5px;
+}
+
+.ab-control-ctrls span {
+    font-size: 16px;
+    outline: none;
+}
+
+.ab-control-ctrls.endtime {
+    width: 135px;
+}
+
 .player-controls {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 8px; /* space between buttons and input */
+    gap: 6px;
     margin: 10px 0;
 }
 
@@ -139,19 +166,21 @@
     font-size: 16px;
 }
 
+.ab-controls button,
 .player-controls button {
     padding: 6px 10px;
     font-size: 16px;
     border: none;
     border-radius: 5px;
     background-color: #90d0e4;
-    color: white;
+    color: blue;
     cursor: pointer;
     transition: background-color 0.2s ease;
 }
 
 .player-controls .active-loop {
     background-color: #8025f8;
+    color: white;
     transition: none;
 }
 
@@ -159,6 +188,7 @@
     background-color: #8025f8;
 }
 
+.ab-controls button:hover,
 .player-controls button:hover {
     background-color: #58c5e6;
 }

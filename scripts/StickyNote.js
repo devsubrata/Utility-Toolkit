@@ -61,8 +61,10 @@ if (!document.getElementById("stickyNote")) {
                 <span id="selectedWords"></span>
             </div>
             <div class="text-size-controls">
+                <input type="color" id="txtcolor" value="#000000" title="Change text color"/>
                 <button id="increaseTextSize" title="Increase font size">➕</button>
                 <button id="decreaseTextSize" title="Decrease font size">➖</button>
+                <input type="color" id="bgcolor" value="#fffee1" title="Change background"/>
             </div>
             <div class="nav">
                 <button data-nav="top">⏫</button>
@@ -84,10 +86,21 @@ if (!document.getElementById("stickyNote")) {
     stn.querySelector("#placeStnBottomRightBtn").onclick = () => resizeBottomRight(stn);
 
     //*------Color Picker-------------------
-    document.querySelector("#picker").addEventListener("input", (e) => {
-        const color = e.target.value;
+
+    function changeNoteBackground(color) {
         document.querySelector(".note-content").style.background = color;
-        navigator.clipboard.writeText(color);
+    }
+    function changeNoteTxtColor(color) {
+        document.querySelector(".note-content").style.color = color;
+    }
+    document.querySelector("#bgcolor").addEventListener("input", (e) => {
+        changeNoteBackground(e.target.value);
+    });
+    document.querySelector("#txtcolor").addEventListener("input", (e) => {
+        changeNoteTxtColor(e.target.value);
+    });
+    document.querySelector("#picker").addEventListener("input", (e) => {
+        navigator.clipboard.writeText(e.target.value);
     });
 
     // ----- JavaScript for Emoji Menu -----
