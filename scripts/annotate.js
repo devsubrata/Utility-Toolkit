@@ -1,3 +1,5 @@
+let imgName = "";
+
 if (!document.getElementById("annotationToolbar")) {
     const link = document.createElement("link");
     link.rel = "stylesheet";
@@ -150,7 +152,7 @@ if (!document.getElementById("annotationToolbar")) {
         });
     });
 
-    let imgName = "";
+    // let imgName = "";
     const bgInput = document.getElementById("inputBackgroundImage");
     const setBgBtn = document.getElementById("setBackgroundBtn");
     setBgBtn.onclick = () => {
@@ -168,11 +170,11 @@ if (!document.getElementById("annotationToolbar")) {
         // reset so same file can be selected again
         bgInput.value = "";
     };
-
-    document.getElementById("saveWholeCanvas").onclick = async () => {
-        saveCanvasImage("drawingCanvas", imgName);
-    };
 }
+
+document.getElementById("saveWholeCanvas").onclick = async () => {
+    saveCanvasImage("drawingCanvas", imgName);
+};
 
 function create_bullet_menu() {
     return `
@@ -608,6 +610,22 @@ function injectCanvas() {
                 el = el.parentElement;
             }
             return "None";
+        }
+    });
+    // Prevent default behavior
+    canvas.addEventListener("dragover", function (e) {
+        e.preventDefault();
+    });
+    // Handle drop (add an image as a canvas background)
+    canvas.addEventListener("drop", async (e) => {
+        e.preventDefault();
+        const file = e.dataTransfer.files[0];
+        if (file && file.type.startsWith("image/")) {
+            imgName = file.name.replace(/\.[^/.]+$/, "");
+            await setImageAsBackground({
+                canvasId: "drawingCanvas",
+                imageFile: file,
+            });
         }
     });
 

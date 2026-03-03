@@ -1,0 +1,170 @@
+#frameShiftPlayer {
+    position: fixed;
+    top: 80px;
+    left: 120px;
+    width: 640px;
+    height: 420px;
+    background: #1e1e1e;
+    border-radius: 12px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.7);
+    display: flex;
+    flex-direction: column;
+    z-index: 999999;
+    overflow: hidden;
+    outline: none;
+    border: 2px solid #464545;
+}
+
+/* Title Bar */
+#frameShiftPlayer .title-bar {
+    height: 40px;
+    background: #2d2d2d;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 12px;
+    font-size: 14px;
+    user-select: none;
+}
+
+#frameShiftPlayer .title-bar .options-menu {
+    background-color: #3f3e3e;
+    border-radius: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#frameShiftPlayer .title-bar span {
+    display: inline-block;
+    margin-left: 5px;
+    cursor: pointer;
+}
+
+/* Video Area */
+#frameShiftPlayer .player-content {
+    flex: 1;
+    position: relative;
+    background: black;
+    overflow: hidden;
+}
+
+#frameShiftPlayer .player-content video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* Drop Zone */
+#frameShiftPlayer .player-content .dropZone {
+    position: absolute;
+    color: transparent;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+#frameShiftPlayer .options-menu > button {
+    background: transparent;
+    padding: 5px;
+    border-radius: 4px;
+    cursor: pointer;
+    border: none;
+    outline: none;
+}
+
+#frameShiftPlayer .options-menu #moreOptionBtn {
+    background: transparent;
+    cursor: pointer;
+    border: none;
+    outline: none;
+}
+
+#frameShiftPlayer .options-menu .more-tools {
+    position: relative;
+}
+
+#frameShiftPlayer .options-menu .more-menu-div {
+    display: none;
+    position: absolute;
+    background-color: rgb(29 38 32);
+    grid-template-columns: repeat(4, 1fr);
+    gap: 5px;
+    padding: 5px;
+    border: 2px solid rgb(154 155 153);
+    border-radius: 5px;
+    z-index: 20000;
+}
+
+.more-menu-div button {
+    cursor: pointer;
+    border-radius: 3px;
+    font-size: 15px;
+    padding: 5px 10px;
+    border: none;
+    outline: none;
+}
+
+.more-menu-div button:hover {
+    color: white;
+    background-color: blue;
+}
+
+#frameShiftPlayer .options-menu .more-tools:hover .more-menu-div {
+    display: grid;
+}
+
+#frameShiftPlayer .options-menu > button:hover {
+    background: #6d6c6c;
+}
+
+/* Controls */
+#frameShiftPlayer .controls {
+    height: 35px;
+    background: #2d2d2d;
+    display: flex;
+    align-items: center;
+    padding: 6px;
+    gap: 5px;
+    box-sizing: content-box;
+    position: relative;
+}
+
+#frameShiftPlayer .controls button {
+    background: #444;
+    border: none;
+    color: white;
+    padding: 8px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#frameShiftPlayer .controls button:hover {
+    background: #666;
+}
+
+#frameShiftPlayer .controls input[type="range"] {
+    flex: 1;
+}
+
+#frameShiftPlayer .controls #elapsedTime,
+#frameShiftPlayer .controls #timeDisplay {
+    font-size: 15px;
+    color: #ccc;
+}
+
+#hoverTime {
+    position: absolute;
+    bottom: 30px;
+    background: blue;
+    color: white;
+    padding: 2px 6px;
+    font-size: 15px;
+    border-radius: 4px;
+    display: none;
+    pointer-events: none;
+}

@@ -8,7 +8,7 @@
     left: 20px;
     min-width: 380px;
     border: 2px solid var(--bg);
-    z-index: 2000;
+    z-index: 24000;
     border-radius: 12px;
     background-color: #fff;
     resize: both;
@@ -49,6 +49,7 @@
     border: 1px solid #8d8c8c;
     border-top: none;
     transition: background 0.2s ease;
+    user-select: none;
 }
 
 #fileList li:first-child {
@@ -89,7 +90,7 @@
     resize: both;
     overflow: hidden;
     flex-direction: column;
-    z-index: 1000;
+    z-index: 23000;
     border-radius: 12px;
 }
 

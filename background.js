@@ -9,3 +9,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         return true; // Needed for async response
     }
 });
+
+chrome.runtime.onMessage.addListener(async (msg) => {
+    if (msg.action === "saveFrame") {
+        chrome.downloads.download({
+            url: msg.url,
+            filename: msg.filename,
+            conflictAction: "uniquify",
+            saveAs: false,
+        });
+    }
+});

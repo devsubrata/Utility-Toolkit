@@ -14,7 +14,7 @@
             "128": "icon.png"
         }
     },
-    "permissions": ["scripting", "activeTab", "tabs"],
+    "permissions": ["scripting", "activeTab", "tabs", "downloads"],
     "host_permissions": ["<all_urls>"],
     "web_accessible_resources": [
         {

@@ -21,6 +21,8 @@
 
     /* resize: both; */
     /* overflow: hidden; */
+
+    user-select: none;
 }
 
 #annotationToolbar .gui-sizes input {

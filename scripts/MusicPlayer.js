@@ -127,7 +127,7 @@ if (!document.getElementById("openPlayer")) {
         setRepeatingStyle();
     }
 
-    document.getElementById("resetRepeat").onclick = () => resetRepeat;
+    document.getElementById("resetRepeat").onclick = resetRepeat;
 
     document.getElementById("setStart").onclick = () => {
         startTime = audioPlayer.currentTime;
@@ -252,6 +252,37 @@ if (!document.getElementById("openPlayer")) {
         let currentTime = (progressBar.value / 100) * audioPlayer.duration;
         if (!currentTime) return;
         audioPlayer.currentTime = currentTime;
+    });
+
+    /** Keyboard shortcut*/
+    player.tabIndex = 0;
+    player.focus();
+    player.addEventListener("keydown", (e) => {
+        if (document.activeElement !== player) return;
+        switch (e.key) {
+            case "ArrowRight":
+                audioPlayer.currentTime = Math.min(audioPlayer.currentTime + 4, audioPlayer.duration);
+                break;
+
+            case "ArrowLeft":
+                audioPlayer.currentTime = Math.max(audioPlayer.currentTime - 4, 0);
+                break;
+
+            case "ArrowUp":
+                audioPlayer.volume = Math.min(audioPlayer.volume + 0.05, 1);
+                break;
+
+            case "ArrowDown":
+                audioPlayer.volume = Math.max(audioPlayer.volume - 0.05, 0);
+                break;
+
+            case " ":
+            case "Spacebar":
+            case "Space":
+                e.preventDefault();
+                playPauseBtn.click();
+                break;
+        }
     });
 
     //TODO:------------------------------------------------------------------------------ */

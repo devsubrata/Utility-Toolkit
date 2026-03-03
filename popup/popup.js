@@ -18,6 +18,7 @@ document.getElementById("openWeather").addEventListener("click", () => injectScr
 document.getElementById("openSearchToolbar").addEventListener("click", () => injectScript("scripts/search.js"));
 document.getElementById("openAnnotationToolbar").addEventListener("click", () => injectScript("scripts/annotate.js"));
 document.getElementById("openPlayer").addEventListener("click", () => injectScript("scripts/MusicPlayer.js"));
+document.getElementById("frameShiftPlayer").addEventListener("click", () => injectScript("scripts/FrameShiftPlayer.js"));
 document.getElementById("openYoutubePlayer").addEventListener("click", () => injectScript("scripts/YoutubePlayer.js"));
 document.getElementById("openScriptScroller").addEventListener("click", () => injectScript("scripts/ScriptScroller.js"));
 document.getElementById("openToDoList").addEventListener("click", () => injectScript("scripts/ToDoList.js"));
