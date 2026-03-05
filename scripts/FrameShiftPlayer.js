@@ -30,12 +30,13 @@ if (!document.getElementById("frameShiftPlayer")) {
             <span class="title">🎞️ FrameShift Player</span>
             <div class="options-menu">
                 <button id="loadVideoBtn" title="Open video">📂</button>
+                <button id="addBookmarkBtn" title="Add bookmark">🔖</button>
                 <div class="more-tools">
                     <button id="moreOptionBtn" title="More options"><i class="fa-solid fa-bars"></i></button>
                     <div class="more-menu-div">
-                        <button id="A" title="Button A">A</button>
-                        <button id="B" title="Button B">B</button>
-                        <button id="C" title="Button C">C</button>
+                        <button id="placeFpLeftBtn" title="Place left">⬅️</button>
+                        <button id="placeFpRightBtn" title="Place Right">➡️</button>
+                        <button id="displayBookmarkWindomBtn" title="Show Bookmarks window">📑</button>
                         <button id="D" title="Button D">D</button>
                         <button id="E" title="Button E">E</button>
                         <button id="F" title="Button F">F</button>
@@ -53,6 +54,7 @@ if (!document.getElementById("frameShiftPlayer")) {
         <div class="player-content" id="dropArea">
             <div class="dropZone">Drag & Drop Video Here</div>
             <video id="fsVideo"></video>
+            <div id="playerHUD"></div>
         </div>
 
         <div class="controls">
@@ -73,6 +75,9 @@ if (!document.getElementById("frameShiftPlayer")) {
     /* Enable drag + resize (Already provided by user) */
     makeDraggable(framePlayer);
     makeResizable(framePlayer);
+
+    framePlayer.querySelector("#placeFpLeftBtn").onclick = () => resizeLeftHalf(framePlayer);
+    framePlayer.querySelector("#placeFpRightBtn").onclick = () => resizeRightHalf(framePlayer);
 
     /* -----------------------------
     Player Logic
@@ -109,14 +114,26 @@ if (!document.getElementById("frameShiftPlayer")) {
         e.preventDefault();
 
         const file = e.dataTransfer.files[0];
-        if (!file || !file.type.startsWith("video/")) return;
-
-        currentFileBaseName = file.name.replace(/\.[^/.]+$/, "");
-
-        video.src = URL.createObjectURL(file);
+        if (!file) return;
+        /* =========================
+                VIDEO FILE
+        ========================= */
+        if (file.type.startsWith("video/")) {
+            currentFileBaseName = file.name.replace(/\.[^/.]+$/, "");
+            video.src = URL.createObjectURL(file);
+            return;
+        }
+        /* =========================
+            CSV BOOKMARK FILE
+        ========================= */
+        if (file.name.toLowerCase().endsWith(".csv")) {
+            importCSV(file);
+            return;
+        }
     });
 
     function togglePlay() {
+        if (!video.duration) return;
         if (video.paused) {
             video.play();
             playBtn.textContent = "⏸";
@@ -130,11 +147,15 @@ if (!document.getElementById("frameShiftPlayer")) {
 
     /* Skip Controls */
     forwardBtn.onclick = () => {
+        if (!video.duration) return;
         video.currentTime = Math.min(video.currentTime + 5, video.duration);
+        showHUD("⏩ +5s");
     };
 
     backwardBtn.onclick = () => {
+        if (!video.duration) return;
         video.currentTime = Math.max(video.currentTime - 5, 0);
+        showHUD("⏪ -5s");
     };
 
     const format = (seconds) => {
@@ -217,6 +238,7 @@ if (!document.getElementById("frameShiftPlayer")) {
             filename: `${currentFileBaseName}/${filename}`,
             url: URL.createObjectURL(blob),
         });
+        showHUD("📸");
     };
 
     /* Keyboard Shortcuts */
@@ -229,18 +251,22 @@ if (!document.getElementById("frameShiftPlayer")) {
         switch (e.key) {
             case "ArrowRight":
                 video.currentTime = Math.min(video.currentTime + 5, video.duration);
+                showHUD("⏩ +5s");
                 break;
 
             case "ArrowLeft":
                 video.currentTime = Math.max(video.currentTime - 5, 0);
+                showHUD("⏪ -5s");
                 break;
 
             case "ArrowUp":
                 video.volume = Math.min(video.volume + 0.05, 1);
+                showHUD(`🔊${(video.volume * 100).toFixed(0)}%`);
                 break;
 
             case "ArrowDown":
                 video.volume = Math.max(video.volume - 0.05, 0);
+                showHUD(`🔊${(video.volume * 100).toFixed(0)}%`);
                 break;
 
             case " ":
@@ -259,7 +285,11 @@ if (!document.getElementById("frameShiftPlayer")) {
     const fullscreenBtn = framePlayer.querySelector(".fullscreenFramePlayer");
     const minmaxBtn = framePlayer.querySelector(".maxminFramePlayer");
 
-    closeBtn.onclick = () => framePlayer.remove();
+    closeBtn.onclick = () => {
+        ["frameShiftPlayer", "bookmarkWindow"].forEach((id) => {
+            document.getElementById(id)?.remove();
+        });
+    };
 
     const resizeObserver = new ResizeObserver(() => {
         if (!isFullscreen && !isMinimized) {
@@ -328,4 +358,286 @@ if (!document.getElementById("frameShiftPlayer")) {
 
     video.addEventListener("dblclick", fullScreenControl);
     video.addEventListener("click", togglePlay);
+
+    //TODO:----------------------Bookmark Time stamp-------------------------
+    let bookmarks = [];
+    // [
+    //     { id: 1, time: 15.32, name: "bookmark1" },
+    //     { id: 2, time: 45.11, name: "Important scene" },
+    //     { id: 3, time: 120.52, name: "bookmark3" },
+    // ];
+    let selectedBookmarks = new Set();
+    let lastSelectedIndex = null;
+
+    const displayBookmarkWindomBtn = document.getElementById("displayBookmarkWindomBtn");
+    const addBookmarkBtn = document.getElementById("addBookmarkBtn");
+
+    addBookmarkBtn.onclick = addBookmark;
+    displayBookmarkWindomBtn.onclick = createBookmarkDisplay;
+
+    document.addEventListener("keydown", (e) => {
+        /* =========================
+        Prevent multiline bookmark name
+        ========================= */
+        if (e.target.closest("#bookmarkTable") && e.key === "Enter") {
+            e.preventDefault();
+            e.target.blur();
+            return;
+        }
+        /* =========================
+            Player shortcuts
+        ========================= */
+        if (document.activeElement !== framePlayer) return;
+        if (e.key.toLowerCase() === "b") {
+            addBookmark();
+        }
+    });
+
+    function addBookmark() {
+        if (!video.duration) return;
+
+        const time = video.currentTime;
+
+        const bookmark = {
+            id: bookmarks.length + 1,
+            time: time,
+            name: `bookmark${bookmarks.length + 1}`,
+        };
+        bookmarks.push(bookmark);
+        showHUD("🔖");
+        createBookmarkDisplay();
+        renderBookmarkTable();
+    }
+
+    function createBookmarkDisplay() {
+        if (document.getElementById("bookmarkWindow")) return;
+
+        const bookmarkWindow = document.createElement("div");
+        bookmarkWindow.id = "bookmarkWindow";
+        bookmarkWindow.innerHTML = `
+            <div class="title-bar">
+                <span class="title">📑 Bookmarks</span>
+                <div>
+                    <button id="closeBookmarkWindow">❌</button>
+                </div>
+            </div>
+            <div class="bookmark-content">
+                <table id="bookmarkTable">
+                    <thead>
+                        <tr>
+                            <th>SL</th>
+                            <th>Timestamp</th>
+                            <th>Name</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+            <div class="bookmark-controls">
+                <div>
+                    <button id="exportBookmarks" title="Export bookmarks">EXP</button>
+                    <button id="importBookmarks" title="Import bookmarks">IMP</button>
+                </div>
+                <div>
+                    <button id="moveUpBookmark" title="Move up selected bookmarks">⏫</button>
+                    <button id="moveDownBookmark" title="Move down selected bookmarks">⏬</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(bookmarkWindow);
+
+        makeDraggable(bookmarkWindow);
+        makeResizable(bookmarkWindow);
+
+        document.getElementById("exportBookmarks").onclick = exportCSV;
+        document.getElementById("importBookmarks").onclick = () => importCSV(null);
+        document.getElementById("closeBookmarkWindow").onclick = () => bookmarkWindow.remove();
+
+        renderBookmarkTable();
+
+        document.getElementById("moveUpBookmark").onclick = () => {
+            const sorted = [...selectedBookmarks].sort((a, b) => a - b);
+            sorted.forEach((i) => {
+                if (i === 0) return;
+                [bookmarks[i - 1], bookmarks[i]] = [bookmarks[i], bookmarks[i - 1]];
+                selectedBookmarks.delete(i);
+                selectedBookmarks.add(i - 1);
+            });
+            renderBookmarkTable();
+        };
+
+        document.getElementById("moveDownBookmark").onclick = () => {
+            const sorted = [...selectedBookmarks].sort((a, b) => b - a);
+            sorted.forEach((i) => {
+                if (i >= bookmarks.length - 1) return;
+                [bookmarks[i], bookmarks[i + 1]] = [bookmarks[i + 1], bookmarks[i]];
+                selectedBookmarks.delete(i);
+                selectedBookmarks.add(i + 1);
+            });
+            renderBookmarkTable();
+        };
+    }
+
+    function renderBookmarkTable() {
+        const tbody = document.querySelector("#bookmarkTable tbody");
+        tbody.innerHTML = "";
+
+        bookmarks.forEach((b, i) => {
+            const tr = document.createElement("tr");
+            tr.dataset.index = i;
+
+            if (selectedBookmarks.has(i)) tr.classList.add("selected");
+
+            tr.innerHTML = `
+                <td>${i + 1}</td>
+                <td>
+                    <span class="timestamp" data-time="${b.time}">
+                        ${format(b.time)}
+                    </span>
+                </td>
+                <td contenteditable="true">${b.name}</td>
+                <td class="deleteBookmark" data-index="${i}">⛔</td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        // Row Selection Logic (Ctrl / Shift)
+        tbody.onclick = (e) => {
+            /* Ignore clicks inside editable name cell */
+            if (e.target.hasAttribute("contenteditable")) return;
+
+            const row = e.target.closest("tr");
+            if (!row) return;
+
+            const index = Number(row.dataset.index);
+
+            /* SHIFT selection (range) */
+            if (e.shiftKey && lastSelectedIndex !== null) {
+                const start = Math.min(index, lastSelectedIndex);
+                const end = Math.max(index, lastSelectedIndex);
+                for (let i = start; i <= end; i++) selectedBookmarks.add(i);
+                /* CTRL toggle */
+            } else if (e.ctrlKey) {
+                if (selectedBookmarks.has(index)) selectedBookmarks.delete(index);
+                else selectedBookmarks.add(index);
+                lastSelectedIndex = index;
+                /* NORMAL CLICK (toggle) */
+            } else {
+                if (selectedBookmarks.size === 1 && selectedBookmarks.has(index)) {
+                    selectedBookmarks.clear(); // unselect
+                    lastSelectedIndex = null;
+                } else {
+                    selectedBookmarks.clear();
+                    selectedBookmarks.add(index);
+                    lastSelectedIndex = index;
+                }
+            }
+            renderBookmarkTable();
+        };
+    }
+
+    document.addEventListener("click", (e) => {
+        if (!e.target.classList.contains("deleteBookmark")) return;
+        const index = Number(e.target.dataset.index);
+        bookmarks.splice(index, 1);
+        renderBookmarkTable();
+    });
+
+    document.addEventListener("click", (e) => {
+        if (e.target.classList.contains("timestamp")) {
+            const time = parseFloat(e.target.dataset.time);
+            video.currentTime = time;
+            video.play();
+            framePlayer.focus();
+        }
+    });
+
+    document.addEventListener("input", (e) => {
+        const cell = e.target;
+        if (!cell.closest("#bookmarkTable")) return;
+        if (!cell.hasAttribute("contenteditable")) return;
+
+        const row = cell.parentElement;
+        const index = row.rowIndex - 1;
+        bookmarks[index].name = cell.textContent.trim();
+    });
+
+    function exportCSV() {
+        let csv = "sl,timestamp,bookmark_name\n";
+
+        bookmarks.forEach((b, i) => {
+            csv += `${i + 1},${b.time},${b.name}\n`;
+        });
+
+        const blob = new Blob([csv], { type: "text/csv" });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "frameshift_bookmarks.csv";
+        a.click();
+    }
+
+    async function importCSV(dropFile) {
+        try {
+            let file;
+            if (!dropFile) {
+                const [fileHandle] = await window.showOpenFilePicker({
+                    types: [
+                        {
+                            description: "CSV file",
+                            accept: { "text/csv": [".csv", ".CSV"] },
+                        },
+                    ],
+                    multiple: false,
+                });
+                file = await fileHandle.getFile();
+            } else {
+                file = dropFile;
+            }
+
+            const reader = new FileReader();
+
+            reader.onload = function () {
+                const lines = reader.result.split("\n").slice(1);
+
+                bookmarks = [];
+
+                lines.forEach((line) => {
+                    if (!line.trim()) return;
+
+                    const [sl, time, name] = line.split(",");
+
+                    bookmarks.push({
+                        id: Number(sl),
+                        time: Number(time),
+                        name: name,
+                    });
+                });
+                if (dropFile) createBookmarkDisplay();
+                else renderBookmarkTable();
+            };
+
+            reader.readAsText(file);
+        } catch (err) {
+            console.log("Import cancelled or failed:", err);
+        }
+    }
+
+    // TODO:----------notification timer---------------
+    let hudTimer = null;
+    function showHUD(text, duration = 800) {
+        const hud = document.getElementById("playerHUD");
+        if (!hud) return;
+
+        hud.textContent = text;
+        hud.classList.add("show");
+
+        clearTimeout(hudTimer);
+
+        hudTimer = setTimeout(() => {
+            hud.classList.remove("show");
+        }, duration);
+    }
 }
