@@ -56,13 +56,14 @@ if (!document.getElementById("annotationToolbar")) {
             <div class="menu-content">
                 <button id="brush" title="Brush">🖌️</button>
                 <button id="redo" title="redo">↩️</button>
+                <button id="parallelLines" title="Draw parallel lines">🟰</button>
                 <button id="circle" title="Circle">◯</button>
                 <button id="filledCircle" title="Filled circle">⚫</button>
                 <div class="highlightOpacityContainer">
                     <label for="highlightOpacity">🌞</label>
-                    <input type="number" title="Adjust highlighter opacity" id="highlightOpacity" min="0.00" max="1.00" step="0.05" value="0.4" />
+                    <input type="number" title="Adjust highlighter opacity" id="highlightOpacity" min="0.00" max="1.00" step="0.05" value="0.2" />
                 </div>
-                <button id="drawNumber" title="Draw Number Sequencially">🔢</button>
+                <button id="drawNumber" title="Draw Number Sequentially">🔢</button>
                 <button id="color_detector" title="Pick color from canvas">🔥</button>
                 <button id="clear" title="Erase everything">🆑</button>
                 <button id="save" title="Take Snapshot">📸</button>
@@ -97,6 +98,7 @@ if (!document.getElementById("annotationToolbar")) {
                 <option value="Nunito Sans" selected>Nunito Sans</option>
                 <option value="Nunito">Nunito</option>
                 <option value="Verdana">Verdana</option>
+                <option value="BBC Reith Sans">ReithSans</option>
             </select>
             <div class="text-color-picker"></div>
             <input type="number" title="Font Size" id="font-size" min="10" max="100" step="2" value="25"/>
@@ -264,7 +266,6 @@ function bullet_menu_listener() {
             selected.textContent = option.textContent;
             selected.setAttribute("data-value", option.getAttribute("data-value"));
             menu.style.display = "none";
-            console.log(`You selceted: "${selected.getAttribute("data-value")}"`);
         });
     });
 
@@ -303,6 +304,7 @@ function injectCanvas() {
         rectangle: document.getElementById("rectangle"),
         filledRectangle: document.getElementById("filledRectangle"),
         borderedRectangle: document.getElementById("borderedRectangle"),
+        parallelLines: document.getElementById("parallelLines"),
         typeText: document.getElementById("typeText"),
         miniTextTool: document.getElementById("miniTextTool"),
         pasteImage: document.getElementById("insertImage"),
@@ -319,7 +321,7 @@ function injectCanvas() {
     let isPasting = false;
     let brushSize = 2;
     let highlighterSize = 20;
-    let highlighterColorOpacity = 0.4;
+    let highlighterColorOpacity = 0.2;
     let opacity = 1.0;
     let color1 = `rgba(255,255,255,${opacity})`;
     let color2 = `rgba(255,165,0,${highlighterColorOpacity})`;
@@ -329,6 +331,8 @@ function injectCanvas() {
     let snapshot; // Store canvas state before drawing a rectangle
     let pasteHandler = null;
     let drawCount = null;
+    let drawVertical = false; // horizontal default
+
     const circleConfig = {
         enabled: false, // no circle by default
         style: null, // "stroke" | "fill" | "both"
@@ -340,7 +344,7 @@ function injectCanvas() {
     colorPicker1.children[0].style.backgroundColor = color1;
     colorPicker2.children[0].style.backgroundColor = `rgba(255, 165, 0, 1)`;
 
-    // pupulate line type
+    // populate line type
     function populateLineType() {
         const lineDict = {
             "────": "[]",
@@ -363,7 +367,7 @@ function injectCanvas() {
 
     //** Set Respective cursor
     function setCursor(tool) {
-        let crossCursorNeeded = ["Rectangle", "filledRectangle", "borderedRectangle", "eraser"].includes(tool);
+        let crossCursorNeeded = ["Rectangle", "filledRectangle", "borderedRectangle", "parallelLines", "eraser"].includes(tool);
         if (!crossCursorNeeded) {
             canvas.style.cursor = "default";
             document.getElementById("crosshair")?.remove();
@@ -381,6 +385,7 @@ function injectCanvas() {
                 canvas.style.cursor = lineCursor(brushSize, color1);
                 break;
             case "rectangle":
+            case "parallelLines":
                 canvas.style.cursor = rectCursor(`rgba(255,255,255,0)`, color1, +document.getElementById("brushSize").value);
                 infiniteCrossCursor(canvas, "cyan", 1);
                 break;
@@ -454,6 +459,7 @@ function injectCanvas() {
             case "rectangle":
             case "filledRectangle":
             case "borderedRectangle":
+            case "parallelLines":
             case "circle":
             case "filledCircle":
             case "borderedCircle":
@@ -504,6 +510,7 @@ function injectCanvas() {
             case "filledRectangle":
             case "borderedRectangle":
             case "eraser":
+            case "parallelLines":
                 ctx.putImageData(snapshot, 0, 0);
                 let width = pos.x - startX;
                 let height = pos.y - startY;
@@ -518,6 +525,28 @@ function injectCanvas() {
                     ctx.strokeRect(startX, startY, width, height);
                     ctx.fillStyle = color1;
                     ctx.fillRect(startX, startY, width, height);
+                } else if (currentTool === "parallelLines") {
+                    let [x1, y1] = [startX, startY];
+                    let [x2, y2] = [pos.x, pos.y];
+                    if (drawVertical) {
+                        ctx.beginPath();
+                        // left line
+                        ctx.moveTo(x1, y1);
+                        ctx.lineTo(x1, y2);
+                        // right line
+                        ctx.moveTo(x2, y1);
+                        ctx.lineTo(x2, y2);
+                        ctx.stroke();
+                    } else {
+                        ctx.beginPath();
+                        // top line
+                        ctx.moveTo(x1, y1);
+                        ctx.lineTo(x2, y1);
+                        // bottom line
+                        ctx.moveTo(x1, y2);
+                        ctx.lineTo(x2, y2);
+                        ctx.stroke();
+                    }
                 } else {
                     ctx.fillStyle = color1;
                     ctx.fillRect(startX, startY, width, height);
@@ -564,6 +593,14 @@ function injectCanvas() {
         undoStack.push(state);
         redoStack.length = 0;
     }
+
+    // Toggle vertical mode when "V" is pressed
+    document.addEventListener("keydown", (e) => {
+        if (currentTool !== "parallelLines") return;
+        if (e.key.toLowerCase() === "v") {
+            drawVertical = !drawVertical;
+        }
+    });
 
     //TODO:--------- Event Listeners for canvas ---------------------------------
     canvas.addEventListener("mousedown", startPainting);
@@ -657,6 +694,7 @@ function injectCanvas() {
     tools.rectangle.addEventListener("click", () => setActiveTool("rectangle"));
     tools.filledRectangle.addEventListener("click", () => setActiveTool("filledRectangle"));
     tools.borderedRectangle.addEventListener("click", () => setActiveTool("borderedRectangle"));
+    tools.parallelLines.addEventListener("click", () => setActiveTool("parallelLines"));
     tools.eraser.addEventListener("click", () => setActiveTool("eraser"));
     tools.eyeDropperTool.addEventListener("click", () => setActiveTool("eyeDropperTool"));
     tools.typeText.addEventListener("click", () => {
@@ -782,7 +820,7 @@ function injectCanvas() {
 
     // Code for color pickers
     function assignColor(colorPicker, colorVariable) {
-        // Code for predifined color
+        // Code for predefined color
         const colorPickerButton = colorPicker.querySelector(".color-picker-button");
         const colorSwatches = colorPicker.querySelector(".color-swatches");
         const HtmlColorInput = colorPicker.querySelector(".html-color-input");
@@ -867,7 +905,7 @@ function injectCanvas() {
         ctx.fillStyle = textColor;
 
         const rotationRad = -(rotationDeg * (Math.PI / 180));
-        const lineHeight = fontSize + 3;
+        const lineHeight = fontSize + 6;
 
         const lines = text.split("\n");
 
@@ -1049,7 +1087,7 @@ function injectCanvas() {
         drawCount++;
     }
 
-    //* resize/positon tool bar
+    //* resize/position tool bar
     changeToolbarSize();
     document.getElementById("placeBottom").addEventListener("click", () => {
         const toolbar = document.getElementById("annotationToolbar");
@@ -1062,7 +1100,7 @@ function injectCanvas() {
     });
 
     //* setting presets
-    function tooglePreset(presetNumber) {
+    function togglePreset(presetNumber) {
         function colorSettings(r, g, b, a, picker) {
             if (picker === 1) {
                 color1 = `rgba(${r},${g},${b},${a})`;
@@ -1118,7 +1156,7 @@ function injectCanvas() {
     }
     let presetNumber = 1;
     document.getElementById("togglePreset").addEventListener("click", () => {
-        tooglePreset(presetNumber++);
+        togglePreset(presetNumber++);
         presetNumber %= 5;
     });
 }

@@ -863,3 +863,19 @@ input[type="color"].preset {
 #txtcolor::-webkit-color-swatch {
     border: none;
 }
+
+.shortcut-btns button {
+    background: #c2bc05;
+    padding: 3px 6px;
+    border-radius: 3px;
+    border: none;
+    outline: none;
+    cursor: pointer;
+}
+.shortcut-btns button:hover {
+    background: #e3db05;
+}
+
+.word-count-status {
+    min-width: 150px;
+}

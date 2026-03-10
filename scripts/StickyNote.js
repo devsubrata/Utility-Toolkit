@@ -48,6 +48,7 @@ if (!document.getElementById("stickyNote")) {
                     <option value="Open Sans">Open sans</option>
                     <option value="Nunito Sans" selected>Nunito Sans</option>
                     <option value="Nunito">Nunito</option>
+                    <option value="BBC Reith Sans">ReithSans</option>
                 </select>
             </div>
             <div class="example square picker-container">
@@ -56,15 +57,18 @@ if (!document.getElementById("stickyNote")) {
         </div>
         <textarea class="note-content" placeholder="Write your note here..."></textarea>
         <div id="status-bar">
-            <div>
-                <span id="totalWords">0 words</span>
+            <div class="word-count-status">
                 <span id="selectedWords"></span>
+                <span id="totalWords"></span>
             </div>
             <div class="text-size-controls">
                 <input type="color" id="txtcolor" value="#000000" title="Change text color"/>
                 <button id="increaseTextSize" title="Increase font size">➕</button>
                 <button id="decreaseTextSize" title="Decrease font size">➖</button>
                 <input type="color" id="bgcolor" value="#fffee1" title="Change background"/>
+            </div>
+            <div class="shortcut-btns">
+                <button title="merge lines">⚟</button>
             </div>
             <div class="nav">
                 <button data-nav="top">⏫</button>
@@ -175,7 +179,7 @@ if (!document.getElementById("stickyNote")) {
 
     function updateTotalWords() {
         const total = countWords(textarea.value);
-        totalWordsEl.textContent = `Total Words: ${total}`;
+        totalWordsEl.textContent = `${total} words`;
     }
 
     function updateSelectedWords() {
@@ -190,7 +194,7 @@ if (!document.getElementById("stickyNote")) {
         const selectedText = textarea.value.slice(start, end);
         const selectedCount = countWords(selectedText);
 
-        selectedWordsEl.textContent = ` | Selected words: ${selectedCount}`;
+        selectedWordsEl.textContent = `${selectedCount} of `;
     }
 
     // text changes
@@ -1001,6 +1005,7 @@ if (!document.getElementById("stickyNote")) {
 
     optionsMenu.querySelector('button[title="wrap line"]').onclick = wrapLine;
     optionsMenu.querySelector('button[title="join line"]').onclick = () => joinSelectedLines(textarea);
+    document.getElementById("status-bar").querySelector('button[title="merge lines"]').onclick = () => joinSelectedLines(textarea);
     optionsMenu.querySelector('button[title="take note in canvas"]').onclick = createCanvasNoteWindow;
 
     document.querySelector("#textColor").addEventListener("input", (e) => {
@@ -1013,8 +1018,8 @@ if (!document.getElementById("stickyNote")) {
         try {
             const [fileHandle] = await window.showOpenFilePicker({
                 types: [
-                    { description: "Text File", accept: { "text/plain": [".txt"] } },
                     { description: "Markdown File", accept: { "text/markdown": [".md"] } },
+                    { description: "Text File", accept: { "text/plain": [".txt"] } },
                     { description: "PDF File", accept: { "application/pdf": [".pdf", ".PDF"] } },
                 ],
                 multiple: false,
@@ -1060,12 +1065,12 @@ if (!document.getElementById("stickyNote")) {
                 suggestedName: getUniqueFileName(),
                 types: [
                     {
-                        description: "Text File",
-                        accept: { "text/plain": [".txt"] },
-                    },
-                    {
                         description: "Markdown File",
                         accept: { "text/markdown": [".md"] },
+                    },
+                    {
+                        description: "Text File",
+                        accept: { "text/plain": [".txt"] },
                     },
                 ],
             });

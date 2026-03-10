@@ -382,6 +382,7 @@ if (!document.getElementById("frameShiftPlayer")) {
         if (e.target.closest("#bookmarkTable") && e.key === "Enter") {
             e.preventDefault();
             e.target.blur();
+            framePlayer.focus();
             return;
         }
         /* =========================
@@ -407,6 +408,10 @@ if (!document.getElementById("frameShiftPlayer")) {
         showHUD("🔖");
         createBookmarkDisplay();
         renderBookmarkTable();
+        requestAnimationFrame(() => {
+            const table = document.querySelector(".bookmark-content");
+            table.scrollTo({ top: table.scrollHeight, behavior: "smooth" });
+        });
     }
 
     function createBookmarkDisplay() {
@@ -440,8 +445,8 @@ if (!document.getElementById("frameShiftPlayer")) {
                     <button id="importBookmarks" title="Import bookmarks">IMP</button>
                 </div>
                 <div>
-                    <button id="moveUpBookmark" title="Move up selected bookmarks">⏫</button>
-                    <button id="moveDownBookmark" title="Move down selected bookmarks">⏬</button>
+                    <button id="moveUpBookmark" title="Move up selected bookmarks">🔼</button>
+                    <button id="moveDownBookmark" title="Move down selected bookmarks">🔽</button>
                 </div>
             </div>
         `;
@@ -563,20 +568,52 @@ if (!document.getElementById("frameShiftPlayer")) {
         bookmarks[index].name = cell.textContent.trim();
     });
 
-    function exportCSV() {
-        let csv = "sl,timestamp,bookmark_name\n";
+    // function exportCSV() {
+    //     if (bookmarks.length === 0) return;
 
+    //     let csv = "sl,timestamp,bookmark_name\n";
+
+    //     bookmarks.forEach((b, i) => {
+    //         csv += `${i + 1},${b.time},${b.name}\n`;
+    //     });
+
+    //     const blob = new Blob([csv], { type: "text/csv" });
+    //     const url = URL.createObjectURL(blob);
+
+    //     const a = document.createElement("a");
+    //     a.href = url;
+    //     a.download = `${currentFileBaseName}__bookmarks.csv`;
+    //     a.click();
+    // }
+
+    async function exportCSV() {
+        if (bookmarks.length === 0) return alert("No bookmarks to export!");
+
+        // Generate CSV content
+        let csv = "sl,timestamp,bookmark_name\n";
         bookmarks.forEach((b, i) => {
             csv += `${i + 1},${b.time},${b.name}\n`;
         });
 
-        const blob = new Blob([csv], { type: "text/csv" });
-        const url = URL.createObjectURL(blob);
+        try {
+            const handle = await window.showSaveFilePicker({
+                suggestedName: `${currentFileBaseName}__bookmarks`,
+                types: [
+                    {
+                        description: "CSV File",
+                        accept: { "text/csv": [".csv"] },
+                    },
+                ],
+            });
 
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "frameshift_bookmarks.csv";
-        a.click();
+            const writable = await handle.createWritable();
+            await writable.write(csv);
+            await writable.close();
+            alert("✅ Bookmarks exported successfully!");
+        } catch (err) {
+            if (err.name !== "AbortError") console.error(err);
+            // User canceled, do nothing
+        }
     }
 
     async function importCSV(dropFile) {

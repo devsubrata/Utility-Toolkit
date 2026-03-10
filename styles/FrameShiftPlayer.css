@@ -171,11 +171,11 @@
 /**TODO:---------------Bookmark windows--------------*/
 #bookmarkWindow {
     position: absolute;
-    top: 10%;
-    left: 45%;
+    top: 0;
+    left: 50%;
     min-width: 420px;
     min-height: 320px;
-    max-height: 600px;
+    max-height: 95vh;
     background: #1e1e1e;
     border: 1px solid #444;
     border-radius: 8px;
@@ -187,6 +187,7 @@
         sans-serif;
     display: flex;
     flex-direction: column;
+    z-index: 999999;
 }
 
 #bookmarkWindow .title-bar {
@@ -222,12 +223,12 @@
 }
 
 .bookmark-content:hover::-webkit-scrollbar-thumb {
-    background: #666;
+    background: #2a2a2a;
 }
 
-.bookmark-content::-webkit-scrollbar-thumb {
+/* .bookmark-content::-webkit-scrollbar-thumb {
     background: transparent;
-}
+} */
 
 #bookmarkTable {
     width: 100%;
@@ -337,8 +338,8 @@
     opacity: 0;
     transform: translateY(-8px);
     transition:
-        opacity 0.25s ease,
-        transform 0.25s ease;
+        opacity 0.1s ease,
+        transform 0.1s ease;
 
     z-index: 9999;
 }
