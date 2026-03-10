@@ -56,6 +56,7 @@ if (!document.getElementById("annotationToolbar")) {
             <div class="menu-content">
                 <button id="brush" title="Brush">🖌️</button>
                 <button id="redo" title="redo">↩️</button>
+                <button id="parallelLines" title="Draw parallel lines">🟰</button>
                 <button id="circle" title="Circle">◯</button>
                 <button id="filledCircle" title="Filled circle">⚫</button>
                 <div class="highlightOpacityContainer">
@@ -303,6 +304,7 @@ function injectCanvas() {
         rectangle: document.getElementById("rectangle"),
         filledRectangle: document.getElementById("filledRectangle"),
         borderedRectangle: document.getElementById("borderedRectangle"),
+        parallelLines: document.getElementById("parallelLines"),
         typeText: document.getElementById("typeText"),
         miniTextTool: document.getElementById("miniTextTool"),
         pasteImage: document.getElementById("insertImage"),
@@ -329,6 +331,8 @@ function injectCanvas() {
     let snapshot; // Store canvas state before drawing a rectangle
     let pasteHandler = null;
     let drawCount = null;
+    let drawVertical = false; // horizontal default
+
     const circleConfig = {
         enabled: false, // no circle by default
         style: null, // "stroke" | "fill" | "both"
@@ -363,7 +367,7 @@ function injectCanvas() {
 
     //** Set Respective cursor
     function setCursor(tool) {
-        let crossCursorNeeded = ["Rectangle", "filledRectangle", "borderedRectangle", "eraser"].includes(tool);
+        let crossCursorNeeded = ["Rectangle", "filledRectangle", "borderedRectangle", "parallelLines", "eraser"].includes(tool);
         if (!crossCursorNeeded) {
             canvas.style.cursor = "default";
             document.getElementById("crosshair")?.remove();
@@ -381,6 +385,7 @@ function injectCanvas() {
                 canvas.style.cursor = lineCursor(brushSize, color1);
                 break;
             case "rectangle":
+            case "parallelLines":
                 canvas.style.cursor = rectCursor(`rgba(255,255,255,0)`, color1, +document.getElementById("brushSize").value);
                 infiniteCrossCursor(canvas, "cyan", 1);
                 break;
@@ -454,6 +459,7 @@ function injectCanvas() {
             case "rectangle":
             case "filledRectangle":
             case "borderedRectangle":
+            case "parallelLines":
             case "circle":
             case "filledCircle":
             case "borderedCircle":
@@ -504,6 +510,7 @@ function injectCanvas() {
             case "filledRectangle":
             case "borderedRectangle":
             case "eraser":
+            case "parallelLines":
                 ctx.putImageData(snapshot, 0, 0);
                 let width = pos.x - startX;
                 let height = pos.y - startY;
@@ -518,6 +525,28 @@ function injectCanvas() {
                     ctx.strokeRect(startX, startY, width, height);
                     ctx.fillStyle = color1;
                     ctx.fillRect(startX, startY, width, height);
+                } else if (currentTool === "parallelLines") {
+                    let [x1, y1] = [startX, startY];
+                    let [x2, y2] = [pos.x, pos.y];
+                    if (drawVertical) {
+                        ctx.beginPath();
+                        // left line
+                        ctx.moveTo(x1, y1);
+                        ctx.lineTo(x1, y2);
+                        // right line
+                        ctx.moveTo(x2, y1);
+                        ctx.lineTo(x2, y2);
+                        ctx.stroke();
+                    } else {
+                        ctx.beginPath();
+                        // top line
+                        ctx.moveTo(x1, y1);
+                        ctx.lineTo(x2, y1);
+                        // bottom line
+                        ctx.moveTo(x1, y2);
+                        ctx.lineTo(x2, y2);
+                        ctx.stroke();
+                    }
                 } else {
                     ctx.fillStyle = color1;
                     ctx.fillRect(startX, startY, width, height);
@@ -564,6 +593,14 @@ function injectCanvas() {
         undoStack.push(state);
         redoStack.length = 0;
     }
+
+    // Toggle vertical mode when "V" is pressed
+    document.addEventListener("keydown", (e) => {
+        if (currentTool !== "parallelLines") return;
+        if (e.key.toLowerCase() === "v") {
+            drawVertical = !drawVertical;
+        }
+    });
 
     //TODO:--------- Event Listeners for canvas ---------------------------------
     canvas.addEventListener("mousedown", startPainting);
@@ -657,6 +694,7 @@ function injectCanvas() {
     tools.rectangle.addEventListener("click", () => setActiveTool("rectangle"));
     tools.filledRectangle.addEventListener("click", () => setActiveTool("filledRectangle"));
     tools.borderedRectangle.addEventListener("click", () => setActiveTool("borderedRectangle"));
+    tools.parallelLines.addEventListener("click", () => setActiveTool("parallelLines"));
     tools.eraser.addEventListener("click", () => setActiveTool("eraser"));
     tools.eyeDropperTool.addEventListener("click", () => setActiveTool("eyeDropperTool"));
     tools.typeText.addEventListener("click", () => {
