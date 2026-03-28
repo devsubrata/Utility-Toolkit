@@ -111,11 +111,15 @@ if (!document.getElementById("annotationToolbar")) {
                     <span>Bold</span>
                 </label>
                 <label style="display: inline-flex; align-items: center; gap: 3px;">
+                    <input type="checkbox" id="color-sentences-check">
+                    <span>MultiColor</span>
+                </label>
+                <label style="display: inline-flex; align-items: center; gap: 3px;">
                     <input type="checkbox" id="italic-check">
                     <span>Italic</span>
                 </label>
             </div>
-            <button id="closeModal">X</button>
+            <button id="closeModal">❌</button>
         </div>
         <textarea id="textInput" placeholder="Add note..." autofocus></textarea>
         <div id="submit_block">
@@ -278,6 +282,7 @@ function bullet_menu_listener() {
 
 function injectCanvas() {
     let canvas = document.createElement("canvas");
+    canvas.tabindex = 0;
     canvas.id = "drawingCanvas";
     document.body.appendChild(canvas);
 
@@ -608,6 +613,7 @@ function injectCanvas() {
     canvas.addEventListener("mouseup", stopPainting);
     canvas.addEventListener("mouseout", stopPainting);
     canvas.addEventListener("click", (e) => {
+        canvas.focus();
         let clickPosition = { x: 0, y: 0 };
         const rect = canvas.getBoundingClientRect();
         clickPosition.x = e.clientX - rect.left;
@@ -893,6 +899,34 @@ function injectCanvas() {
         });
     }
 
+    // function addText(x, y, text) {
+    //     const fontSize = parseInt(document.getElementById("font-size").value);
+    //     const fontFamily = document.getElementById("font-select").value;
+    //     const isBold = document.getElementById("bold-check").checked;
+    //     const isItalic = document.getElementById("italic-check").checked;
+    //     const rotationDeg = parseFloat(document.getElementById("rotation-input").value) || 0;
+
+    //     // Build font string
+    //     ctx.font = `${isItalic ? "italic " : ""}${isBold ? "bold " : ""}${fontSize}px ${fontFamily}`;
+    //     ctx.fillStyle = textColor;
+
+    //     const rotationRad = -(rotationDeg * (Math.PI / 180));
+    //     const lineHeight = fontSize + 6;
+
+    //     const lines = text.split("\n");
+
+    //     ctx.save();
+    //     ctx.translate(x, y); // Move to base point
+    //     ctx.rotate(rotationRad); // Rotate coordinate system
+
+    //     lines.forEach((line, index) => {
+    //         const offsetY = (fontSize * 2.3) / 3 + lineHeight * index;
+    //         ctx.fillText(line, 0, offsetY); // Keep X = 0, shift Y in rotated space
+    //     });
+
+    //     ctx.restore();
+    // }
+
     function addText(x, y, text) {
         const fontSize = parseInt(document.getElementById("font-size").value);
         const fontFamily = document.getElementById("font-select").value;
@@ -900,23 +934,101 @@ function injectCanvas() {
         const isItalic = document.getElementById("italic-check").checked;
         const rotationDeg = parseFloat(document.getElementById("rotation-input").value) || 0;
 
-        // Build font string
-        ctx.font = `${isItalic ? "italic " : ""}${isBold ? "bold " : ""}${fontSize}px ${fontFamily}`;
-        ctx.fillStyle = textColor;
+        const useSentenceColors = document.getElementById("color-sentences-check").checked;
+        const colors = ["#000000", "#2c55a1", "#4d8d29", "#5a1d8a", "#aa4205"];
 
+        ctx.font = `${isItalic ? "italic " : ""}${isBold ? "bold " : ""}${fontSize}px ${fontFamily}`;
         const rotationRad = -(rotationDeg * (Math.PI / 180));
         const lineHeight = fontSize + 6;
 
         const lines = text.split("\n");
 
-        ctx.save();
-        ctx.translate(x, y); // Move to base point
-        ctx.rotate(rotationRad); // Rotate coordinate system
+        // Abbreviation list to ignore
+        const abbreviations = ["Dr.", "Mr.", "Mrs.", "Ms.", "Prof.", "Sr.", "Jr.", "St.", "e.g.", "i.e.", "vs."];
 
-        lines.forEach((line, index) => {
-            const offsetY = (fontSize * 2.3) / 3 + lineHeight * index;
-            ctx.fillText(line, 0, offsetY); // Keep X = 0, shift Y in rotated space
-        });
+        // Precompute sentence boundaries including quotes
+        let sentenceBoundaries = [];
+        let start = 0;
+
+        for (let i = 0; i < text.length; i++) {
+            const char = text[i];
+            const nextChar = text[i + 1] || "";
+            const nextNextChar = text[i + 2] || "";
+            const nextNextNextChar = text[i + 3] || "";
+
+            // Check if this dot is part of an abbreviation
+            let isAbbreviation = false;
+            for (const abbr of abbreviations) {
+                if (text.substring(i - abbr.length + 1, i + 1) === abbr) {
+                    isAbbreviation = true;
+                    break;
+                }
+            }
+
+            if (isAbbreviation) continue;
+
+            // Sentence boundary: punctuation + space + capital OR quote + space + capital OR newline/end
+            const isBoundary =
+                (char === "." || char === "?" || char === "!") &&
+                nextChar === " " &&
+                (/[A-Z]/.test(nextNextChar) || nextNextChar === '"' || nextNextChar === "'" || nextNextChar === "(");
+
+            if (isBoundary) {
+                sentenceBoundaries.push({ start: start, end: i + 1 });
+                start = i + 1;
+            }
+        }
+
+        if (start < text.length) {
+            sentenceBoundaries.push({ start: start, end: text.length });
+        }
+
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(rotationRad);
+
+        if (!useSentenceColors) {
+            lines.forEach((line, index) => {
+                const offsetY = (fontSize * 2.3) / 3 + lineHeight * index;
+                ctx.fillStyle = textColor;
+                ctx.fillText(line, 0, offsetY);
+            });
+        } else {
+            let globalSentenceIndex = 0;
+            let globalCharIndex = 0;
+
+            lines.forEach((line, lineIndex) => {
+                const offsetY = (fontSize * 2.3) / 3 + lineHeight * lineIndex;
+                let currentX = 0;
+                let i = 0;
+
+                while (i < line.length) {
+                    while (globalSentenceIndex < sentenceBoundaries.length && globalCharIndex >= sentenceBoundaries[globalSentenceIndex].end) {
+                        globalSentenceIndex++;
+                    }
+
+                    if (globalSentenceIndex >= sentenceBoundaries.length) {
+                        const remaining = line.substring(i);
+                        ctx.fillStyle = colors[globalSentenceIndex % colors.length];
+                        ctx.fillText(remaining, currentX, offsetY);
+                        break;
+                    }
+
+                    const sentence = sentenceBoundaries[globalSentenceIndex];
+                    const substringEnd = Math.min(i + (sentence.end - globalCharIndex), line.length);
+                    const substring = line.substring(i, substringEnd);
+
+                    ctx.fillStyle = colors[globalSentenceIndex % colors.length];
+                    ctx.fillText(substring, currentX, offsetY);
+                    currentX += ctx.measureText(substring).width;
+
+                    i = substringEnd;
+                    globalCharIndex += substring.length;
+                }
+
+                globalCharIndex++; // account for \n
+            });
+        }
 
         ctx.restore();
     }

@@ -276,6 +276,7 @@
     left: 50%;
     transform: translate(-50%, -50%);
     border: 10px solid orange;
+    border-radius: 5px;
     background: gold;
     margin: 0;
     padding: 0;
@@ -284,7 +285,7 @@
 }
 
 #modal #textInput {
-    width: 650px;
+    width: 700px;
     height: 300px;
     font-size: 20px;
     font-family: "Open sans";
@@ -313,23 +314,32 @@
     margin: 0;
     display: flex;
     justify-content: center;
+    gap: 2px;
 }
-#modal-header #font-size {
+
+#modal-header #font-size,
+#modal-header #rotation-input {
     padding-left: 8px;
-    width: 50px;
+    width: 40px;
+    font-size: 17px;
+    background-color: #b5e9e9;
+    outline: none;
+    border: none;
 }
 
 #modal-header #rotation-input {
-    padding-left: 8px;
-    width: 60px;
+    width: 50px;
 }
 
 #modal-header .text-style {
-    display: flex;
-    flex-direction: column;
+    /* display: flex;
+    flex-direction: column; */
+    display: grid;
+    grid-template-columns: 0.5fr 1fr;
     padding: 2px;
     margin-left: 4px;
-    gap: 1px;
+    column-gap: 5px;
+    row-gap: 1px;
     font-size: 14px;
     color: #333;
 }
@@ -340,10 +350,7 @@
 
 #font-select option {
     text-align: left;
-}
-#closeModal {
-    display: inline-block;
-    margin-left: auto;
+    background: #f3eea3;
 }
 
 #modal-header button,
@@ -353,18 +360,24 @@
     color: white;
     border: none;
     padding: 8px 15px;
-    border-radius: 5px;
+    border-radius: 2px;
     cursor: pointer;
     transition: 0.2s ease-in-out;
     font-size: 14px;
 }
 
-#clearText {
-    margin-right: 2px;
+#modal-header #closeModal {
+    display: inline-block;
+    margin-left: auto;
+    background: none;
+    padding: 4px;
+    height: 30px;
+    border: 1px solid grey;
+    margin-top: 7px;
 }
 
 #modal-header #addBullet {
-    border-radius: 0;
+    border-radius: 3px;
     padding: 5px 8px;
 }
 

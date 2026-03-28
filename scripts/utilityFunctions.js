@@ -290,6 +290,7 @@ function lookUpLinks() {
         "vocabulary.com": "https://www.vocabulary.com/dictionary/{search_term}",
         "just-the-word.com": "https://www.just-the-word.com/main.pl?word={search_term}&mode=combinations",
         "thesaurus.com": "https://www.thesaurus.com/browse/{search_term}",
+        "powerthesaurus.org": "https://www.powerthesaurus.org/{search_term}/synonyms",
         "dictionary.com": "https://www.dictionary.com/browse/{search_term}",
         "Youglish.com": "https://youglish.com/pronounce/{search_term}/english",
         "Image search": "https://www.google.com/search?tbm=isch&q={search_term}",
@@ -503,7 +504,7 @@ function addTextToCanvas(
     syncSize();
 }
 
-//**TODO:----- Save convas with white background -------*/
+//**TODO:----- Save canvas with white background -------*/
 async function saveCanvasImage(canvasId, defaultName = "canvas", background = "#ffffff", defaultFormat = "png", quality = 1) {
     const canvas = document.getElementById(canvasId);
     if (!canvas) throw new Error("Canvas not found");
@@ -562,17 +563,183 @@ async function saveCanvasImage(canvasId, defaultName = "canvas", background = "#
 }
 
 //**TODO:-------- Paste Image on canvas ----------- */
-function getImageScale() {
-    const input = prompt("Enter image scale (e.g., 0.5, 1, 2):", "1");
-    const parsed = parseFloat(input);
-    let imageScale;
-    if (!isNaN(parsed) && parsed > 0) {
-        imageScale = parsed;
-    } else {
-        alert("Invalid scale value. Using default (1).");
-        imageScale = 1;
-    }
-    return imageScale;
+
+async function setImageScale(clickPosition) {
+    return new Promise((resolve) => {
+        const existing = document.getElementById("scale-modal");
+        if (existing) existing.remove();
+
+        const modal = document.createElement("div");
+        modal.id = "scale-modal";
+
+        Object.assign(modal.style, {
+            position: "absolute",
+            top: "0",
+            left: "0",
+            width: "235px",
+            background: "#fffee1",
+            backdropFilter: "blur(10px)",
+            border: "2px solid #faf56c",
+            borderRadius: "14px",
+            padding: "14px",
+            boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
+            zIndex: 30000,
+            fontFamily: "system-ui, -apple-system, sans-serif",
+            transform: "scale(0.95)",
+            opacity: "0",
+            transition: "all 0.15s ease-out",
+        });
+
+        //Position safely inside viewport
+        modal.style.left = `${clickPosition.x}px`;
+        modal.style.top = `${clickPosition.y}px`;
+
+        // Title
+        const title = document.createElement("div");
+        title.textContent = "Select Scale";
+        Object.assign(title.style, {
+            fontSize: "14px",
+            fontWeight: "600",
+            marginBottom: "10px",
+            color: "#333",
+        });
+
+        modal.appendChild(title);
+
+        // Scale buttons (chips style)
+        const scales = [1, 0.95, 0.9, 0.85, 0.8, 0.75, 0.7, 0.65, 0.6, 0.5];
+
+        const buttonContainer = document.createElement("div");
+        Object.assign(buttonContainer.style, {
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "6px",
+            marginBottom: "10px",
+        });
+
+        scales.forEach((scale) => {
+            const btn = document.createElement("button");
+            btn.textContent = `${scale}`;
+
+            Object.assign(btn.style, {
+                padding: "6px 10px",
+                borderRadius: "20px",
+                border: "1px solid #ddd",
+                background: "#f5f5f5",
+                cursor: "pointer",
+                fontSize: "12px",
+                transition: "all 0.15s ease",
+            });
+
+            btn.onmouseenter = () => {
+                btn.style.background = "#e8e8e8";
+                btn.style.transform = "translateY(-1px)";
+            };
+            btn.onmouseleave = () => {
+                btn.style.background = "#f5f5f5";
+                btn.style.transform = "translateY(0)";
+            };
+            btn.onclick = () => {
+                cleanup();
+                resolve(scale);
+            };
+            buttonContainer.appendChild(btn);
+        });
+
+        modal.appendChild(buttonContainer);
+
+        // Input section
+        const input = document.createElement("input");
+        input.type = "number";
+        input.placeholder = "Custom scale (e.g. 0.75)";
+
+        Object.assign(input.style, {
+            width: "100%",
+            padding: "8px 10px",
+            borderRadius: "8px",
+            border: "1px solid #ccc",
+            outline: "none",
+            fontSize: "13px",
+            boxSizing: "border-box",
+        });
+
+        input.addEventListener("focus", () => {
+            input.style.borderColor = "#4a90e2";
+        });
+
+        input.addEventListener("blur", () => {
+            input.style.borderColor = "#ccc";
+        });
+
+        const applyBtn = document.createElement("button");
+        applyBtn.textContent = "Apply";
+
+        Object.assign(applyBtn.style, {
+            marginTop: "8px",
+            width: "100%",
+            padding: "8px",
+            borderRadius: "8px",
+            border: "none",
+            background: "#4a90e2",
+            color: "#fff",
+            fontWeight: "600",
+            cursor: "pointer",
+            transition: "all 0.15s ease",
+        });
+
+        applyBtn.onmouseenter = () => {
+            applyBtn.style.background = "#3b7dd8";
+        };
+
+        applyBtn.onmouseleave = () => {
+            applyBtn.style.background = "#4a90e2";
+        };
+
+        applyBtn.onclick = (e) => {
+            e.stopPropagation(); // extra safety
+            const val = parseFloat(input.value);
+            if (!isNaN(val) && val > 0) {
+                cleanup();
+                resolve(val);
+            } else {
+                input.style.borderColor = "red";
+            }
+        };
+
+        input.addEventListener("keydown", (e) => {
+            e.stopPropagation(); // ✅ STOP reaching window
+            if (e.key === "Enter") applyBtn.click();
+        });
+
+        modal.appendChild(input);
+        modal.appendChild(applyBtn);
+
+        document.body.appendChild(modal);
+
+        // Animate in
+        requestAnimationFrame(() => {
+            modal.style.opacity = "1";
+            modal.style.transform = "scale(1)";
+        });
+
+        function cleanup() {
+            modal.style.opacity = "0";
+            modal.style.transform = "scale(0.95)";
+            setTimeout(() => modal.remove(), 150);
+            document.removeEventListener("click", outsideClick);
+        }
+
+        function outsideClick(e) {
+            if (!modal.contains(e.target)) {
+                cleanup();
+                resolve(null);
+            }
+        }
+
+        setTimeout(() => {
+            document.addEventListener("click", outsideClick);
+        }, 0);
+    });
 }
 
 function enableCanvasImagePaste({ canvas, ctx, isEnabled, clickPosition }) {
@@ -580,36 +747,51 @@ function enableCanvasImagePaste({ canvas, ctx, isEnabled, clickPosition }) {
         if (!isEnabled) return;
 
         const items = e.clipboardData?.items || [];
-        const scale = getImageScale();
 
+        // ✅ Step 1: Read image immediately
+        let imageItem = null;
         for (const item of items) {
-            if (!item.type.startsWith("image")) continue;
-
-            const blob = item.getAsFile();
-            const img = new Image();
-
-            img.onload = () => {
-                const snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                startDraggablePreview({
-                    canvas,
-                    ctx,
-                    image: img,
-                    scale,
-                    startPos: { ...clickPosition },
-                    snapshot,
-                });
-            };
-
-            img.src = URL.createObjectURL(blob);
-            break;
+            if (item.type.startsWith("image")) {
+                imageItem = item;
+                break;
+            }
         }
+
+        if (!imageItem) return;
+
+        const blob = imageItem.getAsFile();
+        if (!blob) return;
+
+        // ✅ Convert image FIRST (before async)
+        const img = new Image();
+        const imageUrl = URL.createObjectURL(blob);
+
+        img.src = imageUrl;
+
+        img.onload = async () => {
+            // ✅ NOW ask for scale (after image is safe)
+            const scale = await setImageScale(clickPosition);
+
+            if (scale === null) return;
+
+            const snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+            startDraggablePreview({
+                canvas,
+                ctx,
+                image: img,
+                scale,
+                startPos: { ...clickPosition },
+                snapshot,
+            });
+        };
     }
 
-    window.addEventListener("paste", onPaste);
+    document.addEventListener("paste", onPaste);
 
     return {
         destroy() {
-            window.removeEventListener("paste", onPaste);
+            document.removeEventListener("paste", onPaste);
         },
     };
 }

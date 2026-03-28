@@ -94,8 +94,9 @@
     border-radius: 12px;
 }
 
-.title-bar,
-.footer-bar {
+#loaderWindow .title-bar,
+#viewerWindow .title-bar,
+#viewerWindow .footer-bar {
     background: var(--bg);
     color: white;
     display: flex;
@@ -104,7 +105,7 @@
     flex-shrink: 0;
 }
 
-.footer-bar {
+#viewerWindow .footer-bar {
     justify-content: center;
     gap: 30px;
     padding: 5px;
@@ -112,7 +113,8 @@
     border-bottom-right-radius: 12px;
 }
 
-.title-bar {
+#loaderWindow .title-bar,
+#viewerWindow .title-bar {
     padding: 8px 12px;
     border-top-left-radius: 12px;
     border-top-right-radius: 12px;
@@ -127,7 +129,7 @@
     cursor: pointer;
 }
 
-.footer-bar button {
+#viewerWindow .footer-bar button {
     width: 30px;
     height: 25px;
     padding: 10px;
@@ -146,12 +148,17 @@
     transition: background 0.3s;
 }
 
-.footer-bar button:hover {
+#viewerWindow .footer-bar button:hover {
     background: #e0eaff;
 }
+#viewerWindow .title-bar .controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 3px;
+}
 
-.title-bar .controls button {
-    margin-left: 6px;
+#viewerWindow .title-bar .controls button {
     background: rgba(255, 255, 255, 0.2);
     border: none;
     color: white;
@@ -160,7 +167,7 @@
     cursor: pointer;
 }
 
-.title-bar .controls button:hover {
+#viewerWindow .title-bar .controls button:hover {
     background: rgba(255, 255, 255, 0.4);
 }
 

@@ -50,12 +50,17 @@ if (!document.getElementById("openScriptScroller")) {
                     <button id="scrollDown">🔽</button>       
                     <button id="scrollToBottom">⏬</button>   
                 </div>
+                <div>     
+                    <button id="placeLeft">L</button>        
+                    <button id="placeRight">R</button>  
+                </div>
             </div>
         </div>
     `;
     document.body.appendChild(scriptScroller);
     makeDraggable(document.getElementById("loaderWindow"));
     makeDraggable(document.getElementById("viewerWindow"));
+    makeResizable(document.getElementById("viewerWindow"));
     closeWindow(scriptScroller.querySelector(".close-btn"), scriptScroller, null);
     minimizeWindow(scriptScroller.querySelector(".minimize-btn"), document.getElementById("loaderWindow"));
 
@@ -198,4 +203,7 @@ if (!document.getElementById("openScriptScroller")) {
     closeBtn.onclick = () => {
         viewerWindow.style.display = "none";
     };
+
+    document.getElementById("placeLeft").onclick = () => resizeLeftHalf(document.getElementById("viewerWindow"));
+    document.getElementById("placeRight").onclick = () => resizeRightHalf(document.getElementById("viewerWindow"));
 }
