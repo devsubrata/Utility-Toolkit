@@ -102,7 +102,7 @@ if (!document.getElementById("frameShiftPlayer")) {
 
     document.getElementById("videoFileInput").onchange = (e) => {
         const file = e.target.files[0];
-        if (!file || !file.type.startsWith("video/")) return;
+        if (!file || !(file.type.startsWith("video/") || file.type.startsWith("audio/"))) return;
         currentFileBaseName = file.name.replace(/\.[^/.]+$/, "");
         video.src = URL.createObjectURL(file);
     };
@@ -116,9 +116,9 @@ if (!document.getElementById("frameShiftPlayer")) {
         const file = e.dataTransfer.files[0];
         if (!file) return;
         /* =========================
-                VIDEO FILE
+                VIDEO / AUDIO FILE
         ========================= */
-        if (file.type.startsWith("video/")) {
+        if (file.type.startsWith("video/") || file.type.startsWith("audio/")) {
             currentFileBaseName = file.name.replace(/\.[^/.]+$/, "");
             video.src = URL.createObjectURL(file);
             return;

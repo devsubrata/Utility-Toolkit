@@ -132,11 +132,13 @@ if (!document.getElementById("openPlayer")) {
     document.getElementById("setStart").onclick = () => {
         startTime = audioPlayer.currentTime;
         startDisplay.textContent = formatTime(startTime);
+        navigator.clipboard.writeText(currentTimeSpan.textContent);
     };
 
     document.getElementById("setEnd").onclick = () => {
         endTime = audioPlayer.currentTime;
         endDisplay.textContent = formatTime(endTime);
+        navigator.clipboard.writeText(currentTimeSpan.textContent);
     };
 
     startDisplay.addEventListener("blur", () => {
@@ -365,7 +367,7 @@ if (!document.getElementById("openPlayer")) {
 
         metadata.forEach((song, index) => {
             const li = document.createElement("li");
-            let name = `${song.name}`.slice(0, -4);
+            let name = `${song.name}`.slice(0, -4); //remove extension from name
 
             li.innerHTML = `
                 <div class="list-item">
@@ -405,24 +407,40 @@ if (!document.getElementById("openPlayer")) {
         const metadata = JSON.parse(localStorage.getItem("playlist") || "[]");
 
         if (metadata.length === 0) return;
+
         // Stop if reached end and loop disabled
         if (index >= metadata.length) {
             if (!loopPlaylist) return;
-            index = 0; // Loop back to first song
+            index = 0; // Loop back
         }
+
         currentIndex = index;
         updatePlayingUI(currentIndex);
+
         const song = metadata[currentIndex];
-        // Clean previous URL
-        if (audioPlayer.src) {
+
+        // 🔹 Clean previous URL (ONLY for blob URLs)
+        if (audioPlayer.src && audioPlayer.src.startsWith("blob:")) {
             URL.revokeObjectURL(audioPlayer.src);
         }
-        const result = await getSong(song.id);
-        const url = URL.createObjectURL(result.file);
 
-        audioPlayer.src = url;
-        audioPlayer.play();
+        try {
+            if (song.type === "online") {
+                // ✅ ONLINE AUDIO
+                audioPlayer.src = song.src;
+            } else {
+                // ✅ LOCAL AUDIO (IndexedDB)
+                const result = await getSong(song.id);
+                const url = URL.createObjectURL(result.file);
+                audioPlayer.src = url;
+            }
 
+            await audioPlayer.play();
+        } catch (err) {
+            console.error("Playback error:", err);
+        }
+
+        // 🔹 Auto next
         audioPlayer.onended = () => {
             playSongFromIndex(currentIndex + 1);
         };
@@ -454,12 +472,41 @@ if (!document.getElementById("openPlayer")) {
 
         for (const file of files) {
             const id = await addSong(file.name, file);
-            metadata.push({ id, name: file.name });
+
+            metadata.push({
+                id,
+                name: file.name,
+                src: null,
+                type: "local",
+            });
         }
 
         localStorage.setItem("playlist", JSON.stringify(metadata));
         renderPlaylist();
     }
+
+    function addOnlineAudio(data) {
+        const metadata = JSON.parse(localStorage.getItem("playlist") || "[]");
+
+        const id = "online_" + Date.now();
+
+        metadata.push({
+            id,
+            name: data.filename || "Online Audio",
+            src: data.audioLink,
+            type: "online",
+        });
+
+        localStorage.setItem("playlist", JSON.stringify(metadata));
+        renderPlaylist();
+    }
+
+    window.addEventListener("ADD_ONLINE_AUDIO", (e) => {
+        const { filename, audioLink } = e.detail;
+        console.log(filename);
+
+        addOnlineAudio({ filename, audioLink });
+    });
 
     openDB().then((database) => {
         db = database;
