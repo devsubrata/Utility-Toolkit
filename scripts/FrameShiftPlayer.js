@@ -30,6 +30,8 @@ if (!document.getElementById("frameShiftPlayer")) {
             <span class="title">🎞️ FrameShift Player</span>
             <div class="options-menu">
                 <button id="loadVideoBtn" title="Open video">📂</button>
+                <button id="uploadSubtitleBtn">📜</button>
+                <input type="file" id="subtitleInput" accept=".srt,.vtt,.json" hidden>
                 <button id="addBookmarkBtn" title="Add bookmark">🔖</button>
                 <div class="more-tools">
                     <button id="moreOptionBtn" title="More options"><i class="fa-solid fa-bars"></i></button>
@@ -37,8 +39,8 @@ if (!document.getElementById("frameShiftPlayer")) {
                         <button id="placeFpLeftBtn" title="Place left">⬅️</button>
                         <button id="placeFpRightBtn" title="Place Right">➡️</button>
                         <button id="displayBookmarkWindomBtn" title="Show Bookmarks window">📑</button>
-                        <button id="D" title="Button D">D</button>
-                        <button id="E" title="Button E">E</button>
+                        <button id="toggleSubtitle" title="Toggle Subtitle">🇨🇨</button>
+                        <button id="toggleTranscript" title="Toggle Transcript">📝</button>
                         <button id="F" title="Button F">F</button>
                     </div>
                 </div>
@@ -55,6 +57,8 @@ if (!document.getElementById("frameShiftPlayer")) {
             <div class="dropZone">Drag & Drop Video Here</div>
             <video id="fsVideo"></video>
             <div id="playerHUD"></div>
+            <!-- Subtitle overlay -->
+            <div id="subtitleOverlay" class="subtitle"></div>
         </div>
 
         <div class="controls">
@@ -65,8 +69,21 @@ if (!document.getElementById("frameShiftPlayer")) {
             <input type="range" id="progress" min="0" max="100" value="0" style="cursor: pointer;">
             <div id="hoverTime"></div>
             <span id="timeDisplay">00:00 / 00:00</span>
-            <input type="file" id="videoFileInput" accept=".mp4,.mkv" style="display: none;" />
+            <input type="file" id="videoFileInput" accept=".mp4,.mkv,.mp3" style="display: none;" />
             <button id="captureBtn">📸</button>
+        </div>
+
+        <!-- Transcript Window -->
+        <div id="transcriptWindow" class="transcript">   
+            <div class="title-bar">
+                <span class="title">🎞️ Transcript Viewer</span>
+                <div class="transcript-font">
+                    <button id="increase-transcript-font" title="increase text size">➕</button>
+                    <button id="decrease-transcript-font" title="decrease text size">➖</button>
+                </div>
+            </div>
+            <div class="transcript-content">
+            </div>
         </div>
     `;
 
@@ -121,6 +138,13 @@ if (!document.getElementById("frameShiftPlayer")) {
         if (file.type.startsWith("video/") || file.type.startsWith("audio/")) {
             currentFileBaseName = file.name.replace(/\.[^/.]+$/, "");
             video.src = URL.createObjectURL(file);
+            return;
+        }
+        /* =========================
+                srt / vtt / json FILE
+        ========================= */
+        if (file.name.endsWith(".srt") || file.name.endsWith(".vtt") || file.name.endsWith(".json")) {
+            getTranscript(file);
             return;
         }
         /* =========================
@@ -568,24 +592,6 @@ if (!document.getElementById("frameShiftPlayer")) {
         bookmarks[index].name = cell.textContent.trim();
     });
 
-    // function exportCSV() {
-    //     if (bookmarks.length === 0) return;
-
-    //     let csv = "sl,timestamp,bookmark_name\n";
-
-    //     bookmarks.forEach((b, i) => {
-    //         csv += `${i + 1},${b.time},${b.name}\n`;
-    //     });
-
-    //     const blob = new Blob([csv], { type: "text/csv" });
-    //     const url = URL.createObjectURL(blob);
-
-    //     const a = document.createElement("a");
-    //     a.href = url;
-    //     a.download = `${currentFileBaseName}__bookmarks.csv`;
-    //     a.click();
-    // }
-
     async function exportCSV() {
         if (bookmarks.length === 0) return alert("No bookmarks to export!");
 
@@ -677,4 +683,132 @@ if (!document.getElementById("frameShiftPlayer")) {
             hud.classList.remove("show");
         }, duration);
     }
+
+    // TODO:----------subtitle/transcript feature---------------
+    const subtitleInput = document.getElementById("subtitleInput");
+
+    document.getElementById("uploadSubtitleBtn").onclick = () => {
+        subtitleInput.click();
+    };
+
+    subtitleInput.addEventListener("change", handleSubtitleFile);
+
+    let transcript = null;
+    async function handleSubtitleFile(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        getTranscript(file);
+    }
+
+    async function getTranscript(file) {
+        const text = await file.text();
+        if (file.name.endsWith(".srt")) {
+            transcript = parseSRT(text);
+            console.log(transcript);
+        } else if (file.name.endsWith(".vtt")) {
+            transcript = parseVTT(text);
+        } else if (file.name.endsWith(".json")) {
+            transcript = JSON.parse(text);
+        }
+        renderTranscript();
+    }
+
+    function parseSRT(srt) {
+        const lines = srt
+            .replace(/\r/g, "")
+            .split("\n")
+            .map((l) => l.trim())
+            .filter((l) => l !== "");
+
+        const filtered = lines.filter((line) => !/^\d+$/.test(line));
+
+        const result = [];
+
+        for (let i = 0; i < filtered.length; i += 2) {
+            const timeLine = filtered[i];
+            const textLine = filtered[i + 1];
+
+            if (!timeLine || !textLine) continue;
+
+            const [start, end] = timeLine.split("-->").map((s) => s.trim());
+
+            result.push({
+                start: toSec(start),
+                end: toSec(end),
+                text: textLine,
+            });
+        }
+
+        return result;
+    }
+
+    function toSec(t) {
+        const [hms, ms] = t.split(",");
+        const [h, m, s] = hms.split(":").map(Number);
+        return h * 3600 + m * 60 + s + ms / 1000;
+    }
+
+    const transcriptWindow = document.getElementById("transcriptWindow");
+    const transcriptContent = transcriptWindow.querySelector(".transcript-content");
+
+    function renderTranscript() {
+        transcriptContent.innerHTML = "";
+        transcript.forEach((item, i) => {
+            const span = document.createElement("span");
+            span.textContent = item.text + " ";
+            span.dataset.index = i;
+
+            span.onclick = () => {
+                video.currentTime = item.start;
+                video.play();
+            };
+            transcriptContent.appendChild(span);
+        });
+    }
+
+    const overlay = document.getElementById("subtitleOverlay");
+
+    let currentIndex = -1;
+    video.addEventListener("timeupdate", () => {
+        if (!transcript) return;
+
+        const t = video.currentTime;
+
+        const index = transcript.findIndex((item) => t >= item.start && t < item.end);
+
+        if (index !== currentIndex) {
+            currentIndex = index;
+            overlay.textContent = index !== -1 ? transcript[index].text : "";
+            // Highlight transcript
+            document.querySelectorAll("#transcriptWindow span").forEach((span) => span.classList.remove("active"));
+            const el = document.querySelector(`.transcript-content span[data-index="${index}"]`);
+            if (el) {
+                el.classList.add("active");
+                el.scrollIntoView({ block: "center", behavior: "smooth" });
+            }
+        }
+    });
+
+    // subtitle on/off
+    document.getElementById("toggleSubtitle").onclick = () => {
+        overlay.style.display = overlay.style.display === "none" ? "block" : "none";
+        document.getElementById("toggleSubtitle").style.background = "blue";
+    };
+
+    // transcript on/off
+    document.getElementById("toggleTranscript").onclick = () => {
+        transcriptWindow.style.display = transcriptWindow.style.display === "none" ? "block" : "none";
+    };
+
+    document.getElementById("increase-transcript-font").onclick = () => {
+        const currentSize = getFontSize(transcriptContent);
+        transcriptContent.style.fontSize = currentSize + 2 + "px";
+    };
+    document.getElementById("decrease-transcript-font").onclick = () => {
+        const currentSize = getFontSize(transcriptContent);
+        transcriptContent.style.fontSize = currentSize - 2 + "px";
+    };
+
+    makeDraggable(transcriptWindow);
+    makeResizable(transcriptWindow);
 }

@@ -1349,3 +1349,7 @@ function joinSelectedLines(textarea) {
 
     textarea.focus();
 }
+
+function getFontSize(el) {
+    return parseFloat(window.getComputedStyle(el).fontSize);
+}
