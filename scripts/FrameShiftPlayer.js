@@ -77,6 +77,10 @@ if (!document.getElementById("frameShiftPlayer")) {
         <div id="transcriptWindow" class="transcript">   
             <div class="title-bar">
                 <span class="title">🎞️ Transcript Viewer</span>
+                <div class="transcript-font">
+                    <button id="increase-transcript-font" title="increase text size">➕</button>
+                    <button id="decrease-transcript-font" title="decrease text size">➖</button>
+                </div>
             </div>
             <div class="transcript-content">
             </div>
@@ -134,6 +138,13 @@ if (!document.getElementById("frameShiftPlayer")) {
         if (file.type.startsWith("video/") || file.type.startsWith("audio/")) {
             currentFileBaseName = file.name.replace(/\.[^/.]+$/, "");
             video.src = URL.createObjectURL(file);
+            return;
+        }
+        /* =========================
+                srt / vtt / json FILE
+        ========================= */
+        if (file.name.endsWith(".srt") || file.name.endsWith(".vtt") || file.name.endsWith(".json")) {
+            getTranscript(file);
             return;
         }
         /* =========================
@@ -686,9 +697,11 @@ if (!document.getElementById("frameShiftPlayer")) {
     async function handleSubtitleFile(e) {
         const file = e.target.files[0];
         if (!file) return;
+        getTranscript(file);
+    }
 
+    async function getTranscript(file) {
         const text = await file.text();
-
         if (file.name.endsWith(".srt")) {
             transcript = parseSRT(text);
             console.log(transcript);
@@ -736,9 +749,9 @@ if (!document.getElementById("frameShiftPlayer")) {
     }
 
     const transcriptWindow = document.getElementById("transcriptWindow");
-    function renderTranscript() {
-        const transcriptContent = transcriptWindow.querySelector(".transcript-content");
+    const transcriptContent = transcriptWindow.querySelector(".transcript-content");
 
+    function renderTranscript() {
         transcriptContent.innerHTML = "";
         transcript.forEach((item, i) => {
             const span = document.createElement("span");
@@ -785,6 +798,15 @@ if (!document.getElementById("frameShiftPlayer")) {
     // transcript on/off
     document.getElementById("toggleTranscript").onclick = () => {
         transcriptWindow.style.display = transcriptWindow.style.display === "none" ? "block" : "none";
+    };
+
+    document.getElementById("increase-transcript-font").onclick = () => {
+        const currentSize = getFontSize(transcriptContent);
+        transcriptContent.style.fontSize = currentSize + 2 + "px";
+    };
+    document.getElementById("decrease-transcript-font").onclick = () => {
+        const currentSize = getFontSize(transcriptContent);
+        transcriptContent.style.fontSize = currentSize - 2 + "px";
     };
 
     makeDraggable(transcriptWindow);

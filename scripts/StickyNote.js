@@ -1085,9 +1085,6 @@ if (!document.getElementById("stickyNote")) {
         optionsMenu.style.display = "none";
     }
 
-    function getFontSize(el) {
-        return parseFloat(window.getComputedStyle(el).fontSize);
-    }
     function increaseFontSize() {
         const currentSize = getFontSize(textarea);
         textarea.style.fontSize = currentSize + 2 + "px";
