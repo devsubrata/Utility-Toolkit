@@ -369,11 +369,12 @@
     left: 40%;
     width: 700px;
     height: 400px;
-    background: #052962;
+    background: #fef1f8;
     color: #fff;
     display: none;
     border-radius: 10px;
     box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.3);
+    border: 2px solid #0280b7;
 }
 
 #frameShiftPlayer .transcript .title-bar {
@@ -383,8 +384,8 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 10px;
-    background: #101b25;
     font-size: 16px;
+    background: #0093d4;
 }
 
 #frameShiftPlayer .transcript .transcript-font button {
@@ -407,11 +408,10 @@
     margin: 0 auto;
     font-family: "Open sans", serif;
     font-size: 18px;
-    background: #052962;
-    color: #fff;
+    background: #fef1f8;
+    color: black;
 }
 
 .transcript .transcript-content .active {
     background: yellow;
-    color: black;
 }

@@ -560,6 +560,7 @@ async function saveCanvasImage(canvasId, defaultName = "canvas", background = "#
     const writable = await handle.createWritable();
     await writable.write(blob);
     await writable.close();
+    alert("✅ Canvas Image exported successfully!");
 }
 
 //**TODO:-------- Paste Image on canvas ----------- */

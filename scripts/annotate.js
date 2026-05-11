@@ -337,6 +337,7 @@ function injectCanvas() {
     let pasteHandler = null;
     let drawCount = null;
     let drawVertical = false; // horizontal default
+    let noOfParallelLines = 2;
 
     const circleConfig = {
         enabled: false, // no circle by default
@@ -424,6 +425,8 @@ function injectCanvas() {
             if (pasteHandler) pasteHandler.destroy();
         }
         if (tool !== "drawNumber") drawCount = null;
+        if (tool === "parallelLines") noOfParallelLines = parseInt(prompt("Enter of parallel lines: ") || 2, 10);
+        // console.log(noOfParallelLines);
 
         currentTool = tool;
 
@@ -515,7 +518,6 @@ function injectCanvas() {
             case "filledRectangle":
             case "borderedRectangle":
             case "eraser":
-            case "parallelLines":
                 ctx.putImageData(snapshot, 0, 0);
                 let width = pos.x - startX;
                 let height = pos.y - startY;
@@ -530,31 +532,43 @@ function injectCanvas() {
                     ctx.strokeRect(startX, startY, width, height);
                     ctx.fillStyle = color1;
                     ctx.fillRect(startX, startY, width, height);
-                } else if (currentTool === "parallelLines") {
-                    let [x1, y1] = [startX, startY];
-                    let [x2, y2] = [pos.x, pos.y];
-                    if (drawVertical) {
-                        ctx.beginPath();
-                        // left line
-                        ctx.moveTo(x1, y1);
-                        ctx.lineTo(x1, y2);
-                        // right line
-                        ctx.moveTo(x2, y1);
-                        ctx.lineTo(x2, y2);
-                        ctx.stroke();
-                    } else {
-                        ctx.beginPath();
-                        // top line
-                        ctx.moveTo(x1, y1);
-                        ctx.lineTo(x2, y1);
-                        // bottom line
-                        ctx.moveTo(x1, y2);
-                        ctx.lineTo(x2, y2);
-                        ctx.stroke();
-                    }
                 } else {
                     ctx.fillStyle = color1;
                     ctx.fillRect(startX, startY, width, height);
+                }
+                break;
+            case "parallelLines":
+                ctx.putImageData(snapshot, 0, 0);
+                let hDistance = pos.x - startX;
+                let vDistance = pos.y - startY;
+
+                let [x1, y1] = [startX, startY];
+                let [x2, y2] = [pos.x, pos.y];
+
+                const rect = { x1, y1, x2, y2 };
+
+                if (noOfParallelLines > 2) {
+                    drawParallelLines(rect, noOfParallelLines);
+                    break;
+                }
+                if (drawVertical) {
+                    ctx.beginPath();
+                    // left line
+                    ctx.moveTo(x1, y1);
+                    ctx.lineTo(x1, y2);
+                    // right line
+                    ctx.moveTo(x2, y1);
+                    ctx.lineTo(x2, y2);
+                    ctx.stroke();
+                } else {
+                    ctx.beginPath();
+                    // top line
+                    ctx.moveTo(x1, y1);
+                    ctx.lineTo(x2, y1);
+                    // bottom line
+                    ctx.moveTo(x1, y2);
+                    ctx.lineTo(x2, y2);
+                    ctx.stroke();
                 }
                 break;
             case "circle":
@@ -586,6 +600,22 @@ function injectCanvas() {
             default:
                 ctx.lineTo(pos.x, pos.y);
                 ctx.stroke();
+        }
+        function drawParallelLines(rect, noOfParallelLines) {
+            ctx.beginPath();
+            const { x1, y1, x2, y2 } = rect;
+            if (drawVertical) {
+                for (i = 0; i < noOfParallelLines; i++) {
+                    ctx.moveTo(x1 + i * (x2 - x1), y1);
+                    ctx.lineTo(x1 + i * (x2 - x1), y2);
+                }
+            } else {
+                for (i = 0; i < noOfParallelLines; i++) {
+                    ctx.moveTo(x1, y1 + i * (y2 - y1));
+                    ctx.lineTo(x2, y1 + i * (y2 - y1));
+                }
+            }
+            ctx.stroke();
         }
     }
 
