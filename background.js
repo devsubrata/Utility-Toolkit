@@ -18,5 +18,6 @@ chrome.runtime.onMessage.addListener(async (msg) => {
             conflictAction: "uniquify",
             saveAs: false,
         });
+        return true;
     }
 });

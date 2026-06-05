@@ -8,7 +8,9 @@ if (!document.getElementById("frameShiftPlayer")) {
 
     let isFullscreen = false;
     let isMinimized = false;
-    let currentFileBaseName = "";
+    currentFileBaseName = "";
+    currentMediaFile = null;
+    currentMediaUrl = null;
 
     /* Load CSS */
     const link = document.createElement("link");
@@ -38,10 +40,10 @@ if (!document.getElementById("frameShiftPlayer")) {
                     <div class="more-menu-div">
                         <button id="placeFpLeftBtn" title="Place left">⬅️</button>
                         <button id="placeFpRightBtn" title="Place Right">➡️</button>
-                        <button id="displayBookmarkWindomBtn" title="Show Bookmarks window">📑</button>
+                        <button id="displayBookmarkWindomBtn" title="Show Bookmarks window">🏷️</button>
                         <button id="toggleSubtitle" title="Toggle Subtitle">🇨🇨</button>
                         <button id="toggleTranscript" title="Toggle Transcript">📝</button>
-                        <button id="F" title="Button F">F</button>
+                        <button id="mediaSplitter" title="Media Splitter">⚔️</button>
                     </div>
                 </div>
             </div>
@@ -85,6 +87,43 @@ if (!document.getElementById("frameShiftPlayer")) {
             <div class="transcript-content">
             </div>
         </div>
+
+        <!-- Media Splitter Window -->
+        <div id="splitterModal" class="splitter-modal hidden">
+            <div class="title-bar">
+                <span class="title">✂️ Media Splitter</span>
+                <span class="close-splitter-modal">❌</span>
+            </div>
+
+            <div class="splitter-row">
+                <button id="setStartBtn">Start Time:</button>
+                <span id="startTime" contenteditable="true">00:00:00:000</span>
+            </div>
+
+            <div class="splitter-row">
+                <button id="setEndBtn">End Time:&nbsp;</button>
+                <span id="endTime" contenteditable="true">00:00:00:000</span>
+            </div>
+
+            <div class="splitter-row">
+                <label class="output-label">Output:</label>
+                <select id="selectOutputFormat">
+                    <option value="mp4" selected >mp4</option>
+                    <option value="mp3">mp3</option>
+                </select>
+            </div>
+
+            <div class="splitter-row">
+                <video id="split-player" width="300" controls></video>
+            </div>
+
+            <div class="splitter-row">
+                <button id="splitBtn">Split</button>
+                <button id="downloadBtn" disabled>💾</button>
+                <button id="clrBtn">Clear</button>
+            </div>
+            
+        </div>
     `;
 
     document.body.appendChild(framePlayer);
@@ -120,6 +159,8 @@ if (!document.getElementById("frameShiftPlayer")) {
     document.getElementById("videoFileInput").onchange = (e) => {
         const file = e.target.files[0];
         if (!file || !(file.type.startsWith("video/") || file.type.startsWith("audio/"))) return;
+        currentMediaFile = file;
+        currentMediaUrl = null;
         currentFileBaseName = file.name.replace(/\.[^/.]+$/, "");
         video.src = URL.createObjectURL(file);
     };
@@ -136,6 +177,8 @@ if (!document.getElementById("frameShiftPlayer")) {
                 VIDEO / AUDIO FILE
         ========================= */
         if (file.type.startsWith("video/") || file.type.startsWith("audio/")) {
+            currentMediaFile = file;
+            currentMediaUrl = null;
             currentFileBaseName = file.name.replace(/\.[^/.]+$/, "");
             video.src = URL.createObjectURL(file);
             return;
@@ -685,6 +728,9 @@ if (!document.getElementById("frameShiftPlayer")) {
     }
 
     // TODO:----------subtitle/transcript feature---------------
+    let currentSplitUrl = null;
+    let currentSplitFormat = "mp4";
+
     const subtitleInput = document.getElementById("subtitleInput");
 
     document.getElementById("uploadSubtitleBtn").onclick = () => {
@@ -811,4 +857,184 @@ if (!document.getElementById("frameShiftPlayer")) {
 
     makeDraggable(transcriptWindow);
     makeResizable(transcriptWindow);
+
+    // TODO:----------Media Splitter feature---------------
+
+    const mediaSplitterBtn = document.getElementById("mediaSplitter");
+    const splitterModal = document.getElementById("splitterModal");
+
+    mediaSplitterBtn.addEventListener("click", () => {
+        splitterModal.classList.toggle("hidden");
+        makeDraggable(splitterModal);
+    });
+
+    document.querySelector(".close-splitter-modal").onclick = () => {
+        splitterModal.classList.add("hidden");
+    };
+
+    function secondsToTimestamp(seconds) {
+        const hrs = Math.floor(seconds / 3600);
+        const mins = Math.floor((seconds % 3600) / 60);
+        const secs = Math.floor(seconds % 60);
+        const ms = Math.floor((seconds % 1) * 1000);
+
+        return [String(hrs).padStart(2, "0"), String(mins).padStart(2, "0"), String(secs).padStart(2, "0"), String(ms).padStart(3, "0")].join(":");
+    }
+
+    function timestampToSeconds(timestamp) {
+        const [hh, mm, ss, ms] = timestamp.split(":").map(Number);
+
+        return hh * 3600 + mm * 60 + ss + ms / 1000;
+    }
+
+    const startTimeElm = document.getElementById("startTime");
+    const endTimeElm = document.getElementById("endTime");
+
+    const setStartBtn = document.getElementById("setStartBtn");
+    const setEndBtn = document.getElementById("setEndBtn");
+
+    const splitBtn = document.getElementById("splitBtn");
+    const outputFormat = document.getElementById("selectOutputFormat");
+
+    setStartBtn.addEventListener("click", () => {
+        startTimeElm.textContent = secondsToTimestamp(video.currentTime);
+        framePlayer.focus();
+    });
+
+    setEndBtn.addEventListener("click", () => {
+        endTimeElm.textContent = secondsToTimestamp(video.currentTime);
+        framePlayer.focus();
+    });
+
+    // Add Quick Jump From Editable Time
+    startTimeElm.addEventListener("dblclick", () => {
+        video.currentTime = timestampToSeconds(startTimeElm.textContent.trim());
+        framePlayer.focus();
+    });
+
+    endTimeElm.addEventListener("dblclick", () => {
+        video.currentTime = timestampToSeconds(endTimeElm.textContent.trim());
+        framePlayer.focus();
+    });
+
+    window.addEventListener("ADD_FROM_ONLINE", (e) => {
+        const { mediaUrl, baseName } = e.detail;
+
+        currentMediaFile = null;
+        currentMediaUrl = mediaUrl;
+        currentFileBaseName = baseName;
+
+        video.src = mediaUrl;
+        video.load();
+
+        console.log("Online media loaded:", {
+            currentMediaUrl,
+            currentFileBaseName,
+        });
+    });
+
+    splitBtn.addEventListener("click", async () => {
+        framePlayer.focus();
+
+        const startTime = timestampToSeconds(startTimeElm.textContent.trim());
+        const endTime = timestampToSeconds(endTimeElm.textContent.trim());
+        const format = outputFormat.value;
+
+        if (startTime >= endTime) {
+            alert("End time must be greater than Start time.");
+            return;
+        }
+
+        console.log({
+            startTime,
+            endTime,
+            duration: endTime - startTime,
+            format,
+        });
+
+        // TODO:
+        if (!currentMediaFile && !currentMediaUrl) {
+            alert("No media loaded!");
+            return;
+        }
+
+        splitBtn.disabled = true;
+        splitBtn.textContent = "Processing...";
+
+        // Create FormData:
+        const formData = new FormData();
+        if (currentMediaFile) formData.append("file", currentMediaFile);
+        if (currentMediaUrl) formData.append("mediaUrl", currentMediaUrl);
+        formData.append("startTime", startTime);
+        formData.append("endTime", endTime);
+        formData.append("format", format);
+        formData.append("baseName", currentFileBaseName);
+
+        // Send to backend:
+        try {
+            const response = await fetch("http://localhost:3000/split", {
+                method: "POST",
+                body: formData,
+            });
+            if (!response.ok) {
+                throw new Error(await response.text());
+            }
+            const blob = await response.blob();
+            const url = URL.createObjectURL(blob);
+
+            // store globally for download
+            currentSplitUrl = url;
+            currentSplitFormat = format;
+
+            // enable download button
+            const downloadBtn = document.getElementById("downloadBtn");
+            downloadBtn.disabled = false;
+
+            const splitPlayer = document.getElementById("split-player");
+            splitPlayer.src = url;
+            splitPlayer.load();
+            splitPlayer.play();
+        } catch (err) {
+            console.error(err);
+            alert(`Split failed:\n${err.message}`);
+        } finally {
+            splitBtn.disabled = false;
+            splitBtn.textContent = "Split";
+        }
+    });
+
+    const downloadBtn = document.getElementById("downloadBtn");
+    downloadBtn.addEventListener("click", () => {
+        if (!currentSplitUrl) {
+            alert("No file to download.");
+            return;
+        }
+
+        const a = document.createElement("a");
+        a.href = currentSplitUrl;
+
+        a.download = `${currentFileBaseName || "clip"}.${currentSplitFormat}`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        framePlayer.focus();
+    });
+
+    document.getElementById("clrBtn").onclick = () => {
+        startTimeElm.textContent = "00:00:00:000";
+        endTimeElm.textContent = "00:00:00:000";
+
+        const splitPlayer = document.getElementById("split-player");
+        splitPlayer.pause();
+        splitPlayer.removeAttribute("src");
+        splitPlayer.load();
+
+        if (currentSplitUrl) {
+            URL.revokeObjectURL(currentSplitUrl);
+            currentSplitUrl = null;
+        }
+        document.getElementById("downloadBtn").disabled = true;
+
+        framePlayer.focus();
+    };
 }

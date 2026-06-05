@@ -45,8 +45,8 @@ if (!document.getElementById("stickyNote")) {
                     <option value="Roboto Slab">Roboto slab</option>
                     <option value="Georgia">Georgia</option>
                     <option value="Tahoma">Tahoma</option>
-                    <option value="Open Sans">Open sans</option>
-                    <option value="Nunito Sans" selected>Nunito Sans</option>
+                    <option value="Open Sans" selected>Open sans</option>
+                    <option value="Nunito Sans">Nunito Sans</option>
                     <option value="Nunito">Nunito</option>
                     <option value="BBC Reith Sans">ReithSans</option>
                 </select>

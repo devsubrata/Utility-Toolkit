@@ -15,7 +15,7 @@
         }
     },
     "permissions": ["scripting", "activeTab", "tabs", "downloads"],
-    "host_permissions": ["<all_urls>"],
+    "host_permissions": ["<all_urls>", "http://localhost:3000/*"],
     "web_accessible_resources": [
         {
             "resources": ["scripts/API/api_key.json", "scripts/libs/*.js", "scripts/Data/*.json", "scripts/*.js", "styles/*.css"],

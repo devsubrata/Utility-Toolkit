@@ -280,6 +280,7 @@
 #bookmarkTable td[contenteditable="true"] {
     outline: none;
     cursor: text;
+    background: inherit;
 }
 
 #bookmarkTable td[contenteditable="true"]:focus {
@@ -326,11 +327,15 @@
     top: 12px;
     right: 12px;
 
-    background: rgba(0, 0, 0, 0.75);
-    color: white;
+    /* background: rgba(0, 0, 0, 0.75);
+    color: white; */
 
-    padding: 8px 14px;
-    border-radius: 6px;
+    background: white;
+    border: 2px solid rgb(158, 157, 157);
+    color: black;
+
+    padding: 5px;
+    border-radius: 3px;
 
     font-size: 14px;
     font-weight: 500;
@@ -338,7 +343,7 @@
     pointer-events: none;
 
     opacity: 0;
-    transform: translateY(-8px);
+    /* transform: translateY(-8px); */
     transition:
         opacity 0.1s ease,
         transform 0.1s ease;
@@ -348,7 +353,7 @@
 
 #playerHUD.show {
     opacity: 1;
-    transform: translateY(0);
+    /* transform: translateY(0); */
 }
 
 /**TODO-------- transcript feature----- */
@@ -414,4 +419,100 @@
 
 .transcript .transcript-content .active {
     background: yellow;
+}
+
+/**TODO:-------- transcript feature----- */
+.splitter-modal {
+    position: fixed;
+    top: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+
+    width: 310px;
+    padding: 10px;
+    padding-top: 3px;
+
+    background: #222;
+    border: 1px solid #555;
+    border-radius: 6px;
+
+    z-index: 9999;
+
+    font-size: 15px;
+}
+
+.hidden {
+    display: none;
+}
+
+#frameShiftPlayer .splitter-modal .title-bar {
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    background: transparent;
+    padding: 0;
+}
+
+.splitter-modal .title-bar .title {
+    font-size: 18px;
+    color: #4da3ff;
+}
+
+.splitter-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.splitter-row:last-child {
+    margin-bottom: 0;
+    justify-content: center;
+}
+
+#selectOutputFormat {
+    flex: 1;
+}
+
+.splitter-row .output-label,
+.splitter-row button {
+    min-width: 55px;
+    cursor: pointer;
+    padding: 5px;
+    background: transparent;
+    outline: none;
+    border: none;
+    color: #fdd;
+    font-size: 15px;
+}
+
+.splitter-row:last-child button {
+    background: #7f00ff;
+    color: #fff;
+    border: none;
+    outline: none;
+    border-radius: 3px;
+}
+
+#downloadBtn {
+    background: transparent;
+    border: 2px solid #7f00ff;
+}
+
+.splitter-row:last-child button:hover {
+    background: #6302c4;
+}
+
+.splitter-row [contenteditable] {
+    flex: 1;
+    padding: 4px 6px;
+    border: 1px solid #666;
+    border-radius: 3px;
+    background: #00498d;
+    color: #fff;
+    font-family: monospace;
+    white-space: nowrap;
+}
+#split-player {
+    border: 3px solid #00498d;
+    border-radius: 5px;
 }

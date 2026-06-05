@@ -523,7 +523,7 @@ if (!document.getElementById("openYoutubePlayer")) {
                     let nextPageToken = "";
                     while (nextPageToken !== undefined && allItems.length < maxVideos) {
                         const res = await fetch(
-                            `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${playlistId}&maxResults=50&pageToken=${nextPageToken}&key=${apiKey}`
+                            `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${playlistId}&maxResults=50&pageToken=${nextPageToken}&key=${apiKey}`,
                         );
 
                         if (await handleYouTubeApiError(res)) return; // Stop if error handled
@@ -547,7 +547,7 @@ if (!document.getElementById("openYoutubePlayer")) {
                     for (let i = 0; i < videoIds.length; i += 50) {
                         const batch = videoIds.slice(i, i + 50).join(",");
                         const res = await fetch(
-                            `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,statistics&id=${batch}&key=${apiKey}`
+                            `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,statistics&id=${batch}&key=${apiKey}`,
                         );
 
                         if (await handleYouTubeApiError(res)) return; // Stop if error handled
@@ -740,7 +740,7 @@ if (!document.getElementById("openYoutubePlayer")) {
                             renderVideosPage();
                             renderPagination(videosPerPage);
                         });
-                    }
+                    },
                 );
             } catch (err) {
                 videoContainer.innerHTML = `<p class="text-red-600">Failed to fetch videos. Check the Channel ID or API key.</p>`;
@@ -862,7 +862,7 @@ if (!document.getElementById("openYoutubePlayer")) {
                 const enriched = await Promise.all(
                     playlists.map((pl) => {
                         return enrichPlaylist(pl, apiKey);
-                    })
+                    }),
                 );
                 renderPlaylists(enriched, channelInfo);
             } catch (err) {
@@ -1196,8 +1196,8 @@ if (!document.getElementById("openYoutubePlayer")) {
                     <div class="text-xs text-yellow-600 !mt-0.5">⭐ ${v.relativeDate}</div>
                     <div class="flex gap-2 !mt-2">
                         <button class="cursor-pointer copy-btn bg-gray-100 hover:bg-gray-200 !px-2 !py-1 rounded text-xs" data-title="${i + 1}. ${
-                    v.title
-                }" data-id="${v.videoId}">LoadOnPlayer</button>
+                            v.title
+                        }" data-id="${v.videoId}">LoadOnPlayer</button>
                         <button class="copy-link bg-gray-100 hover:bg-gray-200 !px-2 !py-1 rounded text-xs cursor-pointer" data-link="${
                             v.videoId
                         }">Copy ID</button>
@@ -1544,8 +1544,8 @@ if (!document.getElementById("openYoutubePlayer")) {
                         <div class="flex flex-wrap gap-2">
                             <button class="gs-copy-btn text-black cursor-pointer" data-chid="${channelId}">⭐Channel ID</button>
                             <button class="gs-copy-btn text-black cursor-pointer" data-title="${index + 1}. ${title}" data-vid="${
-                    video.id.videoId
-                }">⭐LoadOnPlayer</button>
+                                video.id.videoId
+                            }">⭐LoadOnPlayer</button>
                             <button class="gs-copy-btn text-black cursor-pointer" data-vid="${video.id.videoId}">⭐Copy ID</button>
                             <button class="gs-copy-btn text-black cursor-pointer" data-link="https://www.youtube.com/watch?v=${
                                 video.id.videoId
