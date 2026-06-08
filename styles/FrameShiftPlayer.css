@@ -422,6 +422,7 @@
 }
 
 /**TODO:-------- Splitting feature----- */
+
 .splitter-modal {
     position: fixed;
     top: 50px;
@@ -438,6 +439,7 @@
     z-index: 9999;
 
     font-size: 15px;
+
     display: flex;
     flex-direction: column;
 }
@@ -446,10 +448,14 @@
     display: none;
 }
 
+/* ---------- Title Bar ---------- */
+
 #frameShiftPlayer .splitter-modal .title-bar {
     margin-bottom: 10px;
+
     display: flex;
     justify-content: space-between;
+
     background: transparent;
     padding: 0;
 }
@@ -459,37 +465,76 @@
     color: #4da3ff;
 }
 
+.close-splitter-modal {
+    cursor: pointer;
+}
+
+.close-splitter-modal:hover {
+    color: #ff5555;
+}
+
+/* ---------- Rows ---------- */
+
 .splitter-row {
     display: flex;
-    gap: 8px;
-    margin-bottom: 8px;
-    justify-content: space-around;
     align-items: center;
+    gap: 8px;
+
+    margin-bottom: 8px;
+}
+
+.splitter-toolbar {
+    justify-content: space-between;
 }
 
 .splitter-row:last-child {
-    margin-bottom: 0;
     justify-content: center;
+    margin-bottom: 0;
 }
+
+/* ---------- General Controls ---------- */
 
 .splitter-row .output-label,
 .splitter-row button {
     min-width: 55px;
+
     cursor: pointer;
+
     padding: 5px;
+
     background: transparent;
+
     outline: none;
     border: none;
+
     color: #fdd;
+
     font-size: 15px;
 }
+
+/* ---------- Select ---------- */
+
+#selectOutputFormat {
+    background: #333;
+    color: #fdd;
+
+    border: 1px solid #555;
+    border-radius: 3px;
+
+    padding: 3px 5px;
+}
+
+/* ---------- Footer Buttons ---------- */
 
 .splitter-row:last-child button {
     background: #7f00ff;
     color: #fff;
-    border: none;
-    outline: none;
+
     border-radius: 3px;
+}
+
+.splitter-row:last-child button:hover {
+    background: #6302c4;
 }
 
 #downloadBtn {
@@ -497,53 +542,157 @@
     border: 2px solid #7f00ff;
 }
 
-.splitter-row:last-child button:hover {
+#downloadBtn:hover {
     background: #6302c4;
 }
 
-.splitter-row [contenteditable] {
-    white-space: nowrap;
-}
-
-#split-player {
-    border: 3px solid #00498d;
-    border-radius: 5px;
-}
+/* ---------- Table ---------- */
 
 #clipTable {
     width: 100%;
+
     border-collapse: collapse;
-    font-size: 16px;
-    background: #fdd;
+
+    background: #2b2b2b;
+    color: #fdd;
+
+    font-size: 14px;
 }
 
 #clipTable th,
 #clipTable td {
-    border: 1px solid #666;
-    padding: 2px 4px;
+    border: 1px solid #555;
+
+    padding: 5px 6px;
+
     text-align: center;
 }
 
 #clipTable th {
+    background: #333;
+    color: #4da3ff;
+
     font-weight: bold;
 }
 
-#clipTable td[contenteditable] {
-    min-width: 95px;
+/* ---------- Clickable Headers ---------- */
+
+#clipTable .clickable-header {
+    cursor: pointer;
+
+    user-select: none;
+
+    transition: all 0.15s ease;
+}
+
+#clipTable .clickable-header:hover {
+    background: #00498d;
+    color: #fff;
+}
+
+#clipTable .clickable-header:active {
+    transform: scale(0.98);
+}
+
+#clipTable .clickable-header::after {
+    content: " ⏱";
+    font-size: 12px;
+}
+
+/* ---------- Editable Cells ---------- */
+
+#clipTable td[contenteditable="true"] {
+    min-width: 110px;
+
+    background: #3a3a3a;
+
     cursor: text;
+
+    text-align: center;
+
+    outline: none;
+}
+
+#clipTable td[contenteditable="true"]:focus {
+    background: #00498d;
+}
+
+/* ---------- Table Rows ---------- */
+
+#clipTableBody tr {
+    cursor: pointer;
 }
 
 #clipTableBody tr:hover {
     background: rgba(255, 255, 255, 0.08);
 }
 
+/* ---------- Selected Row ---------- */
+
+.selected-row {
+    background: rgba(77, 163, 255, 0.22);
+}
+
+.selected-row td {
+    border-top: 2px solid #4da3ff;
+    border-bottom: 2px solid #4da3ff;
+
+    color: #fff;
+}
+
+/* ---------- Empty Table ---------- */
+
+.empty-row td {
+    color: #999;
+    font-style: italic;
+}
+
+/* ---------- Action Buttons ---------- */
+
 .clip-actions {
     white-space: nowrap;
 }
 
 .clip-actions button {
-    padding: 1px 4px;
+    min-width: 22px;
+
+    padding: 1px 3px;
+
     margin: 0 1px;
-    min-width: 24px;
+
+    border: 1px solid #555;
+    border-radius: 3px;
+
+    background: #333;
+    color: #fdd;
+
     cursor: pointer;
+
+    user-select: none;
+}
+
+.clip-actions button:hover {
+    background: #00498d;
+}
+
+/* ---------- Preview Player ---------- */
+
+.player-row {
+    justify-content: center;
+    margin-top: 4px;
+}
+
+#split-player {
+    width: 320px;
+
+    border: 3px solid #00498d;
+    border-radius: 5px;
+
+    background: #000;
+}
+
+/* ---------- Misc ---------- */
+
+.splitter-row [contenteditable] {
+    white-space: nowrap;
 }

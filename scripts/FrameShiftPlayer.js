@@ -94,58 +94,93 @@ if (!document.getElementById("frameShiftPlayer")) {
                 <span class="title">✂️ Media Splitter</span>
                 <span class="close-splitter-modal">❌</span>
             </div>
-
-            <div class="splitter-row">
+            <!-- Toolbar -->
+            <div class="splitter-row splitter-toolbar">
                 <div>
                     <button id="addClipBtn">➕ Add Clip</button>
                 </div>
                 <div>
                     <label class="output-label">Output:</label>
+
                     <select id="selectOutputFormat">
-                        <option value="mp4" selected >mp4</option>
+                        <option value="mp4" selected>mp4</option>
                         <option value="mp3">mp3</option>
                     </select>
                 </div>
             </div>
-
+            <!-- Clip Table -->
             <div class="splitter-row">
                 <table id="clipTable">
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>Start Time</th>
-                            <th>End Time</th>
+                            <th id="setStartHeader" class="clickable-header">
+                                Start Time
+                            </th>
+                            <th id="setEndHeader" class="clickable-header">
+                                End Time
+                            </th>
                             <th>Duration</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody id="clipTableBody">
-                        <tr>
+                        <tr class="selected-row">
                             <td>1</td>
-                            <td contenteditable="true">00:01:00:000</td>
-                            <td contenteditable="true">00:01:30:000</td>
-                            <td>00:00:30:000</td>
+                            <td contenteditable="true">
+                                00:00:00:000
+                            </td>
+                            <td contenteditable="true">
+                                00:00:10:000
+                            </td>
+                            <td>
+                                00:00:10:000
+                            </td>
                             <td class="clip-actions">
-                                <button>⬆️</button>
-                                <button>⬇️</button>
-                                <button>▶️</button>
-                                <button>❌</button>
+                                <button
+                                    class="move-up-btn"
+                                    title="Move Earlier">
+                                    ↑
+                                </button>
+                                <button
+                                    class="move-down-btn"
+                                    title="Move Later">
+                                    ↓
+                                </button>
+                                <button
+                                    class="preview-btn"
+                                    title="Preview Clip">
+                                    ▶
+                                </button>
+                                <button
+                                    class="delete-btn"
+                                    title="Delete Clip">
+                                    ✖
+                                </button>
                             </td>
                         </tr>
                     </tbody>
                 </table>
             </div>
-
-            <div class="splitter-row">
-                <video id="split-player" width="300" controls></video>
+            <!-- Preview Player -->
+            <div class="splitter-row player-row">
+                <video
+                    id="split-player"
+                    controls>
+                </video>
             </div>
-
+            <!-- Footer -->
             <div class="splitter-row">
-                <button id="splitBtn">Split</button>
-                <button id="downloadBtn" disabled>💾</button>
-                <button id="clrBtn">Clear</button>
+                <button id="splitBtn">
+                    Split & Join
+                </button>
+                <button id="downloadBtn" disabled>
+                    💾
+                </button>
+                <button id="clrBtn">
+                    Clear
+                </button>
             </div>
-            
         </div>
     `;
 
