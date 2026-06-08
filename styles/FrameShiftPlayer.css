@@ -421,14 +421,13 @@
     background: yellow;
 }
 
-/**TODO:-------- transcript feature----- */
+/**TODO:-------- Splitting feature----- */
 .splitter-modal {
     position: fixed;
     top: 50px;
     left: 50%;
     transform: translateX(-50%);
 
-    width: 310px;
     padding: 10px;
     padding-top: 3px;
 
@@ -439,6 +438,8 @@
     z-index: 9999;
 
     font-size: 15px;
+    display: flex;
+    flex-direction: column;
 }
 
 .hidden {
@@ -462,15 +463,13 @@
     display: flex;
     gap: 8px;
     margin-bottom: 8px;
+    justify-content: space-around;
+    align-items: center;
 }
 
 .splitter-row:last-child {
     margin-bottom: 0;
     justify-content: center;
-}
-
-#selectOutputFormat {
-    flex: 1;
 }
 
 .splitter-row .output-label,
@@ -503,16 +502,48 @@
 }
 
 .splitter-row [contenteditable] {
-    flex: 1;
-    padding: 4px 6px;
-    border: 1px solid #666;
-    border-radius: 3px;
-    background: #00498d;
-    color: #fff;
-    font-family: monospace;
     white-space: nowrap;
 }
+
 #split-player {
     border: 3px solid #00498d;
     border-radius: 5px;
+}
+
+#clipTable {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 16px;
+    background: #fdd;
+}
+
+#clipTable th,
+#clipTable td {
+    border: 1px solid #666;
+    padding: 2px 4px;
+    text-align: center;
+}
+
+#clipTable th {
+    font-weight: bold;
+}
+
+#clipTable td[contenteditable] {
+    min-width: 95px;
+    cursor: text;
+}
+
+#clipTableBody tr:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.clip-actions {
+    white-space: nowrap;
+}
+
+.clip-actions button {
+    padding: 1px 4px;
+    margin: 0 1px;
+    min-width: 24px;
+    cursor: pointer;
 }

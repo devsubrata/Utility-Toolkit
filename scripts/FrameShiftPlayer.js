@@ -96,21 +96,44 @@ if (!document.getElementById("frameShiftPlayer")) {
             </div>
 
             <div class="splitter-row">
-                <button id="setStartBtn">Start Time:</button>
-                <span id="startTime" contenteditable="true">00:00:00:000</span>
+                <div>
+                    <button id="addClipBtn">➕ Add Clip</button>
+                </div>
+                <div>
+                    <label class="output-label">Output:</label>
+                    <select id="selectOutputFormat">
+                        <option value="mp4" selected >mp4</option>
+                        <option value="mp3">mp3</option>
+                    </select>
+                </div>
             </div>
 
             <div class="splitter-row">
-                <button id="setEndBtn">End Time:&nbsp;</button>
-                <span id="endTime" contenteditable="true">00:00:00:000</span>
-            </div>
-
-            <div class="splitter-row">
-                <label class="output-label">Output:</label>
-                <select id="selectOutputFormat">
-                    <option value="mp4" selected >mp4</option>
-                    <option value="mp3">mp3</option>
-                </select>
+                <table id="clipTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Start Time</th>
+                            <th>End Time</th>
+                            <th>Duration</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="clipTableBody">
+                        <tr>
+                            <td>1</td>
+                            <td contenteditable="true">00:01:00:000</td>
+                            <td contenteditable="true">00:01:30:000</td>
+                            <td>00:00:30:000</td>
+                            <td class="clip-actions">
+                                <button>⬆️</button>
+                                <button>⬇️</button>
+                                <button>▶️</button>
+                                <button>❌</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
 
             <div class="splitter-row">
