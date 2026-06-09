@@ -186,7 +186,7 @@ function create_bullet_menu() {
     return `
         <div class="custom-select">
             <div id="bullet" class="selected" data-value="⭐">⭐</div>
-            <div class="options-menu">
+            <div class="bullet-options">
                 <div class="category-row">
                     <span class="option" data-value="✅">✅</span>
                     <span class="option" data-value="☑️">☑️</span>
@@ -258,7 +258,7 @@ function create_bullet_menu() {
 
 function bullet_menu_listener() {
     const selected = document.querySelector(".selected");
-    const menu = document.querySelector(".options-menu");
+    const menu = document.querySelector(".bullet-options");
     const options = document.querySelectorAll(".option");
 
     selected.addEventListener("click", () => {

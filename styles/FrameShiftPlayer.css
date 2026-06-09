@@ -327,9 +327,6 @@
     top: 12px;
     right: 12px;
 
-    /* background: rgba(0, 0, 0, 0.75);
-    color: white; */
-
     background: white;
     border: 2px solid rgb(158, 157, 157);
     color: black;
@@ -343,11 +340,9 @@
     pointer-events: none;
 
     opacity: 0;
-    /* transform: translateY(-8px); */
     transition:
         opacity 0.1s ease,
         transform 0.1s ease;
-
     z-index: 9999;
 }
 
@@ -421,34 +416,42 @@
     background: yellow;
 }
 
-/**TODO:-------- transcript feature----- */
+/**TODO:-------- Splitting feature----- */
+
 .splitter-modal {
     position: fixed;
     top: 50px;
     left: 50%;
-    transform: translateX(-50%);
+    min-width: 510px;
 
-    width: 310px;
     padding: 10px;
     padding-top: 3px;
 
     background: #222;
     border: 1px solid #555;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.7);
     border-radius: 6px;
 
     z-index: 9999;
 
     font-size: 15px;
+
+    display: flex;
+    flex-direction: column;
 }
 
 .hidden {
     display: none;
 }
 
+/* ---------- Title Bar ---------- */
+
 #frameShiftPlayer .splitter-modal .title-bar {
     margin-bottom: 10px;
+
     display: flex;
     justify-content: space-between;
+
     background: transparent;
     padding: 0;
 }
@@ -458,22 +461,34 @@
     color: #4da3ff;
 }
 
+.close-splitter-modal {
+    cursor: pointer;
+}
+
+.close-splitter-modal:hover {
+    color: #ff5555;
+}
+
+/* ---------- Rows ---------- */
+
 .splitter-row {
     display: flex;
+    align-items: center;
     gap: 8px;
+
     margin-bottom: 8px;
 }
 
+.splitter-toolbar {
+    justify-content: space-between;
+}
+
 .splitter-row:last-child {
-    margin-bottom: 0;
     justify-content: center;
+    margin-bottom: 0;
 }
 
-#selectOutputFormat {
-    flex: 1;
-}
-
-.splitter-row .output-label,
+/* ---------- General Controls ---------- */
 .splitter-row button {
     min-width: 55px;
     cursor: pointer;
@@ -485,12 +500,32 @@
     font-size: 15px;
 }
 
+.splitter-row .output-label {
+    color: rgba(243, 159, 2, 0.973);
+}
+
+/* ---------- Select ---------- */
+
+#selectOutputFormat,
+#splitMode {
+    background: #333;
+    color: #fdd;
+    border: 1px solid #555;
+    border-radius: 3px;
+    padding: 3px 5px;
+}
+
+/* ---------- Footer Buttons ---------- */
+
 .splitter-row:last-child button {
     background: #7f00ff;
     color: #fff;
-    border: none;
-    outline: none;
+
     border-radius: 3px;
+}
+
+.splitter-row:last-child button:hover {
+    background: #6302c4;
 }
 
 #downloadBtn {
@@ -498,21 +533,203 @@
     border: 2px solid #7f00ff;
 }
 
-.splitter-row:last-child button:hover {
+#downloadBtn:hover {
     background: #6302c4;
 }
 
-.splitter-row [contenteditable] {
-    flex: 1;
-    padding: 4px 6px;
-    border: 1px solid #666;
-    border-radius: 3px;
+/* ---------- Table ---------- */
+.table-row {
+    width: 100%;
+    flex-direction: column;
+}
+
+.clip-table-wrapper {
+    max-height: 250px;
+    overflow-y: auto;
+    border: 1px solid #006a42;
+    border-radius: 5px;
+}
+
+#clipTable {
+    width: 100%;
+    border-collapse: collapse;
+    background: #2b2b2b;
+    color: #fdd;
+    font-size: 14px;
+    border-radius: 5px;
+}
+
+#clipTable th:nth-child(1),
+#clipTable td:nth-child(1) {
+    width: 25px;
+}
+
+#clipTable th:nth-child(2),
+#clipTable td:nth-child(2) {
+    width: 20px;
+    font-size: 15px;
+}
+
+#clipTable th:nth-child(3),
+#clipTable td:nth-child(3),
+#clipTable th:nth-child(4),
+#clipTable td:nth-child(4),
+#clipTable th:nth-child(5),
+#clipTable td:nth-child(5),
+#clipTable th:nth-child(6),
+#clipTable td:nth-child(6) {
+    width: 95px;
+    font-size: 15px;
+}
+
+#clipTable th,
+#clipTable td {
+    border: 1px solid #555;
+    padding: 5px 6px;
+    text-align: center;
+}
+
+#clipTable th {
+    background: #333;
+    color: antiquewhite;
+    font-weight: bold;
+}
+
+#clipTable thead th {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: #19392d;
+    border: 1px solid #006a42;
+}
+
+/* ---------- Clickable Headers ---------- */
+
+#clipTable .clickable-header {
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.15s ease;
+}
+
+#clipTable #toggleAllHeader {
+    cursor: pointer;
+    font-size: 18px;
+}
+
+#clipTable .clickable-header:hover {
     background: #00498d;
     color: #fff;
-    font-family: monospace;
+}
+
+#clipTable .clickable-header:active {
+    transform: scale(0.98);
+}
+
+/* ---------- Editable Cells ---------- */
+#clipTable td[contenteditable="true"] {
+    cursor: text;
+    text-align: center;
+    outline: none;
+}
+
+#clipTable td[contenteditable="true"]:focus {
+    background: #00498d;
+}
+
+/* ---------- Table Rows ---------- */
+
+#clipTableBody tr {
+    cursor: pointer;
+}
+
+#clipTableBody tr:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+/* ---------- Selected Row ---------- */
+
+.selected-row {
+    background: rgba(145, 77, 255, 0.22);
+}
+
+.selected-row td {
+    border-top: 2px solid #4da3ff;
+    border-bottom: 2px solid #4da3ff;
+
+    color: #fff;
+}
+
+/* ---------- Empty Table ---------- */
+
+.empty-row td {
+    color: #999;
+    font-style: italic;
+}
+
+/* ---------- Action Buttons ---------- */
+
+.clip-actions {
     white-space: nowrap;
 }
+
+.clip-actions button {
+    min-width: 22px;
+    padding: 1px 3px;
+    margin: 0 1px;
+    border: 1px solid #555;
+    border-radius: 3px;
+    background: #333;
+    color: #fdd;
+    cursor: pointer;
+    user-select: none;
+}
+
+.clip-actions button:hover {
+    background: #00498d;
+}
+
+.clip-summary-wrapper {
+    margin-top: 6px;
+}
+
+#clipSummaryTable {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+
+    background: #2a2a2a;
+    color: #ddd;
+}
+
+#clipSummaryTable th,
+#clipSummaryTable td {
+    border: 1px solid #444;
+    padding: 3px 6px;
+    text-align: center;
+}
+
+#clipSummaryTable th {
+    color: #4da3ff;
+}
+
+/* ---------- Preview Player ---------- */
+
+.player-row {
+    justify-content: center;
+    margin-top: 4px;
+}
+
 #split-player {
+    width: 400px;
+
     border: 3px solid #00498d;
     border-radius: 5px;
+
+    background: #000;
+}
+
+/* ---------- Misc ---------- */
+
+.splitter-row [contenteditable] {
+    white-space: nowrap;
 }

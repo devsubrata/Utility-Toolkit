@@ -8,9 +8,9 @@ if (!document.getElementById("frameShiftPlayer")) {
 
     let isFullscreen = false;
     let isMinimized = false;
-    currentFileBaseName = "";
-    currentMediaFile = null;
-    currentMediaUrl = null;
+    let currentFileBaseName = "";
+    let currentMediaFile = null;
+    let currentMediaUrl = null;
 
     /* Load CSS */
     const link = document.createElement("link");
@@ -32,18 +32,17 @@ if (!document.getElementById("frameShiftPlayer")) {
             <span class="title">🎞️ FrameShift Player</span>
             <div class="options-menu">
                 <button id="loadVideoBtn" title="Open video">📂</button>
-                <button id="uploadSubtitleBtn">📜</button>
+                <button id="displayBookmarkWindomBtn" title="Show Bookmarks window">🏷️</button>
+                <button id="mediaSplitter" title="Show Media Splitter">⚔️</button>
+                <button id="toggleTranscript" title="Toggle Transcript">📝</button>
                 <input type="file" id="subtitleInput" accept=".srt,.vtt,.json" hidden>
-                <button id="addBookmarkBtn" title="Add bookmark">🔖</button>
                 <div class="more-tools">
                     <button id="moreOptionBtn" title="More options"><i class="fa-solid fa-bars"></i></button>
                     <div class="more-menu-div">
                         <button id="placeFpLeftBtn" title="Place left">⬅️</button>
                         <button id="placeFpRightBtn" title="Place Right">➡️</button>
-                        <button id="displayBookmarkWindomBtn" title="Show Bookmarks window">🏷️</button>
+                        <button id="uploadSubtitleBtn">📜</button>
                         <button id="toggleSubtitle" title="Toggle Subtitle">🇨🇨</button>
-                        <button id="toggleTranscript" title="Toggle Transcript">📝</button>
-                        <button id="mediaSplitter" title="Media Splitter">⚔️</button>
                     </div>
                 </div>
             </div>
@@ -72,6 +71,7 @@ if (!document.getElementById("frameShiftPlayer")) {
             <div id="hoverTime"></div>
             <span id="timeDisplay">00:00 / 00:00</span>
             <input type="file" id="videoFileInput" accept=".mp4,.mkv,.mp3" style="display: none;" />
+            <button id="addBookmarkBtn" title="Add bookmark">🔖</button>
             <button id="captureBtn">📸</button>
         </div>
 
@@ -94,35 +94,106 @@ if (!document.getElementById("frameShiftPlayer")) {
                 <span class="title">✂️ Media Splitter</span>
                 <span class="close-splitter-modal">❌</span>
             </div>
-
-            <div class="splitter-row">
-                <button id="setStartBtn">Start Time:</button>
-                <span id="startTime" contenteditable="true">00:00:00:000</span>
+            <!-- Toolbar -->
+            <div class="splitter-row splitter-toolbar">
+                <div>
+                    <button id="addClipBtn">➕ Add Clip</button>
+                </div>
+                <div>
+                    <label class="output-label">Output:</label>
+                    <select id="selectOutputFormat">
+                        <option value="mp4">mp4</option>
+                        <option value="mp3" selected>mp3</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="output-label">Mode:</label>
+                    <select id="splitMode">
+                        <option value="join" selected>Split & Join</option>
+                        <option value="separate">Separate Clips</option>
+                        <option value="both">Both</option>
+                    </select>
+                </div>
+                <div>
+                    <button id="exportClipsBtn">📤Export</button>
+                    <button id="importClipsBtn">📥Import</button>
+                    <input type="file" id="clipCsvInput" accept=".csv" hidden>
+                </div>
             </div>
-
-            <div class="splitter-row">
-                <button id="setEndBtn">End Time:&nbsp;</button>
-                <span id="endTime" contenteditable="true">00:00:00:000</span>
+            <!-- Clip Table -->
+            <div class="splitter-row table-row">
+                <div class="clip-table-wrapper">
+                    <table id="clipTable">
+                        <thead>
+                            <tr>
+                                <th id="toggleAllHeader" class="clickable-header" title="Toggle All Clips">☑</th>
+                                <th>#</th>
+                                <th id="setStartHeader" class="clickable-header">Start Time</th>
+                                <th id="setEndHeader" class="clickable-header">End Time</th>
+                                <th>Duration</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="clipTableBody">
+                            <tr class="selected-row">
+                                <td><input type="checkbox" class="clip-check" checked></td>
+                                <td>1</td>
+                                <td contenteditable="true">00:00:00:000</td>
+                                <td contenteditable="true">00:00:00:000</td>
+                                <td>00:00:00:000</td>
+                                <td class="clip-actions">
+                                    <button class="preview-btn" title="Preview Clip">▶</button>
+                                    <button class="move-up-btn" title="Move Earlier">⇧</button>
+                                    <button class="move-down-btn" title="Move Later">⇩</button>
+                                    <button class="delete-btn" title="Delete Clip">✖</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="clip-summary-wrapper">
+                    <table id="clipSummaryTable">
+                        <thead>
+                            <tr>
+                                <th>Category</th>
+                                <th>Clips</th>
+                                <th>Duration</th>
+                                <th>%</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>☑️ Selected</td>
+                                <td id="selectedClipCount">0</td>
+                                <td id="selectedDuration">00:00:00:000</td>
+                                <td id="selectedPercent">0%</td>
+                            </tr>
+                            <tr>
+                                <td>🟪 Unselected</td>
+                                <td id="unselectedClipCount">0</td>
+                                <td id="unselectedDuration">00:00:00:000</td>
+                                <td id="unselectedPercent">0%</td>
+                            </tr>
+                            <tr>
+                                <td><b>Total</b></td>
+                                <td id="totalClipCount">0</td>
+                                <td id="totalDuration">00:00:00:000</td>
+                                <td>100%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-
-            <div class="splitter-row">
-                <label class="output-label">Output:</label>
-                <select id="selectOutputFormat">
-                    <option value="mp4" selected >mp4</option>
-                    <option value="mp3">mp3</option>
-                </select>
+            <!-- Preview Player -->
+            <div class="splitter-row player-row">
+                <video id="split-player" controls></video>
             </div>
-
+            <!-- Footer -->
             <div class="splitter-row">
-                <video id="split-player" width="300" controls></video>
-            </div>
-
-            <div class="splitter-row">
-                <button id="splitBtn">Split</button>
+                <button id="splitBtn">Split & Join</button>
                 <button id="downloadBtn" disabled>💾</button>
                 <button id="clrBtn">Clear</button>
             </div>
-            
         </div>
     `;
 
@@ -564,9 +635,7 @@ if (!document.getElementById("frameShiftPlayer")) {
             tr.innerHTML = `
                 <td>${i + 1}</td>
                 <td>
-                    <span class="timestamp" data-time="${b.time}">
-                        ${format(b.time)}
-                    </span>
+                    <span class="timestamp" data-time="${b.time}">${format(b.time)}</span>
                 </td>
                 <td contenteditable="true">${b.name}</td>
                 <td class="deleteBookmark" data-index="${i}">⛔</td>
@@ -646,7 +715,7 @@ if (!document.getElementById("frameShiftPlayer")) {
 
         try {
             const handle = await window.showSaveFilePicker({
-                suggestedName: `${currentFileBaseName}__bookmarks`,
+                suggestedName: `${currentFileBaseName}__bookmarks.csv`,
                 types: [
                     {
                         description: "CSV File",
@@ -693,12 +762,13 @@ if (!document.getElementById("frameShiftPlayer")) {
                 lines.forEach((line) => {
                     if (!line.trim()) return;
 
-                    const [sl, time, name] = line.split(",");
+                    const [sl, time, ...nameParts] = line.split(",");
+                    const name = nameParts.join(", ").trim();
 
                     bookmarks.push({
                         id: Number(sl),
                         time: Number(time),
-                        name: name,
+                        name,
                     });
                 });
                 if (dropFile) createBookmarkDisplay();
@@ -863,6 +933,20 @@ if (!document.getElementById("frameShiftPlayer")) {
     const mediaSplitterBtn = document.getElementById("mediaSplitter");
     const splitterModal = document.getElementById("splitterModal");
 
+    const toggleAllHeader = document.getElementById("toggleAllHeader");
+
+    // summary table
+    const selectedClipCount = document.getElementById("selectedClipCount");
+    const selectedDuration = document.getElementById("selectedDuration");
+    const selectedPercent = document.getElementById("selectedPercent");
+
+    const unselectedClipCount = document.getElementById("unselectedClipCount");
+    const unselectedDuration = document.getElementById("unselectedDuration");
+    const unselectedPercent = document.getElementById("unselectedPercent");
+
+    const totalClipCount = document.getElementById("totalClipCount");
+    const totalDuration = document.getElementById("totalDuration");
+
     mediaSplitterBtn.addEventListener("click", () => {
         splitterModal.classList.toggle("hidden");
         makeDraggable(splitterModal);
@@ -887,35 +971,443 @@ if (!document.getElementById("frameShiftPlayer")) {
         return hh * 3600 + mm * 60 + ss + ms / 1000;
     }
 
-    const startTimeElm = document.getElementById("startTime");
-    const endTimeElm = document.getElementById("endTime");
-
     const setStartBtn = document.getElementById("setStartBtn");
     const setEndBtn = document.getElementById("setEndBtn");
 
     const splitBtn = document.getElementById("splitBtn");
     const outputFormat = document.getElementById("selectOutputFormat");
+    const splitMode = document.getElementById("splitMode");
 
-    setStartBtn.addEventListener("click", () => {
-        startTimeElm.textContent = secondsToTimestamp(video.currentTime);
+    const clipTableBody = document.getElementById("clipTableBody");
+    const addClipBtn = document.getElementById("addClipBtn");
+    const setStartHeader = document.getElementById("setStartHeader");
+    const setEndHeader = document.getElementById("setEndHeader");
+
+    // Selected Row Helper
+    function getSelectedRow() {
+        return document.querySelector("#clipTableBody .selected-row");
+    }
+    // Duration Helper
+    function updateDuration(row) {
+        const start = timestampToSeconds(row.cells[2].textContent.trim());
+        const end = timestampToSeconds(row.cells[3].textContent.trim());
+        const duration = Math.max(0, end - start);
+        row.cells[4].textContent = secondsToTimestamp(duration);
+    }
+
+    // For summary table
+    function updateClipStatistics() {
+        let selectedCount = 0;
+        let unselectedCount = 0;
+
+        let selectedSeconds = 0;
+        let unselectedSeconds = 0;
+
+        [...clipTableBody.rows].forEach((row) => {
+            const checked = row.querySelector(".clip-check").checked;
+            const duration = timestampToSeconds(row.cells[4].textContent.trim());
+
+            if (checked) {
+                selectedCount++;
+                selectedSeconds += duration;
+            } else {
+                unselectedCount++;
+                unselectedSeconds += duration;
+            }
+        });
+
+        const totalCount = selectedCount + unselectedCount;
+        const totalSeconds = selectedSeconds + unselectedSeconds;
+
+        selectedClipCount.textContent = selectedCount;
+        selectedDuration.textContent = secondsToTimestamp(selectedSeconds);
+        unselectedClipCount.textContent = unselectedCount;
+        unselectedDuration.textContent = secondsToTimestamp(unselectedSeconds);
+        totalClipCount.textContent = totalCount;
+        totalDuration.textContent = secondsToTimestamp(totalSeconds);
+        selectedPercent.textContent = totalSeconds ? `${Math.round((selectedSeconds * 100) / totalSeconds)}%` : "0%";
+        unselectedPercent.textContent = totalSeconds ? `${Math.round((unselectedSeconds * 100) / totalSeconds)}%` : "0%";
+
+        updateToggleAllHeader();
+    }
+
+    // Row Selection
+    clipTableBody.addEventListener("click", (e) => {
+        if (e.target.closest("button") || e.target.closest(".clip-check")) {
+            return;
+        }
+        const row = e.target.closest("tr");
+        if (!row) return;
+        document.querySelectorAll("#clipTableBody tr").forEach((r) => {
+            r.classList.remove("selected-row");
+        });
+        row.classList.add("selected-row");
+    });
+
+    // Update summary toggling checkbox
+    clipTableBody.addEventListener("change", (e) => {
+        if (e.target.classList.contains("clip-check")) {
+            updateClipStatistics();
+        }
+    });
+
+    // Toggle all clips checked/unchecked
+    toggleAllHeader.addEventListener("click", () => {
+        const checkboxes = clipTableBody.querySelectorAll(".clip-check");
+        if (!checkboxes.length) return;
+
+        const allChecked = [...checkboxes].every((cb) => cb.checked);
+
+        checkboxes.forEach((cb) => {
+            cb.checked = !allChecked;
+        });
+
+        updateClipStatistics();
+    });
+
+    function updateToggleAllHeader() {
+        const checkboxes = clipTableBody.querySelectorAll(".clip-check");
+        if (!checkboxes.length) {
+            toggleAllHeader.textContent = "☐";
+            return;
+        }
+        const checkedCount = [...checkboxes].filter((cb) => cb.checked).length;
+        if (checkedCount === 0) {
+            toggleAllHeader.textContent = "☐";
+        } else if (checkedCount === checkboxes.length) {
+            toggleAllHeader.textContent = "☑";
+        } else {
+            toggleAllHeader.textContent = "◩";
+        }
+    }
+
+    // Set Start Header
+    setStartHeader.addEventListener("click", () => {
+        const row = getSelectedRow();
+        if (!row) return;
+        row.cells[2].textContent = secondsToTimestamp(video.currentTime);
+        updateDuration(row);
+        updateClipStatistics();
+        framePlayer.focus();
+    });
+    // Set End Header
+    setEndHeader.addEventListener("click", () => {
+        const row = getSelectedRow();
+        if (!row) return;
+        row.cells[3].textContent = secondsToTimestamp(video.currentTime);
+        updateDuration(row);
+        updateClipStatistics();
         framePlayer.focus();
     });
 
-    setEndBtn.addEventListener("click", () => {
-        endTimeElm.textContent = secondsToTimestamp(video.currentTime);
+    // Double Click Jump
+    clipTableBody.addEventListener("dblclick", (e) => {
+        const cell = e.target;
+        if (cell.cellIndex !== 2 && cell.cellIndex !== 3) return;
+        video.currentTime = timestampToSeconds(cell.textContent.trim());
         framePlayer.focus();
     });
 
-    // Add Quick Jump From Editable Time
-    startTimeElm.addEventListener("dblclick", () => {
-        video.currentTime = timestampToSeconds(startTimeElm.textContent.trim());
+    // Add Clip Button
+    addClipBtn.addEventListener("click", () => {
+        document.querySelectorAll("#clipTableBody tr").forEach((r) => r.classList.remove("selected-row"));
+
+        const row = document.createElement("tr");
+        row.classList.add("selected-row");
+        row.innerHTML = `
+            <td><input type="checkbox" class="clip-check" checked></td>
+            <td>${clipTableBody.children.length + 1}</td>
+            <td contenteditable="true">00:00:00:000</td>
+            <td contenteditable="true">00:00:00:000</td>
+            <td>00:00:00:000</td>
+            <td class="clip-actions">
+                <button class="preview-btn">▶</button>
+                <button class="move-up-btn">⇧</button>
+                <button class="move-down-btn">⇩</button>
+                <button class="delete-btn">✖</button>
+            </td>
+        `;
+        clipTableBody.appendChild(row);
         framePlayer.focus();
     });
 
-    endTimeElm.addEventListener("dblclick", () => {
-        video.currentTime = timestampToSeconds(endTimeElm.textContent.trim());
+    // Preview Helper
+    function previewClip(row) {
+        const startTime = timestampToSeconds(row.cells[2].textContent.trim());
+        const endTime = timestampToSeconds(row.cells[3].textContent.trim());
+        video.currentTime = startTime;
+        video.play();
+        const stopPreview = () => {
+            if (video.currentTime >= endTime) {
+                video.pause();
+                video.removeEventListener("timeupdate", stopPreview);
+            }
+        };
+        video.addEventListener("timeupdate", stopPreview);
         framePlayer.focus();
+    }
+    // Add Row Renumber Function
+    function renumberRows() {
+        [...clipTableBody.rows].forEach((row, index) => {
+            row.cells[1].textContent = index + 1;
+        });
+    }
+    // Add Action Button Handler
+    clipTableBody.addEventListener("click", (e) => {
+        const btn = e.target.closest("button");
+        if (!btn) return;
+        const row = btn.closest("tr");
+        if (!row) return;
+        // PREVIEW
+        if (btn.classList.contains("preview-btn")) {
+            previewClip(row);
+            return;
+        }
+        // UP
+        if (btn.classList.contains("move-up-btn")) {
+            const prev = row.previousElementSibling;
+            if (prev) {
+                clipTableBody.insertBefore(row, prev);
+                renumberRows();
+            }
+            return;
+        }
+        // DOWN
+        if (btn.classList.contains("move-down-btn")) {
+            const next = row.nextElementSibling;
+            if (next) {
+                clipTableBody.insertBefore(next, row);
+                renumberRows();
+            }
+            return;
+        }
+        // DELETE
+        if (btn.classList.contains("delete-btn")) {
+            if (!confirm("Delete this clip?")) return;
+            const next = row.nextElementSibling || row.previousElementSibling;
+            row.remove();
+            if (next) next.classList.add("selected-row");
+            renumberRows();
+            updateClipStatistics();
+            return;
+        }
     });
+
+    //* Export & Import clip timestamps
+    const exportClipsBtn = document.getElementById("exportClipsBtn");
+    exportClipsBtn.addEventListener("click", async () => {
+        const rows = [...clipTableBody.rows];
+        const lines = ["SL, Start Time, End Time"];
+
+        rows.forEach((row, index) => {
+            lines.push(`${index + 1}, ${row.cells[2].textContent.trim()}, ${row.cells[3].textContent.trim()}`);
+        });
+
+        const csv = lines.join("\n");
+        try {
+            const handle = await window.showSaveFilePicker({
+                suggestedName: `${currentFileBaseName || "clips"}__clips.csv`,
+                types: [
+                    {
+                        description: "CSV File",
+                        accept: { "text/csv": [".csv"] },
+                    },
+                ],
+            });
+
+            const writable = await handle.createWritable();
+            await writable.write(csv);
+            await writable.close();
+            alert("✅ Clip timestamps exported successfully!");
+        } catch (err) {
+            if (err.name !== "AbortError") console.error(err);
+            // User canceled, do nothing
+        }
+    });
+
+    const importClipsBtn = document.getElementById("importClipsBtn");
+    const clipCsvInput = document.getElementById("clipCsvInput");
+
+    importClipsBtn.addEventListener("click", () => {
+        clipCsvInput.click();
+    });
+
+    clipCsvInput.addEventListener("change", async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const text = await file.text();
+        importClipCSV(text);
+
+        clipCsvInput.value = "";
+    });
+
+    function importClipCSV(csvText) {
+        const lines = csvText.split(/\r?\n/).filter(Boolean);
+
+        if (lines.length < 2) {
+            alert("Invalid CSV.");
+            return;
+        }
+
+        clipTableBody.innerHTML = "";
+
+        lines.slice(1).forEach((line) => {
+            const [sl, startTime, endTime] = line.split(",").map((s) => s.trim());
+
+            const row = document.createElement("tr");
+            row.innerHTML = `
+            <td><input type="checkbox" class="clip-check" checked /></td>
+            <td></td>
+            <td contenteditable="true">${startTime}</td>
+            <td contenteditable="true">${endTime}</td>
+            <td></td>
+            <td class="clip-actions">
+                <button class="preview-btn" title="Preview Clip">▶</button>
+                <button class="move-up-btn" title="Move Earlier">⇧</button>
+                <button class="move-down-btn" title="Move Later">⇩</button>
+                <button class="delete-btn" title="Delete Clip">✖</button>
+            </td>
+        `;
+            clipTableBody.appendChild(row);
+            updateDuration(row);
+            updateClipStatistics();
+        });
+
+        renumberRows();
+
+        const firstRow = clipTableBody.querySelector("tr");
+        if (firstRow) firstRow.classList.add("selected-row");
+    }
+
+    //* Communicating with Server to split and combine
+    //* Read clips from table
+    function getSelectedClips() {
+        return [...clipTableBody.rows]
+            .filter((row) => {
+                return row.querySelector(".clip-check").checked;
+            })
+            .map((row) => ({
+                startTime: timestampToSeconds(row.cells[2].textContent.trim()),
+                endTime: timestampToSeconds(row.cells[3].textContent.trim()),
+            }));
+    }
+    function validateSelectedClips(clips) {
+        if (!clips.length) {
+            alert("Please select at least one clip.");
+            return false;
+        }
+        for (const clip of clips) {
+            if (clip.startTime >= clip.endTime) {
+                alert("Invalid clip duration.");
+                return false;
+            }
+        }
+        return true;
+    }
+
+    splitBtn.addEventListener("click", async () => {
+        framePlayer.focus();
+
+        const clips = getSelectedClips();
+        if (!validateSelectedClips(clips)) return;
+
+        const format = outputFormat.value;
+        const mode = splitMode.value;
+
+        console.log({
+            mode,
+            format,
+            clips,
+        });
+
+        // TODO:
+        if (!currentMediaFile && !currentMediaUrl) {
+            alert("No media loaded!");
+            return;
+        }
+
+        splitBtn.disabled = true;
+        splitBtn.textContent = "Processing...";
+
+        // Create FormData:
+        const formData = new FormData();
+        if (currentMediaFile) formData.append("file", currentMediaFile);
+        if (currentMediaUrl) formData.append("mediaUrl", currentMediaUrl);
+        formData.append("clips", JSON.stringify(clips));
+        formData.append("format", format);
+        formData.append("mode", mode);
+        formData.append("baseName", currentFileBaseName);
+
+        // Send to backend:
+        try {
+            const response = await fetch("http://localhost:3000/split", {
+                method: "POST",
+                body: formData,
+            });
+            if (!response.ok) {
+                throw new Error(await response.text());
+            }
+
+            const blob = await response.blob();
+            const url = URL.createObjectURL(blob);
+
+            const isZip = blob.type === "application/zip";
+            console.log(isZip);
+
+            // store globally for download
+            currentSplitUrl = url;
+            currentSplitFormat = isZip ? "zip" : format;
+
+            // enable download button
+            const downloadBtn = document.getElementById("downloadBtn");
+            downloadBtn.disabled = false;
+
+            if (!isZip) {
+                const splitPlayer = document.getElementById("split-player");
+                splitPlayer.src = url;
+                splitPlayer.load();
+                splitPlayer.play();
+            }
+        } catch (err) {
+            console.error(err);
+            alert(`Split failed:\n${err.message}`);
+        } finally {
+            splitBtn.disabled = false;
+            splitBtn.textContent = "Split";
+        }
+    });
+
+    const downloadBtn = document.getElementById("downloadBtn");
+    downloadBtn.onclick = () => {
+        if (!currentSplitUrl) {
+            alert("No file to download.");
+            return;
+        }
+
+        const a = document.createElement("a");
+        a.href = currentSplitUrl;
+        a.download = `${currentFileBaseName || "clip"}.${currentSplitFormat}`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        framePlayer.focus();
+    };
+
+    document.getElementById("clrBtn").onclick = () => {
+        const splitPlayer = document.getElementById("split-player");
+        splitPlayer.pause();
+        splitPlayer.removeAttribute("src");
+        splitPlayer.load();
+
+        if (currentSplitUrl) {
+            URL.revokeObjectURL(currentSplitUrl);
+            currentSplitUrl = null;
+        }
+        document.getElementById("downloadBtn").disabled = true;
+
+        framePlayer.focus();
+    };
 
     window.addEventListener("ADD_FROM_ONLINE", (e) => {
         const { mediaUrl, baseName } = e.detail;
@@ -932,109 +1424,4 @@ if (!document.getElementById("frameShiftPlayer")) {
             currentFileBaseName,
         });
     });
-
-    splitBtn.addEventListener("click", async () => {
-        framePlayer.focus();
-
-        const startTime = timestampToSeconds(startTimeElm.textContent.trim());
-        const endTime = timestampToSeconds(endTimeElm.textContent.trim());
-        const format = outputFormat.value;
-
-        if (startTime >= endTime) {
-            alert("End time must be greater than Start time.");
-            return;
-        }
-
-        console.log({
-            startTime,
-            endTime,
-            duration: endTime - startTime,
-            format,
-        });
-
-        // TODO:
-        if (!currentMediaFile && !currentMediaUrl) {
-            alert("No media loaded!");
-            return;
-        }
-
-        splitBtn.disabled = true;
-        splitBtn.textContent = "Processing...";
-
-        // Create FormData:
-        const formData = new FormData();
-        if (currentMediaFile) formData.append("file", currentMediaFile);
-        if (currentMediaUrl) formData.append("mediaUrl", currentMediaUrl);
-        formData.append("startTime", startTime);
-        formData.append("endTime", endTime);
-        formData.append("format", format);
-        formData.append("baseName", currentFileBaseName);
-
-        // Send to backend:
-        try {
-            const response = await fetch("http://localhost:3000/split", {
-                method: "POST",
-                body: formData,
-            });
-            if (!response.ok) {
-                throw new Error(await response.text());
-            }
-            const blob = await response.blob();
-            const url = URL.createObjectURL(blob);
-
-            // store globally for download
-            currentSplitUrl = url;
-            currentSplitFormat = format;
-
-            // enable download button
-            const downloadBtn = document.getElementById("downloadBtn");
-            downloadBtn.disabled = false;
-
-            const splitPlayer = document.getElementById("split-player");
-            splitPlayer.src = url;
-            splitPlayer.load();
-            splitPlayer.play();
-        } catch (err) {
-            console.error(err);
-            alert(`Split failed:\n${err.message}`);
-        } finally {
-            splitBtn.disabled = false;
-            splitBtn.textContent = "Split";
-        }
-    });
-
-    const downloadBtn = document.getElementById("downloadBtn");
-    downloadBtn.addEventListener("click", () => {
-        if (!currentSplitUrl) {
-            alert("No file to download.");
-            return;
-        }
-
-        const a = document.createElement("a");
-        a.href = currentSplitUrl;
-
-        a.download = `${currentFileBaseName || "clip"}.${currentSplitFormat}`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        framePlayer.focus();
-    });
-
-    document.getElementById("clrBtn").onclick = () => {
-        startTimeElm.textContent = "00:00:00:000";
-        endTimeElm.textContent = "00:00:00:000";
-
-        const splitPlayer = document.getElementById("split-player");
-        splitPlayer.pause();
-        splitPlayer.removeAttribute("src");
-        splitPlayer.load();
-
-        if (currentSplitUrl) {
-            URL.revokeObjectURL(currentSplitUrl);
-            currentSplitUrl = null;
-        }
-        document.getElementById("downloadBtn").disabled = true;
-
-        framePlayer.focus();
-    };
 }

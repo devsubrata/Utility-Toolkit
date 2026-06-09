@@ -422,7 +422,7 @@
     align-items: center;
 }
 
-.options-menu {
+.bullet-options {
     display: inline-block; /* Allow natural content width */
     width: auto;
     white-space: normal; /* allow internal text wrapping */
@@ -446,7 +446,7 @@
     white-space: nowrap; /* ❗ Prevent breaking into next line */
 }
 
-.options-menu .category-row:last-child {
+.bullet-options .category-row:last-child {
     border-bottom: none;
     margin-bottom: none;
     padding-bottom: 0;
