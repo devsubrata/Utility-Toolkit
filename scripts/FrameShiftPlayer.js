@@ -101,7 +101,6 @@ if (!document.getElementById("frameShiftPlayer")) {
                 </div>
                 <div>
                     <label class="output-label">Output:</label>
-
                     <select id="selectOutputFormat">
                         <option value="mp4" selected>mp4</option>
                         <option value="mp3">mp3</option>
@@ -114,12 +113,8 @@ if (!document.getElementById("frameShiftPlayer")) {
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th id="setStartHeader" class="clickable-header">
-                                Start Time
-                            </th>
-                            <th id="setEndHeader" class="clickable-header">
-                                End Time
-                            </th>
+                            <th id="setStartHeader" class="clickable-header">Start Time</th>
+                            <th id="setEndHeader" class="clickable-header">End Time</th>
                             <th>Duration</th>
                             <th>Actions</th>
                         </tr>
@@ -127,36 +122,14 @@ if (!document.getElementById("frameShiftPlayer")) {
                     <tbody id="clipTableBody">
                         <tr class="selected-row">
                             <td>1</td>
-                            <td contenteditable="true">
-                                00:00:00:000
-                            </td>
-                            <td contenteditable="true">
-                                00:00:10:000
-                            </td>
-                            <td>
-                                00:00:10:000
-                            </td>
+                            <td contenteditable="true">00:00:00:000</td>
+                            <td contenteditable="true">00:00:10:000</td>
+                            <td>00:00:10:000</td>
                             <td class="clip-actions">
-                                <button
-                                    class="move-up-btn"
-                                    title="Move Earlier">
-                                    ↑
-                                </button>
-                                <button
-                                    class="move-down-btn"
-                                    title="Move Later">
-                                    ↓
-                                </button>
-                                <button
-                                    class="preview-btn"
-                                    title="Preview Clip">
-                                    ▶
-                                </button>
-                                <button
-                                    class="delete-btn"
-                                    title="Delete Clip">
-                                    ✖
-                                </button>
+                                <button class="preview-btn" title="Preview Clip">▶</button>
+                                <button class="move-up-btn" title="Move Earlier">⇧</button>
+                                <button class="move-down-btn" title="Move Later">⇩</button>
+                                <button class="delete-btn" title="Delete Clip">✖</button>
                             </td>
                         </tr>
                     </tbody>
@@ -164,22 +137,13 @@ if (!document.getElementById("frameShiftPlayer")) {
             </div>
             <!-- Preview Player -->
             <div class="splitter-row player-row">
-                <video
-                    id="split-player"
-                    controls>
-                </video>
+                <video id="split-player" controls></video>
             </div>
             <!-- Footer -->
             <div class="splitter-row">
-                <button id="splitBtn">
-                    Split & Join
-                </button>
-                <button id="downloadBtn" disabled>
-                    💾
-                </button>
-                <button id="clrBtn">
-                    Clear
-                </button>
+                <button id="splitBtn">Split & Join</button>
+                <button id="downloadBtn" disabled>💾</button>
+                <button id="clrBtn">Clear</button>
             </div>
         </div>
     `;
@@ -945,68 +909,182 @@ if (!document.getElementById("frameShiftPlayer")) {
         return hh * 3600 + mm * 60 + ss + ms / 1000;
     }
 
-    const startTimeElm = document.getElementById("startTime");
-    const endTimeElm = document.getElementById("endTime");
-
     const setStartBtn = document.getElementById("setStartBtn");
     const setEndBtn = document.getElementById("setEndBtn");
 
     const splitBtn = document.getElementById("splitBtn");
     const outputFormat = document.getElementById("selectOutputFormat");
 
-    setStartBtn.addEventListener("click", () => {
-        startTimeElm.textContent = secondsToTimestamp(video.currentTime);
-        framePlayer.focus();
-    });
+    const clipTableBody = document.getElementById("clipTableBody");
+    const addClipBtn = document.getElementById("addClipBtn");
+    const setStartHeader = document.getElementById("setStartHeader");
+    const setEndHeader = document.getElementById("setEndHeader");
 
-    setEndBtn.addEventListener("click", () => {
-        endTimeElm.textContent = secondsToTimestamp(video.currentTime);
-        framePlayer.focus();
-    });
-
-    // Add Quick Jump From Editable Time
-    startTimeElm.addEventListener("dblclick", () => {
-        video.currentTime = timestampToSeconds(startTimeElm.textContent.trim());
-        framePlayer.focus();
-    });
-
-    endTimeElm.addEventListener("dblclick", () => {
-        video.currentTime = timestampToSeconds(endTimeElm.textContent.trim());
-        framePlayer.focus();
-    });
-
-    window.addEventListener("ADD_FROM_ONLINE", (e) => {
-        const { mediaUrl, baseName } = e.detail;
-
-        currentMediaFile = null;
-        currentMediaUrl = mediaUrl;
-        currentFileBaseName = baseName;
-
-        video.src = mediaUrl;
-        video.load();
-
-        console.log("Online media loaded:", {
-            currentMediaUrl,
-            currentFileBaseName,
+    // Selected Row Helper
+    function getSelectedRow() {
+        return document.querySelector("#clipTableBody .selected-row");
+    }
+    // Duration Helper
+    function updateDuration(row) {
+        const start = timestampToSeconds(row.cells[1].textContent.trim());
+        const end = timestampToSeconds(row.cells[2].textContent.trim());
+        const duration = Math.max(0, end - start);
+        row.cells[3].textContent = secondsToTimestamp(duration);
+    }
+    // Row Selection
+    clipTableBody.addEventListener("click", (e) => {
+        const row = e.target.closest("tr");
+        if (!row) return;
+        document.querySelectorAll("#clipTableBody tr").forEach((r) => {
+            r.classList.remove("selected-row");
         });
+        row.classList.add("selected-row");
     });
+    // Set Start Header
+    setStartHeader.addEventListener("click", () => {
+        const row = getSelectedRow();
+        if (!row) return;
+        row.cells[1].textContent = secondsToTimestamp(video.currentTime);
+        updateDuration(row);
+        framePlayer.focus();
+    });
+    // Set End Header
+    setEndHeader.addEventListener("click", () => {
+        const row = getSelectedRow();
+        if (!row) return;
+        row.cells[2].textContent = secondsToTimestamp(video.currentTime);
+        updateDuration(row);
+        framePlayer.focus();
+    });
+
+    // Double Click Jump
+    clipTableBody.addEventListener("dblclick", (e) => {
+        const cell = e.target;
+        if (cell.cellIndex !== 1 && cell.cellIndex !== 2) return;
+        video.currentTime = timestampToSeconds(cell.textContent.trim());
+        framePlayer.focus();
+    });
+
+    // Add Clip Button
+    addClipBtn.addEventListener("click", () => {
+        document.querySelectorAll("#clipTableBody tr").forEach((r) => r.classList.remove("selected-row"));
+
+        const row = document.createElement("tr");
+        row.classList.add("selected-row");
+        row.innerHTML = `
+            <td>${clipTableBody.children.length + 1}</td>
+            <td contenteditable="true">00:00:00:000</td>
+            <td contenteditable="true">00:00:00:000</td>
+            <td>00:00:00:000</td>
+            <td class="clip-actions">
+                <button class="preview-btn">▶</button>
+                <button class="move-up-btn">⇧</button>
+                <button class="move-down-btn">⇩</button>
+                <button class="delete-btn">✖</button>
+            </td>
+        `;
+        clipTableBody.appendChild(row);
+        framePlayer.focus();
+    });
+
+    // Preview Helper
+    function previewClip(row) {
+        const startTime = timestampToSeconds(row.cells[1].textContent.trim());
+        const endTime = timestampToSeconds(row.cells[2].textContent.trim());
+        video.currentTime = startTime;
+        video.play();
+        const stopPreview = () => {
+            if (video.currentTime >= endTime) {
+                video.pause();
+                video.removeEventListener("timeupdate", stopPreview);
+            }
+        };
+        video.addEventListener("timeupdate", stopPreview);
+        framePlayer.focus();
+    }
+    // Add Row Renumber Function
+    function renumberRows() {
+        [...clipTableBody.rows].forEach((row, index) => {
+            row.cells[0].textContent = index + 1;
+        });
+    }
+    // Add Action Button Handler
+    clipTableBody.addEventListener("click", (e) => {
+        const btn = e.target.closest("button");
+        if (!btn) return;
+        const row = btn.closest("tr");
+        if (!row) return;
+        // PREVIEW
+        if (btn.classList.contains("preview-btn")) {
+            previewClip(row);
+            return;
+        }
+        // UP
+        if (btn.classList.contains("move-up-btn")) {
+            const prev = row.previousElementSibling;
+            if (prev) {
+                clipTableBody.insertBefore(row, prev);
+                renumberRows();
+            }
+            return;
+        }
+        // DOWN
+        if (btn.classList.contains("move-down-btn")) {
+            const next = row.nextElementSibling;
+            if (next) {
+                clipTableBody.insertBefore(next, row);
+                renumberRows();
+            }
+            return;
+        }
+        // DELETE
+        if (btn.classList.contains("delete-btn")) {
+            if (!confirm("Delete this clip?")) return;
+            const next = row.nextElementSibling || row.previousElementSibling;
+            row.remove();
+            if (next) next.classList.add("selected-row");
+            renumberRows();
+            return;
+        }
+    });
+
+    // Read clips from table
+    function getClipsFromTable() {
+        return [...clipTableBody.rows].map((row) => ({
+            startTime: timestampToSeconds(row.cells[1].textContent.trim()),
+            endTime: timestampToSeconds(row.cells[2].textContent.trim()),
+        }));
+    }
 
     splitBtn.addEventListener("click", async () => {
         framePlayer.focus();
 
-        const startTime = timestampToSeconds(startTimeElm.textContent.trim());
-        const endTime = timestampToSeconds(endTimeElm.textContent.trim());
-        const format = outputFormat.value;
+        const clips = getClipsFromTable();
 
-        if (startTime >= endTime) {
-            alert("End time must be greater than Start time.");
+        if (!clips.length) {
+            alert("No clips added.");
             return;
         }
 
+        // [
+        //     {
+        //         startTime: 60,
+        //         endTime: 90,
+        //     },
+        //     {
+        //         startTime: 180,
+        //         endTime: 195,
+        //     },
+        //     {
+        //         startTime: 320,
+        //         endTime: 360,
+        //     },
+        // ];
+
+        const format = outputFormat.value;
+
         console.log({
-            startTime,
-            endTime,
-            duration: endTime - startTime,
+            clips,
             format,
         });
 
@@ -1023,8 +1101,7 @@ if (!document.getElementById("frameShiftPlayer")) {
         const formData = new FormData();
         if (currentMediaFile) formData.append("file", currentMediaFile);
         if (currentMediaUrl) formData.append("mediaUrl", currentMediaUrl);
-        formData.append("startTime", startTime);
-        formData.append("endTime", endTime);
+        formData.append("clips", JSON.stringify(clips));
         formData.append("format", format);
         formData.append("baseName", currentFileBaseName);
 
@@ -1079,9 +1156,6 @@ if (!document.getElementById("frameShiftPlayer")) {
     });
 
     document.getElementById("clrBtn").onclick = () => {
-        startTimeElm.textContent = "00:00:00:000";
-        endTimeElm.textContent = "00:00:00:000";
-
         const splitPlayer = document.getElementById("split-player");
         splitPlayer.pause();
         splitPlayer.removeAttribute("src");
@@ -1095,4 +1169,20 @@ if (!document.getElementById("frameShiftPlayer")) {
 
         framePlayer.focus();
     };
+
+    window.addEventListener("ADD_FROM_ONLINE", (e) => {
+        const { mediaUrl, baseName } = e.detail;
+
+        currentMediaFile = null;
+        currentMediaUrl = mediaUrl;
+        currentFileBaseName = baseName;
+
+        video.src = mediaUrl;
+        video.load();
+
+        console.log("Online media loaded:", {
+            currentMediaUrl,
+            currentFileBaseName,
+        });
+    });
 }

@@ -428,6 +428,7 @@
     top: 50px;
     left: 50%;
     transform: translateX(-50%);
+    min-width: 510px;
 
     padding: 10px;
     padding-top: 3px;
@@ -603,13 +604,8 @@
 
 #clipTable td[contenteditable="true"] {
     min-width: 110px;
-
-    background: #3a3a3a;
-
     cursor: text;
-
     text-align: center;
-
     outline: none;
 }
 
@@ -630,7 +626,7 @@
 /* ---------- Selected Row ---------- */
 
 .selected-row {
-    background: rgba(77, 163, 255, 0.22);
+    background: rgba(145, 77, 255, 0.22);
 }
 
 .selected-row td {
