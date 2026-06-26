@@ -36,7 +36,7 @@
     align-items: center;
 }
 
-#frameShiftPlayer .title-bar span {
+#frameShiftPlayer .title-bar .title-btn {
     display: inline-block;
     margin-left: 5px;
     cursor: pointer;
@@ -76,12 +76,14 @@
     border: none;
     outline: none;
 }
-
+#frameShiftPlayer .options-menu #showClipInfoBtn,
 #frameShiftPlayer .options-menu #moreOptionBtn {
     background: transparent;
     cursor: pointer;
     border: none;
     outline: none;
+    color: #ddd;
+    font-weight: 600;
 }
 
 #frameShiftPlayer .options-menu .more-tools {
@@ -102,7 +104,7 @@
     z-index: 20000;
 }
 
-.more-menu-div button {
+#frameShiftPlayer .options-menu .more-menu-div button {
     cursor: pointer;
     border-radius: 3px;
     font-size: 15px;
@@ -111,7 +113,16 @@
     outline: none;
 }
 
-.more-menu-div button:hover {
+#frameShiftPlayer .options-menu .more-menu-div input {
+    width: 35px;
+    border-radius: 3px;
+    font-size: 15px;
+    padding: 5px;
+    border: none;
+    outline: none;
+}
+
+#frameShiftPlayer .options-menu .more-menu-div button:hover {
     color: white;
     background-color: blue;
 }
@@ -122,6 +133,29 @@
 
 #frameShiftPlayer .options-menu > button:hover {
     background: #6d6c6c;
+}
+
+#frameShiftPlayer .options-menu .clip-info {
+    position: relative;
+}
+
+#frameShiftPlayer .options-menu .clip-info-div {
+    display: none;
+    position: absolute;
+    top: 20px;
+    left: -150px;
+    background-color: rgb(75 63 62);
+    padding: 5px 10px;
+    border: 2px solid rgb(240, 241, 239);
+    border-radius: 5px;
+    z-index: 20000;
+    font-size: 18px;
+
+    width: max-content;
+}
+
+#frameShiftPlayer .options-menu .clip-info:hover .clip-info-div {
+    display: block;
 }
 
 /* Controls */
@@ -256,6 +290,20 @@
     border-bottom: 1px solid #333;
 }
 
+#bookmarkTable .timestamp-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#bookmarkTable .timestamp-cell .modifyTimestamp {
+    cursor: pointer;
+    background: none;
+    color: #9638f5;
+    border: none;
+    outline: none;
+}
+
 #bookmarkTable tbody tr:hover {
     background: #2f2f2f;
 }
@@ -270,6 +318,7 @@
     font-weight: 500;
     padding: 2px 6px;
     border-radius: 4px;
+    width: 75px;
 }
 
 .timestamp:hover {
@@ -328,7 +377,7 @@
     right: 12px;
 
     background: white;
-    border: 2px solid rgb(158, 157, 157);
+    border: 3px solid rgb(160, 3, 207);
     color: black;
 
     padding: 5px;

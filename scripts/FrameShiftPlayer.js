@@ -18,39 +18,42 @@ if (!document.getElementById("frameShiftPlayer")) {
     link.href = chrome.runtime.getURL("styles/FrameShiftPlayer.css");
     document.head.appendChild(link);
 
-    const link2 = document.createElement("link");
-    link2.rel = "stylesheet";
-    link2.href = "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css";
-    document.head.appendChild(link2);
-
     /* Create Player Window */
     const framePlayer = document.createElement("div");
     framePlayer.id = "frameShiftPlayer";
 
     framePlayer.innerHTML = `
         <div class="title-bar">
-            <span class="title">🎞️ FrameShift Player</span>
+            <span class="title .title-btn">🎞️ FrameShift Player</span>
             <div class="options-menu">
+                <div class="clip-info">
+                    <button id="showClipInfoBtn">ℹ️</button>
+                    <div class="clip-info-div">
+                        <span>Clip Information</span>
+                    </div>
+                </div>
                 <button id="loadVideoBtn" title="Open video">📂</button>
                 <button id="displayBookmarkWindomBtn" title="Show Bookmarks window">🏷️</button>
                 <button id="mediaSplitter" title="Show Media Splitter">⚔️</button>
                 <button id="toggleTranscript" title="Toggle Transcript">📝</button>
                 <input type="file" id="subtitleInput" accept=".srt,.vtt,.json" hidden>
                 <div class="more-tools">
-                    <button id="moreOptionBtn" title="More options"><i class="fa-solid fa-bars"></i></button>
+                    <button id="moreOptionBtn" title="More options">☰</button>
                     <div class="more-menu-div">
-                        <button id="placeFpLeftBtn" title="Place left">⬅️</button>
-                        <button id="placeFpRightBtn" title="Place Right">➡️</button>
                         <button id="uploadSubtitleBtn">📜</button>
                         <button id="toggleSubtitle" title="Toggle Subtitle">🇨🇨</button>
+                        <button id="placeFpLeftBtn" title="Place left">⬅️</button>
+                        <button id="placeFpRightBtn" title="Place Right">➡️</button>
+                        <input id="setForBackTime" type="number" placeholder="5s" min="0" title="Set Forward/Backward time"/>
+                        <button id="stopBtn">⏹️</button>
                     </div>
                 </div>
             </div>
             <div>
-                <span class="maxminFramePlayer" title="minimize">—</span>
-                <span class="maxFramePlayer" title="Maximuze and Restore Screen">⿻</span>
-                <span class="fullscreenFramePlayer" title="full screen">⛶</span>
-                <span class="closeFramePlayer" title="Close">❌</span>
+                <span class="maxminFramePlayer title-btn" title="minimize">—</span>
+                <span class="maxFramePlayer title-btn" title="Maximuze and Restore Screen">⿻</span>
+                <span class="fullscreenFramePlayer title-btn" title="full screen">⛶</span>
+                <span class="closeFramePlayer title-btn" title="Close">❌</span>
             </div>
         </div>
 
@@ -63,14 +66,14 @@ if (!document.getElementById("frameShiftPlayer")) {
         </div>
 
         <div class="controls">
-            <button id="fastBackward">⏪</button>
-            <button id="playBtn">▶</button>
-            <button id="fastForward">⏩</button>
             <span id="elapsedTime">00:00</span>
             <input type="range" id="progress" min="0" max="100" value="0" style="cursor: pointer;">
             <div id="hoverTime"></div>
             <span id="timeDisplay">00:00 / 00:00</span>
             <input type="file" id="videoFileInput" accept=".mp4,.mkv,.mp3" style="display: none;" />
+            <button id="fastBackward">⏪</button>
+            <button id="playBtn">▶</button>
+            <button id="fastForward">⏩</button>
             <button id="addBookmarkBtn" title="Add bookmark">🔖</button>
             <button id="captureBtn">📸</button>
         </div>
@@ -216,12 +219,30 @@ if (!document.getElementById("frameShiftPlayer")) {
     const playBtn = framePlayer.querySelector("#playBtn");
     const forwardBtn = framePlayer.querySelector("#fastForward");
     const backwardBtn = framePlayer.querySelector("#fastBackward");
+    const skipTime = framePlayer.querySelector("#setForBackTime");
     const captureBtn = framePlayer.querySelector("#captureBtn");
 
     const progress = framePlayer.querySelector("#progress");
     const hoverTime = document.getElementById("hoverTime");
     const elapsedTime = framePlayer.querySelector("#elapsedTime");
     const timeDisplay = framePlayer.querySelector("#timeDisplay");
+
+    function setClipInformtion(info) {
+        const clipInfo = document.querySelector(".clip-info-div");
+        const linkStyle = `
+            text-decoration: none;
+            font-style: inherit;
+            color: inherit;
+        `;
+        clipInfo.innerHTML = `
+            <span>
+                <a style="${linkStyle}" href="https://www.youtube.com/results?search_query=${info}" target="_blank">
+                    ${info}
+                </a>
+            </span>
+        `;
+        document.title = info;
+    }
 
     document.getElementById("loadVideoBtn").onclick = () => {
         document.getElementById("videoFileInput").click();
@@ -233,6 +254,7 @@ if (!document.getElementById("frameShiftPlayer")) {
         currentMediaFile = file;
         currentMediaUrl = null;
         currentFileBaseName = file.name.replace(/\.[^/.]+$/, "");
+        setClipInformtion(currentFileBaseName);
         video.src = URL.createObjectURL(file);
     };
 
@@ -252,6 +274,7 @@ if (!document.getElementById("frameShiftPlayer")) {
             currentMediaUrl = null;
             currentFileBaseName = file.name.replace(/\.[^/.]+$/, "");
             video.src = URL.createObjectURL(file);
+            setClipInformtion(currentFileBaseName);
             return;
         }
         /* =========================
@@ -283,21 +306,29 @@ if (!document.getElementById("frameShiftPlayer")) {
     /* Play Pause */
     playBtn.onclick = togglePlay;
 
+    document.getElementById("stopBtn").onclick = () => {
+        video.pause();
+        video.currentTime = 0;
+    };
+
     /* Skip Controls */
-    forwardBtn.onclick = () => {
+    function forwardVideo() {
         if (!video.duration) return;
-        video.currentTime = Math.min(video.currentTime + 5, video.duration);
-        showHUD("⏩ +5s");
-    };
-
-    backwardBtn.onclick = () => {
+        const seconds = parseInt(skipTime.value) || 5;
+        video.currentTime = Math.min(video.currentTime + seconds, video.duration);
+        showHUD(`⏩ +${seconds}s`);
+    }
+    function backwardVideo() {
         if (!video.duration) return;
-        video.currentTime = Math.max(video.currentTime - 5, 0);
-        showHUD("⏪ -5s");
-    };
+        const seconds = parseInt(skipTime.value) || 5;
+        video.currentTime = Math.max(video.currentTime - seconds, 0);
+        showHUD(`⏪ -${seconds}s`);
+    }
+    forwardBtn.onclick = forwardVideo;
+    backwardBtn.onclick = backwardVideo;
 
-    const format = (seconds) => {
-        if (!seconds || isNaN(seconds)) return "00:00";
+    const format = (seconds, showMs = false) => {
+        if (!seconds || isNaN(seconds)) return showMs ? "00:00.000" : "00:00";
 
         const h = Math.floor(seconds / 3600);
         const m = Math.floor((seconds % 3600) / 60);
@@ -306,6 +337,13 @@ if (!document.getElementById("frameShiftPlayer")) {
         const hh = h > 0 ? h.toString().padStart(2, "0") + ":" : "";
         const mm = m.toString().padStart(2, "0") + ":";
         const ss = s.toString().padStart(2, "0");
+
+        if (showMs) {
+            const ms = Math.floor((seconds % 1) * 1000);
+            const mss = ms.toString().padStart(3, "0");
+
+            return hh + mm + ss + "." + mss;
+        }
 
         return hh + mm + ss;
     };
@@ -388,13 +426,11 @@ if (!document.getElementById("frameShiftPlayer")) {
 
         switch (e.key) {
             case "ArrowRight":
-                video.currentTime = Math.min(video.currentTime + 5, video.duration);
-                showHUD("⏩ +5s");
+                forwardVideo();
                 break;
 
             case "ArrowLeft":
-                video.currentTime = Math.max(video.currentTime - 5, 0);
-                showHUD("⏪ -5s");
+                backwardVideo();
                 break;
 
             case "ArrowUp":
@@ -634,8 +670,13 @@ if (!document.getElementById("frameShiftPlayer")) {
 
             tr.innerHTML = `
                 <td>${i + 1}</td>
-                <td>
-                    <span class="timestamp" data-time="${b.time}">${format(b.time)}</span>
+                <td class="timestamp-cell">
+                    <span class="timestamp" data-time="${b.time}">
+                        ${format(b.time, true)}
+                    </span>
+                    <button class="modifyTimestamp" data-index="${i}">
+                        ♻
+                    </button>
                 </td>
                 <td contenteditable="true">${b.name}</td>
                 <td class="deleteBookmark" data-index="${i}">⛔</td>
@@ -646,7 +687,9 @@ if (!document.getElementById("frameShiftPlayer")) {
         // Row Selection Logic (Ctrl / Shift)
         tbody.onclick = (e) => {
             /* Ignore clicks inside editable name cell */
-            if (e.target.hasAttribute("contenteditable")) return;
+            if (e.target.hasAttribute("contenteditable") || e.target.classList.contains("modifyTimestamp")) {
+                return;
+            }
 
             const row = e.target.closest("tr");
             if (!row) return;
@@ -676,6 +719,19 @@ if (!document.getElementById("frameShiftPlayer")) {
             }
             renderBookmarkTable();
         };
+
+        tbody.querySelectorAll(".modifyTimestamp").forEach((btn) => {
+            btn.onclick = (e) => {
+                e.stopPropagation();
+
+                if (!video.duration) return;
+                const index = Number(btn.dataset.index);
+                bookmarks[index].time = video.currentTime;
+
+                framePlayer.focus();
+                renderBookmarkTable();
+            };
+        });
     }
 
     document.addEventListener("click", (e) => {
@@ -822,7 +878,9 @@ if (!document.getElementById("frameShiftPlayer")) {
             transcript = parseSRT(text);
             console.log(transcript);
         } else if (file.name.endsWith(".vtt")) {
-            transcript = parseVTT(text);
+            const input = prompt("Subtitle offset in seconds (+/- allowed):", "0");
+            const SUB_OFFSET = Number(input) || 0;
+            transcript = parseVTT(text, SUB_OFFSET);
         } else if (file.name.endsWith(".json")) {
             transcript = JSON.parse(text);
         }
@@ -854,14 +912,114 @@ if (!document.getElementById("frameShiftPlayer")) {
                 text: textLine,
             });
         }
-
         return result;
     }
 
-    function toSec(t) {
-        const [hms, ms] = t.split(",");
-        const [h, m, s] = hms.split(":").map(Number);
-        return h * 3600 + m * 60 + s + ms / 1000;
+    function parseVTT(vtt, offset = 0) {
+        const lines = vtt.replace(/\r/g, "").split("\n");
+
+        const result = [];
+
+        let i = 0;
+
+        while (i < lines.length) {
+            let line = lines[i].trim();
+
+            if (line === "" || line === "WEBVTT" || line.startsWith("NOTE")) {
+                i++;
+                continue;
+            }
+
+            if (!line.includes("-->")) {
+                i++;
+                continue;
+            }
+
+            const [start, endPart] = line.split("-->").map((s) => s.trim());
+
+            const end = endPart.split(/\s+/)[0];
+
+            i++;
+
+            const textLines = [];
+
+            while (i < lines.length && lines[i].trim() !== "") {
+                const current = lines[i].trim();
+
+                // duplicate timestamp inside same cue
+                if (current.includes("-->")) {
+                    break;
+                }
+
+                textLines.push(current);
+
+                i++;
+            }
+
+            // skip duplicated cue
+            while (i < lines.length && lines[i].trim() !== "") {
+                if (lines[i].includes("-->")) {
+                    i++;
+
+                    while (i < lines.length && lines[i].trim() !== "") {
+                        i++;
+                    }
+                } else {
+                    break;
+                }
+            }
+
+            while (i < lines.length && lines[i].trim() === "") {
+                i++;
+            }
+
+            if (!textLines.length) continue;
+
+            let text = textLines.join(" ");
+
+            text = text.replace(/<[^>]+>/g, "");
+
+            const cue = {
+                start: toSec(start) + offset,
+                end: toSec(end) + offset,
+                text: text.trim(),
+            };
+
+            const duplicate = result.some((item) => item.start === cue.start && item.end === cue.end && item.text === cue.text);
+
+            if (!duplicate) {
+                result.push(cue);
+            }
+        }
+        console.log(result);
+        return result;
+    }
+
+    // function toSec(t) {
+    //     const [hms, ms] = t.split(",");
+    //     const [h, m, s] = hms.split(":").map(Number);
+    //     return h * 3600 + m * 60 + s + ms / 1000;
+    // }
+
+    function toSec(time) {
+        time = time.replace(",", ".");
+
+        const parts = time.split(":");
+
+        let h = 0;
+        let m = 0;
+        let s = 0;
+
+        if (parts.length === 3) {
+            h = Number(parts[0]);
+            m = Number(parts[1]);
+            s = Number(parts[2]);
+        } else {
+            m = Number(parts[0]);
+            s = Number(parts[1]);
+        }
+
+        return h * 3600 + m * 60 + s;
     }
 
     const transcriptWindow = document.getElementById("transcriptWindow");
