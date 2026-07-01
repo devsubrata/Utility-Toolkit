@@ -162,40 +162,68 @@ if (!document.getElementById("frameShiftPlayer")) {
                                 <th>Clips</th>
                                 <th>Duration</th>
                                 <th>%</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
+                            <tr data-type="selected">
                                 <td>☑️ Selected</td>
                                 <td id="selectedClipCount">0</td>
                                 <td id="selectedDuration">00:00:00:000</td>
                                 <td id="selectedPercent">0%</td>
+                                <td>
+                                    <button class="stats-play-btn" data-play="selected">▶</button>
+                                </td>
                             </tr>
-                            <tr>
+                            <tr data-type="unselected">
                                 <td>🟪 Unselected</td>
                                 <td id="unselectedClipCount">0</td>
                                 <td id="unselectedDuration">00:00:00:000</td>
                                 <td id="unselectedPercent">0%</td>
+                                <td>
+                                    <button class="stats-play-btn" data-play="unselected">▶</button>
+                                </td>
                             </tr>
-                            <tr>
+                            <tr data-type="all">
                                 <td><b>Total</b></td>
                                 <td id="totalClipCount">0</td>
                                 <td id="totalDuration">00:00:00:000</td>
                                 <td>100%</td>
+                                <td>
+                                    <button class="stats-play-btn" data-play="all">▶</button>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
+                    <button id="addGroupBtn"> ➕ Add Group</button>
+                    <table id="groupTable">
+                        <thead>
+                            <tr>
+                                <th>Group Name</th>
+                                <th>Clips</th>
+                                <th>Duration</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="groupTableBody"></tbody>
+                    </table>
                 </div>
-            </div>
-            <!-- Preview Player -->
-            <div class="splitter-row player-row">
-                <video id="split-player" controls></video>
             </div>
             <!-- Footer -->
             <div class="splitter-row">
                 <button id="splitBtn">Split & Join</button>
                 <button id="downloadBtn" disabled>💾</button>
                 <button id="clrBtn">Clear</button>
+            </div>
+        </div>
+        <!-- Floating Preview Player Window -->
+        <div id="previewWindow" class="preview-window hidden">
+            <div class="title-bar">
+                <span class="title">🎬 Preview</span>
+                <span id="closePreview" class="close-preview">❌</span>
+            </div>
+            <div class="preview-body">
+                <video id="split-player" controls></video>
             </div>
         </div>
     `;
@@ -208,6 +236,19 @@ if (!document.getElementById("frameShiftPlayer")) {
 
     framePlayer.querySelector("#placeFpLeftBtn").onclick = () => resizeLeftHalf(framePlayer);
     framePlayer.querySelector("#placeFpRightBtn").onclick = () => resizeRightHalf(framePlayer);
+
+    const previewWindow = document.getElementById("previewWindow");
+    makeDraggable(previewWindow);
+    makeResizable(previewWindow, {
+        minWidth: 300,
+        minHeight: 200,
+    });
+
+    document.getElementById("closePreview").onclick = () => {
+        previewWindow.classList.add("hidden");
+        const player = document.getElementById("split-player");
+        player.pause();
+    };
 
     /* -----------------------------
     Player Logic
@@ -433,15 +474,15 @@ if (!document.getElementById("frameShiftPlayer")) {
                 backwardVideo();
                 break;
 
-            case "ArrowUp":
-                video.volume = Math.min(video.volume + 0.05, 1);
-                showHUD(`🔊${(video.volume * 100).toFixed(0)}%`);
-                break;
+            // case "ArrowUp":
+            //     video.volume = Math.min(video.volume + 0.05, 1);
+            //     showHUD(`🔊${(video.volume * 100).toFixed(0)}%`);
+            //     break;
 
-            case "ArrowDown":
-                video.volume = Math.max(video.volume - 0.05, 0);
-                showHUD(`🔊${(video.volume * 100).toFixed(0)}%`);
-                break;
+            // case "ArrowDown":
+            //     video.volume = Math.max(video.volume - 0.05, 0);
+            //     showHUD(`🔊${(video.volume * 100).toFixed(0)}%`);
+            //     break;
 
             case " ":
                 e.preventDefault();
@@ -1125,7 +1166,6 @@ if (!document.getElementById("frameShiftPlayer")) {
 
     function timestampToSeconds(timestamp) {
         const [hh, mm, ss, ms] = timestamp.split(":").map(Number);
-
         return hh * 3600 + mm * 60 + ss + ms / 1000;
     }
 
@@ -1187,6 +1227,55 @@ if (!document.getElementById("frameShiftPlayer")) {
         unselectedPercent.textContent = totalSeconds ? `${Math.round((unselectedSeconds * 100) / totalSeconds)}%` : "0%";
 
         updateToggleAllHeader();
+    }
+
+    document.querySelectorAll(".stats-play-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+            const type = btn.dataset.play;
+            let clips = getClipsForPreview(type);
+            if (!clips.length) {
+                alert("No clips available");
+                return;
+            }
+            playClipSequence(clips);
+        });
+    });
+
+    function getClipsForPreview(type) {
+        const rows = [...clipTableBody.rows];
+        return rows
+            .filter((row) => {
+                const checked = row.querySelector(".clip-check").checked;
+                if (type === "selected") return checked;
+                if (type === "unselected") return !checked;
+                return true;
+            })
+            .map((row) => {
+                return {
+                    startTime: timestampToSeconds(row.cells[2].textContent.trim()),
+                    endTime: timestampToSeconds(row.cells[3].textContent.trim()),
+                };
+            });
+    }
+
+    async function playClipSequence(clips) {
+        const video = document.getElementById("split-player");
+        previewWindow.classList.remove("hidden");
+        video.src = URL.createObjectURL(currentMediaFile);
+
+        for (const clip of clips) {
+            video.currentTime = clip.startTime;
+            await video.play();
+            await new Promise((resolve) => {
+                const timer = setInterval(() => {
+                    if (video.currentTime >= clip.endTime) {
+                        clearInterval(timer);
+                        video.pause();
+                        resolve();
+                    }
+                }, 100);
+            });
+        }
     }
 
     // Row Selection
@@ -1350,6 +1439,239 @@ if (!document.getElementById("frameShiftPlayer")) {
             return;
         }
     });
+
+    //* Customize Group
+    // =====================================
+    // Clip Groups Storage
+    // =====================================
+
+    // Each group stores clip table row indexes
+    let clipGroups = [];
+
+    // Example structure:
+    //
+    // [
+    //   {
+    //      name: "Introduction",
+    //      clips: [0,2,5]
+    //   },
+    //   {
+    //      name: "Body",
+    //      clips: [1,3]
+    //   }
+    // ]
+    const addGroupBtn = document.getElementById("addGroupBtn");
+
+    addGroupBtn.addEventListener("click", () => {
+        // collect currently checked clips
+        const checkedIndexes = [];
+
+        document.querySelectorAll("#clipTableBody tr").forEach((row, index) => {
+            const checkbox = row.querySelector(".clip-check");
+            if (checkbox && checkbox.checked) checkedIndexes.push(index);
+        });
+
+        // no selection
+        if (checkedIndexes.length === 0) {
+            alert("Select clips first.");
+            return;
+        }
+
+        // automatic group name
+        const name = `Group ${clipGroups.length ? clipGroups.length + 1 : 1}`;
+        console.log(name);
+
+        // create group object
+        const group = {
+            name: name,
+            clips: checkedIndexes,
+        };
+
+        clipGroups.push(group);
+        console.log("Groups:", clipGroups);
+        renderGroupTable();
+    });
+
+    function renderGroupTable() {
+        const tbody = document.getElementById("groupTableBody");
+        tbody.innerHTML = "";
+
+        clipGroups.forEach((group, index) => {
+            const tr = document.createElement("tr");
+            const duration = getGroupDuration(group);
+            tr.innerHTML = `
+                <td class="group-name" contenteditable="true" data-index="${index}">${group.name}</td>
+                <td>${group.clips.length}</td>
+                <td>${duration}</td>
+                <td class="group-actions">
+                    <button class="group-preview" data-index="${index}">▶</button>
+                    <button class="group-split" data-index="${index}">✂</button>
+                    <button class="group-delete" data-index="${index}">❌</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    document.getElementById("groupTableBody").oninput = (e) => {
+        if (e.target.classList.contains("group-name")) {
+            const index = Number(e.target.dataset.index);
+            clipGroups[index].name = e.target.textContent.trim();
+            console.log("Updated groups:", clipGroups);
+        }
+    };
+
+    document.getElementById("groupTableBody").onclick = async (e) => {
+        const btn = e.target;
+        const index = Number(btn.dataset.index);
+        const group = clipGroups[index];
+
+        if (btn.classList.contains("group-preview")) previewGroup(group);
+
+        if (btn.classList.contains("group-delete")) {
+            clipGroups.splice(index, 1);
+            renderGroupTable();
+        }
+
+        if (btn.classList.contains("group-split")) {
+            // prevent double click
+            btn.disabled = true;
+            // save original icon
+            const oldText = btn.textContent;
+            // show spinner
+            btn.innerHTML = `<span class="spinner"></span>`;
+
+            try {
+                await splitGroup(group);
+            } catch (err) {
+                console.error(err);
+                alert("Split failed");
+            } finally {
+                // restore button
+                btn.innerHTML = oldText;
+                btn.disabled = false;
+            }
+        }
+    };
+
+    function getGroupDuration(group) {
+        let total = 0;
+
+        group.clips.forEach((index) => {
+            const row = document.querySelectorAll("#clipTableBody tr")[index];
+            // deleted row protection
+            if (!row) return;
+            const durationCell = row.children[4];
+            if (durationCell) total += timestampToSeconds(durationCell.textContent.trim());
+        });
+
+        return secondsToTimestamp(total);
+    }
+
+    function buildClipsFromGroup(group) {
+        const rows = document.querySelectorAll("#clipTableBody tr");
+
+        return group.clips
+            .map((index) => {
+                const row = rows[index];
+                if (!row) return null;
+
+                const start = row.children[2]?.textContent.trim();
+                const end = row.children[3]?.textContent.trim();
+                if (!start || !end) return null;
+
+                return {
+                    startTime: timestampToSeconds(start),
+                    endTime: timestampToSeconds(end),
+                };
+            })
+            .filter(Boolean);
+    }
+
+    async function previewGroup(group) {
+        const clips = buildClipsFromGroup(group);
+        if (!clips.length) return;
+
+        const video = document.getElementById("split-player");
+        previewWindow.classList.remove("hidden");
+        video.src = URL.createObjectURL(currentMediaFile);
+
+        let i = 0;
+
+        function playNext() {
+            if (i >= clips.length) return;
+            const clip = clips[i];
+
+            video.currentTime = clip.startTime;
+            video.play();
+
+            const checkEnd = () => {
+                if (video.currentTime >= clip.endTime) {
+                    video.pause();
+                    video.removeEventListener("timeupdate", checkEnd);
+                    i++;
+                    playNext();
+                }
+            };
+            video.addEventListener("timeupdate", checkEnd);
+        }
+        playNext();
+    }
+
+    let groupDownloadName = null;
+    async function splitGroup(group) {
+        const clips = buildClipsFromGroup(group);
+        groupDownloadName = group.name;
+
+        if (!clips.length) {
+            alert("No valid clips in group");
+            return;
+        }
+
+        const format = document.getElementById("selectOutputFormat").value;
+
+        const formData = new FormData();
+
+        if (currentMediaFile) formData.append("file", currentMediaFile);
+        if (currentMediaUrl) formData.append("mediaUrl", currentMediaUrl);
+
+        formData.append("clips", JSON.stringify(clips));
+        formData.append("format", format);
+        formData.append("baseName", group.name);
+        formData.append("mode", document.getElementById("splitMode").value);
+
+        try {
+            const response = await fetch("http://localhost:3000/split", {
+                method: "POST",
+                body: formData,
+            });
+
+            if (!response.ok) {
+                throw new Error(await response.text());
+            }
+
+            const blob = await response.blob();
+            const url = URL.createObjectURL(blob);
+
+            // preview merged result if not zip
+            if (blob.type !== "application/zip") {
+                const player = document.getElementById("split-player");
+                previewWindow.classList.remove("hidden");
+
+                player.src = url;
+                player.load();
+                player.play();
+            }
+            // enable download
+            currentSplitUrl = url;
+            currentSplitFormat = blob.type === "application/zip" ? "zip" : format;
+
+            document.getElementById("downloadBtn").disabled = false;
+        } catch (err) {
+            console.error(err);
+            alert(err.message);
+        }
+    }
 
     //* Export & Import clip timestamps
     const exportClipsBtn = document.getElementById("exportClipsBtn");
@@ -1523,6 +1845,8 @@ if (!document.getElementById("frameShiftPlayer")) {
 
             if (!isZip) {
                 const splitPlayer = document.getElementById("split-player");
+                previewWindow.classList.remove("hidden");
+
                 splitPlayer.src = url;
                 splitPlayer.load();
                 splitPlayer.play();
@@ -1545,11 +1869,12 @@ if (!document.getElementById("frameShiftPlayer")) {
 
         const a = document.createElement("a");
         a.href = currentSplitUrl;
-        a.download = `${currentFileBaseName || "clip"}.${currentSplitFormat}`;
+        a.download = `${groupDownloadName || currentFileBaseName || "clip"}.${currentSplitFormat}`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         framePlayer.focus();
+        groupDownloadName = null;
     };
 
     document.getElementById("clrBtn").onclick = () => {
