@@ -390,6 +390,7 @@ function addTextToCanvas(
     fontSize = 16,
     fontFamily = "Open Sans",
     color = "#000",
+    useColorPalette = false,
     padding = { x: 6, y: 4 },
     commitKey = "shift+enter",
     cancelKey = "escape",
@@ -490,6 +491,7 @@ function addTextToCanvas(
     // ===============================
     // Draw on canvas
     // ===============================
+    const colorPallete = ["#6105a7", "#4d8d29", "#0000ff", "#20343D", "#7a0305", "#c406aa"];
     function drawText() {
         navigator.clipboard.writeText(textarea.value.trim());
         ctx.save();
@@ -497,6 +499,7 @@ function addTextToCanvas(
         ctx.fillStyle = color;
         ctx.textBaseline = "top";
         textarea.value.split("\n").forEach((line, i) => {
+            if (useColorPalette) ctx.fillStyle = colorPallete[i % colorPallete.length];
             ctx.fillText(line, x, y + i * lineHeight);
         });
         ctx.restore();
@@ -859,15 +862,43 @@ function startDraggablePreview({ canvas, ctx, image, scale, startPos, snapshot }
     }
 
     function onKey(ev) {
-        if (ev.key === "Enter") {
-            ctx.putImageData(snapshot, 0, 0);
-            ctx.drawImage(image, x, y, w, h);
-            cleanup();
-        }
+        const step = ev.shiftKey ? 10 : 1;
 
-        if (ev.key === "Escape") {
-            ctx.putImageData(snapshot, 0, 0);
-            cleanup();
+        switch (ev.key) {
+            case "ArrowLeft":
+                ev.preventDefault();
+                x -= step;
+                draw();
+                break;
+
+            case "ArrowRight":
+                ev.preventDefault();
+                x += step;
+                draw();
+                break;
+
+            case "ArrowUp":
+                ev.preventDefault();
+                y -= step;
+                draw();
+                break;
+
+            case "ArrowDown":
+                ev.preventDefault();
+                y += step;
+                draw();
+                break;
+
+            case "Enter":
+                ctx.putImageData(snapshot, 0, 0);
+                ctx.drawImage(image, x, y, w, h);
+                cleanup();
+                break;
+
+            case "Escape":
+                ctx.putImageData(snapshot, 0, 0);
+                cleanup();
+                break;
         }
     }
 
@@ -886,14 +917,100 @@ function startDraggablePreview({ canvas, ctx, image, scale, startPos, snapshot }
     window.addEventListener("keydown", onKey);
 }
 
+async function pasteImageByButtonClick({ canvas, ctx, isEnabled, clickPosition }) {
+    if (!isEnabled) return;
+    try {
+        const clipboardItems = await navigator.clipboard.read();
+
+        for (const item of clipboardItems) {
+            const imageType = item.types.find((type) => type.startsWith("image/"));
+
+            if (!imageType) continue;
+
+            const blob = await item.getType(imageType);
+
+            const img = new Image();
+            const url = URL.createObjectURL(blob);
+            img.src = url;
+
+            img.onload = async () => {
+                URL.revokeObjectURL(url);
+
+                const scale = await setImageScale(clickPosition);
+                if (scale === null) return;
+
+                const snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+                startDraggablePreview({
+                    canvas,
+                    ctx,
+                    image: img,
+                    scale,
+                    startPos: { ...clickPosition },
+                    snapshot,
+                });
+            };
+
+            return;
+        }
+        alert("Clipboard doesn't contain an image.");
+    } catch (err) {
+        console.error(err);
+        alert("Unable to read clipboard.");
+    }
+}
+
+//**TODO:-------- For color band ----------- */
+function getColorBand(a = 0.2) {
+    const hexColors = ["#BE5103", "#ff00ff", "#00ffff", "#ff0000", "#0000ff", "#00ff00"];
+
+    const hexToRgb = (hex) => {
+        // Remove the hash if it exists
+        const cleanHex = hex.replace("#", "");
+
+        // Parse chunks of 2 characters into base-10 integers
+        const r = parseInt(cleanHex.slice(0, 2), 16);
+        const g = parseInt(cleanHex.slice(2, 4), 16);
+        const b = parseInt(cleanHex.slice(4, 6), 16);
+
+        return { r, g, b };
+    };
+
+    const rgbaColors = hexColors.map((hex) => {
+        const { r, g, b } = hexToRgb(hex);
+        return `rgba(${r},${g},${b},${a})`;
+    });
+
+    return rgbaColors;
+}
+
+const additionalColors = [
+    "#FDE68A", // Pastel Cream
+    "#BAE6FD", // Soft Sky Blue
+    "#DDD6FE", // Soft Lavender
+    "#FBCFE8", // Soft Pink
+    "#C6F6D5", // Pastel Mint
+    "#78716C", // Neutral Slate Gray
+];
+
 function colorList() {
     const colors = [
+        "#9A3412", // Terracotta
+        "#964B00",
+        "#BE5103",
+        "#D97706", // Amber
         "#ffa500",
         "#dcb909",
         "#cbd902",
-        "#84cc16",
         "#b7fa00",
+        "#84cc16",
+        "#00ff00",
         "#00faaf",
+        "#009c1a",
+        "#365314",
+        "#0D9488", // Teal
+        "#134e4a",
+        "#0284C7", // Cerulean
         "#12c1ed",
         "#00ffff",
         "#ffffff",
@@ -906,12 +1023,6 @@ function colorList() {
         "#4B0001",
         "#B163FF",
         "#ffff00",
-        "#964B00",
-        "#BE5103",
-        "#00ff00",
-        "#009c1a",
-        "#365314",
-        "#134e4a",
         "#050372",
         "#0000ff",
         "#0047ab",
@@ -922,6 +1033,7 @@ function colorList() {
         "#cb00cc",
         "#ff00ff",
         "#cc00ff",
+        ...additionalColors,
     ];
     let colorGrid = "";
     colors.forEach((color) => {
@@ -1353,4 +1465,25 @@ function joinSelectedLines(textarea) {
 
 function getFontSize(el) {
     return parseFloat(window.getComputedStyle(el).fontSize);
+}
+
+async function exportText(content) {
+    if (!content) return alert("Note is empty!");
+    try {
+        const handle = await window.showSaveFilePicker({
+            suggestedName: getUniqueFileName(),
+            types: [
+                {
+                    description: "Text File",
+                    accept: { "text/plain": [".txt"] },
+                },
+            ],
+        });
+        const writable = await handle.createWritable();
+        await writable.write(content);
+        await writable.close();
+        alert("✅ Note exported successfully!");
+    } catch (err) {
+        if (err.name !== "AbortError") console.error(err);
+    }
 }

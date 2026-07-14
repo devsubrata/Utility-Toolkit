@@ -67,8 +67,9 @@
 #annotationToolbar .save-menu .menu-content {
     display: none;
     position: absolute;
+    right: -10px;
     background-color: rgb(29 38 32);
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     gap: 5px;
     padding: 5px;
     border: 2px solid rgb(154 155 153);
@@ -100,6 +101,24 @@
 
 .highlightOpacityContainer label {
     cursor: pointer;
+}
+
+.colorBandNumberContainer {
+    grid-column: span 2;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background: #fff;
+}
+
+.colorBandNumberContainer #colorBandNumber {
+    width: 40px;
+    border: none;
+    outline: none;
+    background: #f3ed94;
+    font-size: 15px;
+    border-radius: 4px;
+    padding-left: 3px;
 }
 
 #annotationToolbar #highlightOpacity {

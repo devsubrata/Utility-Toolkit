@@ -122,7 +122,7 @@
             "song_name": "হাতে হাতে তালি দিয়ে",
             "artists": "স্বামী সর্বগানন্দ",
             "video_id": "f7eZinotwGs",
-            "tags": ["স্বামী সর্বগানন্দ", "Bhagavan Ramakrishna"]
+            "tags": ["স্বামী সর্বগানন্দ", "Ramakrishna Bhajan"]
         },
         {
             "song_name": "অন্তরে জাগিছ গো মা",
@@ -216,6 +216,30 @@
             "artists": "স্বামী সর্বগানন্দ",
             "video_id": "NC1-khv8rso",
             "tags": ["স্বামী সর্বগানন্দ", "মাতৃ বন্দনা"]
+        },
+        {
+            "song_name": "Sree Sree Ramkrishna Bandana",
+            "artists": "Mahesh Ranjan Shome",
+            "video_id": "gbt-ibmiuco",
+            "tags": ["Ramakrishna Bhajan", "Mahesh Ranjan Shome", "list"]
+        },
+        {
+            "song_name": "Ramakrishna Charan Saroje",
+            "artists": "Mahesh Ranjan Shome",
+            "video_id": "_ENk7lHQ6bc",
+            "tags": ["Ramakrishna Bhajan", "Mahesh Ranjan Shome"]
+        },
+        {
+            "song_name": "Banga Hriday Gomukhi hoite",
+            "artists": "Mahesh Ranjan Shome",
+            "video_id": "Kn9nrlzu9WY",
+            "tags": ["Ramakrishna Bhajan", "Mahesh Ranjan Shome"]
+        },
+        {
+            "song_name": "Ramakrishna Namer Jowar elo",
+            "artists": "Mahesh Ranjan Shome",
+            "video_id": "v_NX7qdX-0U",
+            "tags": ["Ramakrishna Bhajan", "Mahesh Ranjan Shome"]
         }
     ],
     "MantraBhajan": [

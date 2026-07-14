@@ -269,7 +269,7 @@
 #bookmarkTable {
     width: 100%;
     border-collapse: collapse;
-    font-size: 15px;
+    /* font-size: 15px; */
 }
 
 #bookmarkTable thead {
