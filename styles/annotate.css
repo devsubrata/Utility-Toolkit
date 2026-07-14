@@ -102,6 +102,24 @@
     cursor: pointer;
 }
 
+.colorBandNumberContainer {
+    grid-column: span 2;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background: #fff;
+}
+
+.colorBandNumberContainer #colorBandNumber {
+    width: 40px;
+    border: none;
+    outline: none;
+    background: #f3ed94;
+    font-size: 15px;
+    border-radius: 4px;
+    padding-left: 3px;
+}
+
 #annotationToolbar #highlightOpacity {
     font-size: 15px;
     width: 65%;

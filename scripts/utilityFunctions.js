@@ -390,6 +390,7 @@ function addTextToCanvas(
     fontSize = 16,
     fontFamily = "Open Sans",
     color = "#000",
+    useColorPalette = false,
     padding = { x: 6, y: 4 },
     commitKey = "shift+enter",
     cancelKey = "escape",
@@ -490,6 +491,7 @@ function addTextToCanvas(
     // ===============================
     // Draw on canvas
     // ===============================
+    const colorPallete = ["#6105a7", "#4d8d29", "#0000ff", "#20343D", "#7a0305", "#c406aa"];
     function drawText() {
         navigator.clipboard.writeText(textarea.value.trim());
         ctx.save();
@@ -497,6 +499,7 @@ function addTextToCanvas(
         ctx.fillStyle = color;
         ctx.textBaseline = "top";
         textarea.value.split("\n").forEach((line, i) => {
+            if (useColorPalette) ctx.fillStyle = colorPallete[i % colorPallete.length];
             ctx.fillText(line, x, y + i * lineHeight);
         });
         ctx.restore();
@@ -884,6 +887,29 @@ function startDraggablePreview({ canvas, ctx, image, scale, startPos, snapshot }
     canvas.addEventListener("mousemove", onMove);
     canvas.addEventListener("mouseup", onUp);
     window.addEventListener("keydown", onKey);
+}
+
+function getColorBand(a = 0.2) {
+    const hexColors = ["#BE5103", "#ff00ff", "#00ffff", "#ff0000", "#0000ff", "#00ff00"];
+
+    const hexToRgb = (hex) => {
+        // Remove the hash if it exists
+        const cleanHex = hex.replace("#", "");
+
+        // Parse chunks of 2 characters into base-10 integers
+        const r = parseInt(cleanHex.slice(0, 2), 16);
+        const g = parseInt(cleanHex.slice(2, 4), 16);
+        const b = parseInt(cleanHex.slice(4, 6), 16);
+
+        return { r, g, b };
+    };
+
+    const rgbaColors = hexColors.map((hex) => {
+        const { r, g, b } = hexToRgb(hex);
+        return `rgba(${r},${g},${b},${a})`;
+    });
+
+    return rgbaColors;
 }
 
 function colorList() {

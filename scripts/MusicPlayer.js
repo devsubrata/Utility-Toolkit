@@ -64,6 +64,7 @@ if (!document.getElementById("openPlayer")) {
                 <button id="rewindBtn">⏪</button>
                 <button id="playPauseBtn">⏯️</button>
                 <button id="forwardBtn">⏩</button>
+                <button id="repeatCurrent" title="Repeat current song">🔂</button>
                 <button id="loopToggle" title="repeat playlist">⇄</button>
             </div>
             <ul id="playlist" class="list-group"></ul>
@@ -296,12 +297,19 @@ if (!document.getElementById("openPlayer")) {
     const loadSongs = document.getElementById("loadBtn");
     const dropZone = document.querySelector(".content");
     const loopToggle = document.getElementById("loopToggle");
+    const repeatCurrent = document.getElementById("repeatCurrent");
 
     let files;
     let db;
     let currentIndex = null;
     let loopPlaylist = JSON.parse(localStorage.getItem("loopPlaylist") || "false");
     if (loopPlaylist) loopToggle.classList.add("active-loop");
+
+    let loopSingle = false;
+    repeatCurrent.onclick = () => {
+        loopSingle = loopSingle ? false : true;
+        repeatCurrent.classList.toggle("active-loop");
+    };
 
     // Open IndexedDB
     const openDB = () => {
@@ -442,7 +450,8 @@ if (!document.getElementById("openPlayer")) {
 
         // 🔹 Auto next
         audioPlayer.onended = () => {
-            playSongFromIndex(currentIndex + 1);
+            if (loopSingle) playSongFromIndex(currentIndex);
+            else playSongFromIndex(currentIndex + 1);
         };
     };
 

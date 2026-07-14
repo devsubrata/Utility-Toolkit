@@ -65,6 +65,10 @@ if (!document.getElementById("annotationToolbar")) {
                 </div>
                 <button id="drawNumber" title="Draw Number Sequentially">🔢</button>
                 <button id="color_detector" title="Pick color from canvas">🔥</button>
+                <div class="colorBandNumberContainer">
+                    <input type="checkbox" id="colorPaletteCheck" title="Use different colors"/>
+                    <input type="number" id="colorBandNumber" title="Adjust colors number"  min="2" max="10" step="1" value="2" />
+                </div>
                 <button id="clear" title="Erase everything">🆑</button>
                 <button id="save" title="Take Snapshot">📸</button>
                 <button id="saveLayer" title="Save all layers">💾</button>
@@ -339,6 +343,49 @@ function injectCanvas() {
     let drawVertical = false; // horizontal default
     let noOfParallelLines = 2;
 
+    // function createColorBander(customColors = []) {
+    //     // Internal state maintained by closure
+    //     let colorIndex = 0;
+    //     // Return the customized useColorBand function
+    //     return function useColorBand(no_of_colors = 2) {
+    //         // Create the masterPalette inside by combining the 2 globals with the custom ones
+    //         const masterPalette = [color1, color2, ...customColors];
+    //         // Slice the master array based on user input
+    //         const activeColors = masterPalette.slice(0, no_of_colors);
+    //         if (activeColors.length === 0) return;
+    //         // Reset index if the UI count drops below current position
+    //         if (colorIndex >= activeColors.length) colorIndex = 0;
+    //         // Apply to the global ctx
+    //         const activeColor = activeColors[colorIndex];
+    //         ctx.fillStyle = activeColor;
+    //         // Advance index
+    //         colorIndex = (colorIndex + 1) % activeColors.length;
+    //     };
+    // }
+    // const useColorBand = createColorBander(["#FF33F3"]);
+
+    let colorBandIndex = 0;
+    let activeColors = [];
+    function useColorBand(no_of_colors = 2) {
+        const a = document.getElementById("highlightOpacity").value;
+        const customColors = getColorBand(parseFloat(a));
+        // Create the masterPalette inside by combining the 2 globals with the custom ones
+        const masterPalette = [color1, color2, ...customColors];
+        // Slice the master array based on user input
+        activeColors = masterPalette.slice(0, no_of_colors);
+        if (activeColors.length === 0) {
+            ctx.fillStyle = color2;
+            return;
+        }
+        ctx.fillStyle = activeColors[colorBandIndex];
+    }
+    function manageColorBandIndex() {
+        if (currentTool === "highlighter") {
+            colorBandIndex = (colorBandIndex + 1) % activeColors.length;
+            setCursor("highlighter");
+        }
+    }
+
     const circleConfig = {
         enabled: false, // no circle by default
         style: null, // "stroke" | "fill" | "both"
@@ -383,7 +430,14 @@ function injectCanvas() {
         switch (tool) {
             case "highlighter":
                 const size = Number(document.getElementById("highlighterSize").value);
-                canvas.style.cursor = highlighterCursor(size, color2RGB);
+                const useColorPalette = document.getElementById("colorPaletteCheck").checked;
+                if (!useColorPalette) canvas.style.cursor = highlighterCursor(size, color2RGB);
+                else {
+                    useColorBand(parseInt(document.getElementById("colorBandNumber").value));
+                    const color = activeColors[colorBandIndex];
+                    const { r, g, b } = extractRGB(color);
+                    canvas.style.cursor = highlighterCursor(size, `rgb(${r},${g},${b})`);
+                }
                 break;
             case "horizontalLine":
             case "verticalLine":
@@ -418,6 +472,7 @@ function injectCanvas() {
     function setActiveTool(tool) {
         setCursor(tool);
 
+        if (tool !== "highlighter") colorBandIndex = 0;
         if (tool !== "typeText") isTyping = false;
         if (tool !== "miniTextTool") isTyping = false;
         if (tool !== "pasteImage") {
@@ -426,7 +481,6 @@ function injectCanvas() {
         }
         if (tool !== "drawNumber") drawCount = null;
         if (tool === "parallelLines") noOfParallelLines = parseInt(prompt("Enter of parallel lines: ") || 2, 10);
-        // console.log(noOfParallelLines);
 
         currentTool = tool;
 
@@ -594,7 +648,9 @@ function injectCanvas() {
             case "highlighter":
                 ctx.putImageData(snapshot, 0, 0);
                 let w = pos.x - startX;
-                ctx.fillStyle = color2;
+                if (!document.getElementById("colorPaletteCheck").checked) ctx.fillStyle = color2;
+                else useColorBand(parseInt(document.getElementById("colorBandNumber").value));
+                // else useColorBand(3);
                 ctx.fillRect(startX, startY, w, highlighterSize);
                 break;
             default:
@@ -627,6 +683,7 @@ function injectCanvas() {
         const state = canvas.toDataURL();
         undoStack.push(state);
         redoStack.length = 0;
+        manageColorBandIndex();
     }
 
     // Toggle vertical mode when "V" is pressed
@@ -669,7 +726,8 @@ function injectCanvas() {
         } else if (currentTool === "miniTextTool") {
             const { r, g, b } = extractRGB(color1);
             let txtColor = `rgb(${r},${g},${b})` === `rgb(255,255,255)` ? `rgb(3, 16, 126)` : `rgb(${r},${g},${b})`;
-            addTextToCanvas(ctx, clickPosition, null, highlighterSize, "Open Sans", txtColor);
+            const useColorPalette = document.querySelector("#colorPaletteCheck").checked;
+            addTextToCanvas(ctx, clickPosition, null, highlighterSize, "Open Sans", txtColor, useColorPalette);
         } else if (currentTool === "drawNumber") {
             drawNumberInSequence(e);
         } else {
@@ -929,34 +987,6 @@ function injectCanvas() {
         });
     }
 
-    // function addText(x, y, text) {
-    //     const fontSize = parseInt(document.getElementById("font-size").value);
-    //     const fontFamily = document.getElementById("font-select").value;
-    //     const isBold = document.getElementById("bold-check").checked;
-    //     const isItalic = document.getElementById("italic-check").checked;
-    //     const rotationDeg = parseFloat(document.getElementById("rotation-input").value) || 0;
-
-    //     // Build font string
-    //     ctx.font = `${isItalic ? "italic " : ""}${isBold ? "bold " : ""}${fontSize}px ${fontFamily}`;
-    //     ctx.fillStyle = textColor;
-
-    //     const rotationRad = -(rotationDeg * (Math.PI / 180));
-    //     const lineHeight = fontSize + 6;
-
-    //     const lines = text.split("\n");
-
-    //     ctx.save();
-    //     ctx.translate(x, y); // Move to base point
-    //     ctx.rotate(rotationRad); // Rotate coordinate system
-
-    //     lines.forEach((line, index) => {
-    //         const offsetY = (fontSize * 2.3) / 3 + lineHeight * index;
-    //         ctx.fillText(line, 0, offsetY); // Keep X = 0, shift Y in rotated space
-    //     });
-
-    //     ctx.restore();
-    // }
-
     function addText(x, y, text) {
         const fontSize = parseInt(document.getElementById("font-size").value);
         const fontFamily = document.getElementById("font-select").value;
@@ -965,7 +995,7 @@ function injectCanvas() {
         const rotationDeg = parseFloat(document.getElementById("rotation-input").value) || 0;
 
         const useSentenceColors = document.getElementById("color-sentences-check").checked;
-        const colors = ["#000000", "#2c55a1", "#4d8d29", "#5a1d8a", "#aa4205"];
+        const colors = ["#00172D", "#2c55a1", "#4d8d29", "#5a1d8a", "#aa4205"];
 
         ctx.font = `${isItalic ? "italic " : ""}${isBold ? "bold " : ""}${fontSize}px ${fontFamily}`;
         const rotationRad = -(rotationDeg * (Math.PI / 180));
@@ -1020,7 +1050,8 @@ function injectCanvas() {
         if (!useSentenceColors) {
             lines.forEach((line, index) => {
                 const offsetY = (fontSize * 2.3) / 3 + lineHeight * index;
-                ctx.fillStyle = textColor;
+                if (document.getElementById("colorPaletteCheck").checked) ctx.fillStyle = colors[index % colors.length];
+                else ctx.fillStyle = textColor;
                 ctx.fillText(line, 0, offsetY);
             });
         } else {
