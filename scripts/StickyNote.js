@@ -69,6 +69,10 @@ if (!document.getElementById("stickyNote")) {
             </div>
             <div class="shortcut-btns">
                 <button title="merge lines">⚟</button>
+                <button title="join line with semi-colon">;⚟</button>
+                <input id="replaceInput" value=" ➜ " title="Input what to replace"/>
+                <button title="Find and Replace">FR</button>
+                <button title="Undo last action">↺</button>
             </div>
             <div class="nav">
                 <button data-nav="top">⏫</button>
@@ -1005,7 +1009,14 @@ if (!document.getElementById("stickyNote")) {
 
     optionsMenu.querySelector('button[title="wrap line"]').onclick = wrapLine;
     optionsMenu.querySelector('button[title="join line"]').onclick = () => joinSelectedLines(textarea);
+    document.getElementById("status-bar").querySelector('button[title="join line with semi-colon"]').onclick = () => joinSelectedLines(textarea, ";");
     document.getElementById("status-bar").querySelector('button[title="merge lines"]').onclick = () => joinSelectedLines(textarea);
+    document.getElementById("status-bar").querySelector('button[title="Find and Replace"]').onclick = () => {
+        const replaceItem = document.getElementById("replaceInput").value;
+        if (replaceItem) findAndReplace(textarea, replaceItem);
+        else return;
+    };
+    document.getElementById("status-bar").querySelector('button[title="Undo last action"]').onclick = () => undoLastAction(textarea);
     optionsMenu.querySelector('button[title="take note in canvas"]').onclick = createCanvasNoteWindow;
 
     document.querySelector("#textColor").addEventListener("input", (e) => {

@@ -21,5 +21,25 @@
             "resources": ["scripts/API/api_key.json", "scripts/libs/*.js", "scripts/Data/*.json", "scripts/*.js", "styles/*.css"],
             "matches": ["<all_urls>"]
         }
-    ]
+    ],
+    "commands": {
+        "look-up-bar": {
+            "suggested_key": {
+                "default": "Alt+Shift+F"
+            },
+            "description": "Open Search Bar"
+        },
+        "annotation-bar": {
+            "suggested_key": {
+                "default": "Alt+Shift+D"
+            },
+            "description": "Open Annotation Bar"
+        },
+        "frame-shift-player": {
+            "suggested_key": {
+                "default": "Alt+Shift+M"
+            },
+            "description": "FrameShift Player"
+        }
+    }
 }

@@ -410,7 +410,7 @@ if (!document.getElementById("frameShiftPlayer")) {
 
         hoverTime.textContent = format(hoverSeconds);
 
-        hoverTime.style.left = e.clientX - rect.left + 150 + "px";
+        hoverTime.style.left = e.clientX - rect.left + 30 + "px";
         hoverTime.style.display = "block";
     });
 

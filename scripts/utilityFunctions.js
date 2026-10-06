@@ -1434,31 +1434,101 @@ function makeResizable(el, options = {}) {
     }
 }
 
+//TODO:-----------Find & Replace ------------------------
+
 //TODO:-----------Text Editor Utility------------------------
-function joinSelectedLines(textarea) {
+function joinText(text, lineEnd = null) {
+    return text
+        .trim()
+        .replace("; ", `${lineEnd === ";" ? "；" : "; "}`)
+        .replace(/\r?\n+/g, `${lineEnd ? `${lineEnd} ` : " "}`)
+        .replace(/\s+/g, " ")
+        .trim();
+}
+
+let lastState = null;
+function saveUndoState(textarea) {
+    lastState = {
+        value: textarea.value,
+        selectionStart: textarea.selectionStart,
+        selectionEnd: textarea.selectionEnd,
+    };
+}
+
+function undoLastAction(textarea) {
+    if (!lastState) return;
+
+    textarea.value = lastState.value;
+    textarea.selectionStart = lastState.selectionStart;
+    textarea.selectionEnd = lastState.selectionEnd;
+
+    textarea.focus();
+
+    lastState = null;
+}
+
+function findAndReplace(textarea, replaceItem) {
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
 
-    // Nothing selected → do nothing
+    // Nothing selected
     if (start === end) return;
 
+    // Save state before modification
+    saveUndoState(textarea);
+
+    const content = textarea.value;
+    const findItem = content.slice(start, end);
+
+    // Replace all occurrences
+    textarea.value = content.split(findItem).join(replaceItem);
+
+    textarea.focus();
+}
+
+async function joinSelectedLines(textarea, lineEnd = null) {
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
     const value = textarea.value;
 
-    const before = value.slice(0, start);
-    const selected = value.slice(start, end);
-    const after = value.slice(end);
+    // Save state before modification
+    saveUndoState(textarea);
 
-    // Normalize line breaks and collapse into single spaces
-    const joined = selected
-        .replace(/\r?\n+/g, " ")
-        .replace(/\s+/g, " ")
-        .trim();
+    let before = "";
+    let selected = "";
+    let after = "";
+    let joined = "";
 
-    textarea.value = before + joined + after;
+    if (start === end) {
+        // No selection → process the whole textarea
 
-    // Restore selection around modified text
-    textarea.selectionStart = start;
-    textarea.selectionEnd = start + joined.length;
+        joined = joinText(value, lineEnd);
+
+        textarea.value = joined;
+
+        // Cursor at end
+        textarea.selectionStart = 0;
+        textarea.selectionEnd = joined.length;
+
+        // Copy whole processed text
+        await navigator.clipboard.writeText(joined);
+    } else {
+        // Selection → process only selected text
+        before = value.slice(0, start);
+        selected = value.slice(start, end);
+        after = value.slice(end);
+
+        joined = joinText(selected, lineEnd);
+
+        textarea.value = before + joined + after;
+
+        // Restore selection around modified text
+        textarea.selectionStart = start;
+        textarea.selectionEnd = start + joined.length;
+
+        // Copy processed selected text
+        await navigator.clipboard.writeText(joined);
+    }
 
     textarea.focus();
 }
